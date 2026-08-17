@@ -1,0 +1,861 @@
+mesiac,druh,priemer_eur
+2012-01,Starobný,348.04
+2012-01,Predčasný starobný,368.14
+2012-01,Invalidný,262.37
+2012-01,Vdovský,146.97
+2012-01,Vdovecký,95.83
+2012-02,Starobný,348.29
+2012-02,Predčasný starobný,368.9
+2012-02,Invalidný,262.07
+2012-02,Vdovský,147.03
+2012-02,Vdovecký,96.14
+2012-03,Starobný,348.53
+2012-03,Predčasný starobný,370.62
+2012-03,Invalidný,261.86
+2012-03,Vdovský,147.08
+2012-03,Vdovecký,96.37
+2012-04,Starobný,348.81
+2012-04,Predčasný starobný,371.64
+2012-04,Invalidný,261.69
+2012-04,Vdovský,147.09
+2012-04,Vdovecký,96.57
+2012-05,Starobný,349.03
+2012-05,Predčasný starobný,371.76
+2012-05,Invalidný,261.39
+2012-05,Vdovský,147.09
+2012-05,Vdovecký,96.67
+2012-06,Starobný,349.22
+2012-06,Predčasný starobný,372.28
+2012-06,Invalidný,261.1
+2012-06,Vdovský,147.05
+2012-06,Vdovecký,96.72
+2012-07,Starobný,349.36
+2012-07,Predčasný starobný,372.66
+2012-07,Invalidný,260.91
+2012-07,Vdovský,147.02
+2012-07,Vdovecký,96.76
+2012-08,Starobný,349.58
+2012-08,Predčasný starobný,373.11
+2012-08,Invalidný,260.54
+2012-08,Vdovský,146.97
+2012-08,Vdovecký,96.82
+2012-09,Starobný,349.78
+2012-09,Predčasný starobný,374.49
+2012-09,Invalidný,260.28
+2012-09,Vdovský,147.03
+2012-09,Vdovecký,96.97
+2012-10,Starobný,349.99
+2012-10,Predčasný starobný,374.04
+2012-10,Invalidný,259.97
+2012-10,Vdovský,147.11
+2012-10,Vdovecký,97.13
+2012-11,Starobný,350.16
+2012-11,Predčasný starobný,373.63
+2012-11,Invalidný,259.71
+2012-11,Vdovský,147.2
+2012-11,Vdovecký,97.3
+2012-12,Starobný,350.3
+2012-12,Predčasný starobný,372.99
+2012-12,Invalidný,259.45
+2012-12,Vdovský,147.25
+2012-12,Vdovecký,97.39
+2013-01,Starobný,361.2
+2013-01,Predčasný starobný,383.52
+2013-01,Invalidný,267
+2013-01,Vdovský,151.66
+2013-01,Vdovecký,101.3
+2013-02,Starobný,361.75
+2013-02,Predčasný starobný,388.17
+2013-02,Invalidný,266.54
+2013-02,Vdovský,151.79
+2013-02,Vdovecký,101.76
+2013-03,Starobný,362.12
+2013-03,Predčasný starobný,387.51
+2013-03,Invalidný,266.08
+2013-03,Vdovský,151.87
+2013-03,Vdovecký,101.95
+2013-04,Starobný,362.52
+2013-04,Predčasný starobný,385.92
+2013-04,Invalidný,265.64
+2013-04,Vdovský,151.92
+2013-04,Vdovecký,102.11
+2013-05,Starobný,362.92
+2013-05,Predčasný starobný,384.45
+2013-05,Invalidný,265.22
+2013-05,Vdovský,151.97
+2013-05,Vdovecký,102.29
+2013-06,Starobný,363.26
+2013-06,Predčasný starobný,382.72
+2013-06,Invalidný,264.76
+2013-06,Vdovský,151.99
+2013-06,Vdovecký,102.21
+2013-07,Starobný,363.55
+2013-07,Predčasný starobný,382.27
+2013-07,Invalidný,264.29
+2013-07,Vdovský,152.04
+2013-07,Vdovecký,102.33
+2013-08,Starobný,363.83
+2013-08,Predčasný starobný,381.34
+2013-08,Invalidný,263.99
+2013-08,Vdovský,152.06
+2013-08,Vdovecký,102.3
+2013-09,Starobný,364.03
+2013-09,Predčasný starobný,382.19
+2013-09,Invalidný,263.61
+2013-09,Vdovský,152.08
+2013-09,Vdovecký,102.35
+2013-10,Starobný,364.25
+2013-10,Predčasný starobný,382.41
+2013-10,Invalidný,263.25
+2013-10,Vdovský,152.16
+2013-10,Vdovecký,102.5
+2013-11,Starobný,364.39
+2013-11,Predčasný starobný,382.41
+2013-11,Invalidný,263.06
+2013-11,Vdovský,152.21
+2013-11,Vdovecký,102.63
+2013-12,Starobný,364.51
+2013-12,Predčasný starobný,382.88
+2013-12,Invalidný,262.75
+2013-12,Vdovský,152.24
+2013-12,Vdovecký,102.68
+2014-01,Starobný,373.09
+2014-01,Predčasný starobný,391.66
+2014-01,Invalidný,268.49
+2014-01,Vdovský,155.69
+2014-01,Vdovecký,105.72
+2014-02,Starobný,373.45
+2014-02,Predčasný starobný,392.36
+2014-02,Invalidný,268.39
+2014-02,Vdovský,155.78
+2014-02,Vdovecký,106.07
+2014-03,Starobný,373.46
+2014-03,Predčasný starobný,393.53
+2014-03,Invalidný,267.87
+2014-03,Vdovský,155.79
+2014-03,Vdovecký,106.2
+2014-04,Starobný,373.43
+2014-04,Predčasný starobný,393.45
+2014-04,Invalidný,267.62
+2014-04,Vdovský,155.78
+2014-04,Vdovecký,106.28
+2014-05,Starobný,373.51
+2014-05,Predčasný starobný,392.08
+2014-05,Invalidný,267.33
+2014-05,Vdovský,155.77
+2014-05,Vdovecký,106.34
+2014-06,Starobný,373.58
+2014-06,Predčasný starobný,391.42
+2014-06,Invalidný,266.97
+2014-06,Vdovský,155.76
+2014-06,Vdovecký,106.31
+2014-07,Starobný,373.76
+2014-07,Predčasný starobný,389.51
+2014-07,Invalidný,266.71
+2014-07,Vdovský,155.69
+2014-07,Vdovecký,106.29
+2014-08,Starobný,373.96
+2014-08,Predčasný starobný,387.51
+2014-08,Invalidný,266.34
+2014-08,Vdovský,155.67
+2014-08,Vdovecký,106.19
+2014-09,Starobný,374.18
+2014-09,Predčasný starobný,386.1
+2014-09,Invalidný,266.07
+2014-09,Vdovský,155.64
+2014-09,Vdovecký,106.24
+2014-10,Starobný,374.51
+2014-10,Predčasný starobný,384.63
+2014-10,Invalidný,265.65
+2014-10,Vdovský,155.72
+2014-10,Vdovecký,106.36
+2014-11,Starobný,374.73
+2014-11,Predčasný starobný,383.74
+2014-11,Invalidný,265.34
+2014-11,Vdovský,155.85
+2014-11,Vdovecký,106.42
+2014-12,Starobný,374.88
+2014-12,Predčasný starobný,382.54
+2014-12,Invalidný,264.99
+2014-12,Vdovský,155.93
+2014-12,Vdovecký,106.51
+2015-01,Starobný,380.07
+2015-01,Predčasný starobný,386.34
+2015-01,Invalidný,268.08
+2015-01,Vdovský,158.06
+2015-01,Vdovecký,108.42
+2015-02,Starobný,380.6
+2015-02,Predčasný starobný,387.4
+2015-02,Invalidný,267.51
+2015-02,Vdovský,158.22
+2015-02,Vdovecký,108.76
+2015-03,Starobný,380.97
+2015-03,Predčasný starobný,387.81
+2015-03,Invalidný,267.06
+2015-03,Vdovský,158.32
+2015-03,Vdovecký,108.82
+2015-04,Starobný,382.27
+2015-04,Predčasný starobný,388.21
+2015-04,Invalidný,266.58
+2015-04,Vdovský,158.36
+2015-04,Vdovecký,108.79
+2015-05,Starobný,382.83
+2015-05,Predčasný starobný,387.6
+2015-05,Invalidný,266.14
+2015-05,Vdovský,158.21
+2015-05,Vdovecký,108.83
+2015-06,Starobný,383.23
+2015-06,Predčasný starobný,388.19
+2015-06,Invalidný,265.84
+2015-06,Vdovský,158.18
+2015-06,Vdovecký,108.82
+2015-07,Starobný,383.55
+2015-07,Predčasný starobný,388.22
+2015-07,Invalidný,265.56
+2015-07,Vdovský,158.12
+2015-07,Vdovecký,108.82
+2015-08,Starobný,383.75
+2015-08,Predčasný starobný,388.74
+2015-08,Invalidný,265.19
+2015-08,Vdovský,158.12
+2015-08,Vdovecký,108.92
+2015-09,Starobný,383.92
+2015-09,Predčasný starobný,389.58
+2015-09,Invalidný,264.86
+2015-09,Vdovský,158.06
+2015-09,Vdovecký,108.94
+2015-10,Starobný,384.23
+2015-10,Predčasný starobný,389.93
+2015-10,Invalidný,264.52
+2015-10,Vdovský,158.1
+2015-10,Vdovecký,109.09
+2015-11,Starobný,385.23
+2015-11,Predčasný starobný,390.29
+2015-11,Invalidný,264.38
+2015-11,Vdovský,158.15
+2015-11,Vdovecký,109.12
+2015-12,Starobný,385.36
+2015-12,Predčasný starobný,390.72
+2015-12,Invalidný,264.13
+2015-12,Vdovský,158.19
+2015-12,Vdovecký,109.16
+2016-01,Starobný,387.49
+2016-01,Predčasný starobný,392.34
+2016-01,Invalidný,265.05
+2016-01,Vdovský,158.98
+2016-01,Vdovecký,109.98
+2016-02,Starobný,388.09
+2016-02,Predčasný starobný,392.88
+2016-02,Invalidný,264.65
+2016-02,Vdovský,159.12
+2016-02,Vdovecký,110.29
+2016-03,Starobný,388.34
+2016-03,Predčasný starobný,394.62
+2016-03,Invalidný,264.42
+2016-03,Vdovský,159.12
+2016-03,Vdovecký,110.33
+2016-04,Starobný,389.01
+2016-04,Predčasný starobný,393.97
+2016-04,Invalidný,264.11
+2016-04,Vdovský,159.11
+2016-04,Vdovecký,109.74
+2016-05,Starobný,389.4
+2016-05,Predčasný starobný,392.48
+2016-05,Invalidný,263.79
+2016-05,Vdovský,159.03
+2016-05,Vdovecký,109.19
+2016-06,Starobný,389.83
+2016-06,Predčasný starobný,391.81
+2016-06,Invalidný,263.46
+2016-06,Vdovský,158.9
+2016-06,Vdovecký,108.76
+2016-07,Starobný,390.2
+2016-07,Predčasný starobný,390.03
+2016-07,Invalidný,263.14
+2016-07,Vdovský,158.81
+2016-07,Vdovecký,108.17
+2016-08,Starobný,390.51
+2016-08,Predčasný starobný,388.3
+2016-08,Invalidný,262.67
+2016-08,Vdovský,158.79
+2016-08,Vdovecký,107.81
+2016-09,Starobný,390.8
+2016-09,Predčasný starobný,387.92
+2016-09,Invalidný,262.24
+2016-09,Vdovský,158.75
+2016-09,Vdovecký,107.6
+2016-10,Starobný,391.15
+2016-10,Predčasný starobný,388.06
+2016-10,Invalidný,261.94
+2016-10,Vdovský,158.79
+2016-10,Vdovecký,107.45
+2016-11,Starobný,391.35
+2016-11,Predčasný starobný,387.53
+2016-11,Invalidný,261.68
+2016-11,Vdovský,158.86
+2016-11,Vdovecký,107.44
+2016-12,Starobný,391.53
+2016-12,Predčasný starobný,386.58
+2016-12,Invalidný,261.41
+2016-12,Vdovský,158.91
+2016-12,Vdovecký,107.46
+2017-01,Starobný,399.26
+2017-01,Predčasný starobný,395.19
+2017-01,Invalidný,266.56
+2017-01,Vdovský,162.13
+2017-01,Vdovecký,110.19
+2017-02,Starobný,399.96
+2017-02,Predčasný starobný,399.34
+2017-02,Invalidný,266.31
+2017-02,Vdovský,162.38
+2017-02,Vdovecký,110.43
+2017-03,Starobný,400.26
+2017-03,Predčasný starobný,405.6
+2017-03,Invalidný,266.33
+2017-03,Vdovský,162.47
+2017-03,Vdovecký,110.43
+2017-04,Starobný,400.92
+2017-04,Predčasný starobný,405.66
+2017-04,Invalidný,265.97
+2017-04,Vdovský,162.52
+2017-04,Vdovecký,110.57
+2017-05,Starobný,401.08
+2017-05,Predčasný starobný,404.84
+2017-05,Invalidný,265.71
+2017-05,Vdovský,162.54
+2017-05,Vdovecký,110.64
+2017-06,Starobný,401.28
+2017-06,Predčasný starobný,405.28
+2017-06,Invalidný,265.34
+2017-06,Vdovský,162.54
+2017-06,Vdovecký,110.63
+2017-07,Starobný,401.54
+2017-07,Predčasný starobný,404.48
+2017-07,Invalidný,265.04
+2017-07,Vdovský,162.47
+2017-07,Vdovecký,110.57
+2017-08,Starobný,401.73
+2017-08,Predčasný starobný,403.84
+2017-08,Invalidný,264.73
+2017-08,Vdovský,162.45
+2017-08,Vdovecký,110.67
+2017-09,Starobný,401.96
+2017-09,Predčasný starobný,404.14
+2017-09,Invalidný,264.4
+2017-09,Vdovský,162.4
+2017-09,Vdovecký,110.68
+2017-10,Starobný,402.22
+2017-10,Predčasný starobný,404.19
+2017-10,Invalidný,264.11
+2017-10,Vdovský,162.43
+2017-10,Vdovecký,110.72
+2017-11,Starobný,402.45
+2017-11,Predčasný starobný,403.77
+2017-11,Invalidný,263.84
+2017-11,Vdovský,162.6
+2017-11,Vdovecký,110.75
+2017-12,Starobný,402.6
+2017-12,Predčasný starobný,403.25
+2017-12,Invalidný,263.62
+2017-12,Vdovský,162.64
+2017-12,Vdovecký,110.84
+2018-01,Starobný,412.25
+2018-01,Predčasný starobný,409.37
+2018-01,Invalidný,268.69
+2018-01,Vdovský,165.88
+2018-01,Vdovecký,113.73
+2018-02,Starobný,412.98
+2018-02,Predčasný starobný,409.61
+2018-02,Invalidný,268.4
+2018-02,Vdovský,166.06
+2018-02,Vdovecký,114.08
+2018-03,Starobný,413.48
+2018-03,Predčasný starobný,411.87
+2018-03,Invalidný,268.29
+2018-03,Vdovský,166.09
+2018-03,Vdovecký,114.16
+2018-04,Starobný,414.47
+2018-04,Predčasný starobný,412.26
+2018-04,Invalidný,268.38
+2018-04,Vdovský,166.14
+2018-04,Vdovecký,114.2
+2018-05,Starobný,415.09
+2018-05,Predčasný starobný,411.11
+2018-05,Invalidný,268.44
+2018-05,Vdovský,166.14
+2018-05,Vdovecký,114.26
+2018-06,Starobný,415.79
+2018-06,Predčasný starobný,409.67
+2018-06,Invalidný,268.21
+2018-06,Vdovský,166.24
+2018-06,Vdovecký,114.35
+2018-07,Starobný,416.34
+2018-07,Predčasný starobný,407.3
+2018-07,Invalidný,267.96
+2018-07,Vdovský,166.24
+2018-07,Vdovecký,114.37
+2018-08,Starobný,417
+2018-08,Predčasný starobný,406.26
+2018-08,Invalidný,267.68
+2018-08,Vdovský,166.19
+2018-08,Vdovecký,114.43
+2018-09,Starobný,417.64
+2018-09,Predčasný starobný,405.53
+2018-09,Invalidný,267.45
+2018-09,Vdovský,166.17
+2018-09,Vdovecký,114.39
+2018-10,Starobný,418.25
+2018-10,Predčasný starobný,407.5
+2018-10,Invalidný,267.24
+2018-10,Vdovský,166.27
+2018-10,Vdovecký,114.54
+2018-11,Starobný,418.51
+2018-11,Predčasný starobný,407.94
+2018-11,Invalidný,267.08
+2018-11,Vdovský,166.41
+2018-11,Vdovecký,114.7
+2018-12,Starobný,418.69
+2018-12,Predčasný starobný,407.9
+2018-12,Invalidný,266.83
+2018-12,Vdovský,166.58
+2018-12,Vdovecký,114.79
+2019-01,Starobný,429.99
+2019-01,Predčasný starobný,419.46
+2019-01,Invalidný,273.75
+2019-01,Vdovský,171.32
+2019-01,Vdovecký,118.07
+2019-02,Starobný,430.63
+2019-02,Predčasný starobný,422.11
+2019-02,Invalidný,273.73
+2019-02,Vdovský,171.56
+2019-02,Vdovecký,118.32
+2019-03,Starobný,430.97
+2019-03,Predčasný starobný,428.11
+2019-03,Invalidný,273.69
+2019-03,Vdovský,171.61
+2019-03,Vdovecký,118.36
+2019-04,Starobný,431.99
+2019-04,Predčasný starobný,429.51
+2019-04,Invalidný,273.56
+2019-04,Vdovský,171.61
+2019-04,Vdovecký,118.43
+2019-05,Starobný,432.42
+2019-05,Predčasný starobný,430.1
+2019-05,Invalidný,273.51
+2019-05,Vdovský,171.61
+2019-05,Vdovecký,118.5
+2019-06,Starobný,432.92
+2019-06,Predčasný starobný,430.96
+2019-06,Invalidný,273.8
+2019-06,Vdovský,171.63
+2019-06,Vdovecký,118.57
+2019-07,Starobný,433.22
+2019-07,Predčasný starobný,430.98
+2019-07,Invalidný,273.83
+2019-07,Vdovský,171.61
+2019-07,Vdovecký,118.57
+2019-08,Starobný,433.42
+2019-08,Predčasný starobný,431.12
+2019-08,Invalidný,273.81
+2019-08,Vdovský,171.62
+2019-08,Vdovecký,118.7
+2019-09,Starobný,433.58
+2019-09,Predčasný starobný,432.81
+2019-09,Invalidný,273.7
+2019-09,Vdovský,171.61
+2019-09,Vdovecký,118.78
+2019-10,Starobný,433.88
+2019-10,Predčasný starobný,432.09
+2019-10,Invalidný,273.65
+2019-10,Vdovský,171.72
+2019-10,Vdovecký,118.91
+2019-11,Starobný,434.12
+2019-11,Predčasný starobný,431.21
+2019-11,Invalidný,273.57
+2019-11,Vdovský,171.81
+2019-11,Vdovecký,119.06
+2019-12,Starobný,434.23
+2019-12,Predčasný starobný,429.86
+2019-12,Invalidný,273.39
+2019-12,Vdovský,171.87
+2019-12,Vdovecký,119.11
+2020-01,Starobný,449.42
+2020-01,Predčasný starobný,440.87
+2020-01,Invalidný,281.34
+2020-01,Vdovský,177.25
+2020-01,Vdovecký,122.86
+2020-02,Starobný,452.98
+2020-02,Predčasný starobný,441.98
+2020-02,Invalidný,281.36
+2020-02,Vdovský,177.6
+2020-02,Vdovecký,123.24
+2020-03,Starobný,453.42
+2020-03,Predčasný starobný,443.8
+2020-03,Invalidný,281.35
+2020-03,Vdovský,177.74
+2020-03,Vdovecký,123.26
+2020-04,Starobný,454.56
+2020-04,Predčasný starobný,444.08
+2020-04,Invalidný,281.39
+2020-04,Vdovský,177.85
+2020-04,Vdovecký,123.39
+2020-05,Starobný,455.1
+2020-05,Predčasný starobný,445.13
+2020-05,Invalidný,281.31
+2020-05,Vdovský,177.92
+2020-05,Vdovecký,123.55
+2020-06,Starobný,455.76
+2020-06,Predčasný starobný,446.64
+2020-06,Invalidný,281.49
+2020-06,Vdovský,177.96
+2020-06,Vdovecký,123.54
+2020-07,Starobný,456.35
+2020-07,Predčasný starobný,449.57
+2020-07,Invalidný,281.85
+2020-07,Vdovský,178.03
+2020-07,Vdovecký,123.62
+2020-08,Starobný,456.88
+2020-08,Predčasný starobný,454.19
+2020-08,Invalidný,282.15
+2020-08,Vdovský,178.18
+2020-08,Vdovecký,123.76
+2020-09,Starobný,457.26
+2020-09,Predčasný starobný,455.3
+2020-09,Invalidný,282
+2020-09,Vdovský,178.27
+2020-09,Vdovecký,123.8
+2020-10,Starobný,457.63
+2020-10,Predčasný starobný,457.74
+2020-10,Invalidný,282.06
+2020-10,Vdovský,178.36
+2020-10,Vdovecký,123.95
+2020-11,Starobný,457.8
+2020-11,Predčasný starobný,463.25
+2020-11,Invalidný,282.07
+2020-11,Vdovský,178.42
+2020-11,Vdovecký,124.12
+2020-12,Starobný,458
+2020-12,Predčasný starobný,470.47
+2020-12,Invalidný,282.21
+2020-12,Vdovský,178.51
+2020-12,Vdovecký,124.25
+2021-01,Starobný,468.95
+2021-01,Predčasný starobný,482.72
+2021-01,Invalidný,289.6
+2021-01,Vdovský,183.37
+2021-01,Vdovecký,127.89
+2021-02,Starobný,469.76
+2021-02,Predčasný starobný,483.72
+2021-02,Invalidný,289.35
+2021-02,Vdovský,183.75
+2021-02,Vdovecký,128.39
+2021-03,Starobný,470.07
+2021-03,Predčasný starobný,486.95
+2021-03,Invalidný,289.16
+2021-03,Vdovský,183.91
+2021-03,Vdovecký,128.63
+2021-04,Starobný,471.22
+2021-04,Predčasný starobný,490.41
+2021-04,Invalidný,289.09
+2021-04,Vdovský,184.04
+2021-04,Vdovecký,128.8
+2021-05,Starobný,471.87
+2021-05,Predčasný starobný,490.72
+2021-05,Invalidný,289.21
+2021-05,Vdovský,184.11
+2021-05,Vdovecký,128.88
+2021-06,Starobný,472.66
+2021-06,Predčasný starobný,490.08
+2021-06,Invalidný,289.45
+2021-06,Vdovský,184.29
+2021-06,Vdovecký,128.96
+2021-07,Starobný,473.29
+2021-07,Predčasný starobný,489.04
+2021-07,Invalidný,289.7
+2021-07,Vdovský,184.54
+2021-07,Vdovecký,129.12
+2021-08,Starobný,473.87
+2021-08,Predčasný starobný,494.57
+2021-08,Invalidný,289.9
+2021-08,Vdovský,184.79
+2021-08,Vdovecký,129.24
+2021-09,Starobný,474.32
+2021-09,Predčasný starobný,497.54
+2021-09,Invalidný,290.27
+2021-09,Vdovský,184.84
+2021-09,Vdovecký,129.31
+2021-10,Starobný,474.75
+2021-10,Predčasný starobný,498.58
+2021-10,Invalidný,290.61
+2021-10,Vdovský,184.9
+2021-10,Vdovecký,129.34
+2021-11,Starobný,474.96
+2021-11,Predčasný starobný,496.94
+2021-11,Invalidný,290.55
+2021-11,Vdovský,184.92
+2021-11,Vdovecký,129.35
+2021-12,Starobný,475.49
+2021-12,Predčasný starobný,495.75
+2021-12,Invalidný,290.61
+2021-12,Vdovský,185.08
+2021-12,Vdovecký,129.55
+2022-01,Starobný,481.32
+2022-01,Predčasný starobný,500.39
+2022-01,Invalidný,294.27
+2022-01,Vdovský,187.64
+2022-01,Vdovecký,131.42
+2022-02,Starobný,482.23
+2022-02,Predčasný starobný,500.17
+2022-02,Invalidný,294.65
+2022-02,Vdovský,188.03
+2022-02,Vdovecký,132.09
+2022-03,Starobný,482.62
+2022-03,Predčasný starobný,503.63
+2022-03,Invalidný,294.71
+2022-03,Vdovský,188.22
+2022-03,Vdovecký,132.28
+2022-04,Starobný,483.85
+2022-04,Predčasný starobný,504.77
+2022-04,Invalidný,294.87
+2022-04,Vdovský,188.44
+2022-04,Vdovecký,132.41
+2022-05,Starobný,484.49
+2022-05,Predčasný starobný,502.91
+2022-05,Invalidný,295.1
+2022-05,Vdovský,188.58
+2022-05,Vdovecký,132.5
+2022-06,Starobný,484.98
+2022-06,Predčasný starobný,501.87
+2022-06,Invalidný,295.26
+2022-06,Vdovský,188.63
+2022-06,Vdovecký,132.43
+2022-07,Starobný,486.12
+2022-07,Predčasný starobný,500.28
+2022-07,Invalidný,295.31
+2022-07,Vdovský,188.64
+2022-07,Vdovecký,132.46
+2022-08,Starobný,486.12
+2022-08,Predčasný starobný,497.33
+2022-08,Invalidný,295.59
+2022-08,Vdovský,188.8
+2022-08,Vdovecký,132.48
+2022-09,Starobný,486.58
+2022-09,Predčasný starobný,498.79
+2022-09,Invalidný,295.82
+2022-09,Vdovský,188.88
+2022-09,Vdovecký,132.6
+2022-10,Starobný,487.06
+2022-10,Predčasný starobný,499.36
+2022-10,Invalidný,296.09
+2022-10,Vdovský,188.95
+2022-10,Vdovecký,132.72
+2022-11,Starobný,487.36
+2022-11,Predčasný starobný,503.3
+2022-11,Invalidný,296.45
+2022-11,Vdovský,189.02
+2022-11,Vdovecký,132.76
+2022-12,Starobný,487.75
+2022-12,Predčasný starobný,507.75
+2022-12,Invalidný,296.83
+2022-12,Vdovský,189.12
+2022-12,Vdovecký,132.88
+2023-01,Starobný,541.92
+2023-01,Predčasný starobný,566.92
+2023-01,Invalidný,331.84
+2023-01,Vdovský,211.52
+2023-01,Vdovecký,148.59
+2023-02,Starobný,542.85
+2023-02,Predčasný starobný,568.74
+2023-02,Invalidný,332.78
+2023-02,Vdovský,212.08
+2023-02,Vdovecký,149.23
+2023-03,Starobný,543.13
+2023-03,Predčasný starobný,589.48
+2023-03,Invalidný,333.11
+2023-03,Vdovský,212.31
+2023-03,Vdovecký,149.62
+2023-04,Starobný,544.42
+2023-04,Predčasný starobný,595.02
+2023-04,Invalidný,333.44
+2023-04,Vdovský,212.81
+2023-04,Vdovecký,150.25
+2023-05,Starobný,545.12
+2023-05,Predčasný starobný,599.27
+2023-05,Invalidný,333.82
+2023-05,Vdovský,212.99
+2023-05,Vdovecký,150.5
+2023-06,Starobný,545.92
+2023-06,Predčasný starobný,604.2
+2023-06,Invalidný,334.21
+2023-06,Vdovský,213.04
+2023-06,Vdovecký,150.51
+2023-07,Starobný,546.33
+2023-07,Predčasný starobný,607.83
+2023-07,Invalidný,334.57
+2023-07,Vdovský,213.08
+2023-07,Vdovecký,150.48
+2023-08,Starobný,604.66
+2023-08,Predčasný starobný,673.61
+2023-08,Invalidný,369.83
+2023-08,Vdovský,235.66
+2023-08,Vdovecký,166.4
+2023-09,Starobný,606.18
+2023-09,Predčasný starobný,681.88
+2023-09,Invalidný,370.72
+2023-09,Vdovský,235.99
+2023-09,Vdovecký,166.58
+2023-10,Starobný,609.22
+2023-10,Predčasný starobný,687.06
+2023-10,Invalidný,371.02
+2023-10,Vdovský,236.03
+2023-10,Vdovecký,166.6
+2023-11,Starobný,609.75
+2023-11,Predčasný starobný,691.67
+2023-11,Invalidný,371.11
+2023-11,Vdovský,236.07
+2023-11,Vdovecký,166.65
+2023-12,Starobný,610.3
+2023-12,Predčasný starobný,697.53
+2023-12,Invalidný,371.25
+2023-12,Vdovský,236.19
+2023-12,Vdovecký,166.8
+2024-01,Starobný,631.47
+2024-01,Predčasný starobný,730.39
+2024-01,Invalidný,385.29
+2024-01,Vdovský,244.85
+2024-01,Vdovecký,172.92
+2024-02,Starobný,632.97
+2024-02,Predčasný starobný,745.14
+2024-02,Invalidný,386.81
+2024-02,Vdovský,245.19
+2024-02,Vdovecký,173.44
+2024-03,Starobný,633.51
+2024-03,Predčasný starobný,751.88
+2024-03,Invalidný,387.77
+2024-03,Vdovský,245.21
+2024-03,Vdovecký,173.5
+2024-04,Starobný,634.97
+2024-04,Predčasný starobný,754.23
+2024-04,Invalidný,388.79
+2024-04,Vdovský,245.22
+2024-04,Vdovecký,173.59
+2024-05,Starobný,635.86
+2024-05,Predčasný starobný,752.88
+2024-05,Invalidný,389.56
+2024-05,Vdovský,245.3
+2024-05,Vdovecký,173.56
+2024-06,Starobný,637.67
+2024-06,Predčasný starobný,749.44
+2024-06,Invalidný,391.34
+2024-06,Vdovský,245.34
+2024-06,Vdovecký,173.75
+2024-07,Starobný,638.29
+2024-07,Predčasný starobný,743.53
+2024-07,Invalidný,392.52
+2024-07,Vdovský,245.42
+2024-07,Vdovecký,173.87
+2024-08,Starobný,638.94
+2024-08,Predčasný starobný,738.28
+2024-08,Invalidný,393.51
+2024-08,Vdovský,245.48
+2024-08,Vdovecký,173.91
+2024-09,Starobný,639.63
+2024-09,Predčasný starobný,736.55
+2024-09,Invalidný,394.54
+2024-09,Vdovský,245.62
+2024-09,Vdovecký,174.01
+2024-10,Starobný,640.29
+2024-10,Predčasný starobný,735.05
+2024-10,Invalidný,395.39
+2024-10,Vdovský,245.82
+2024-10,Vdovecký,174.21
+2024-11,Starobný,641.92
+2024-11,Predčasný starobný,732.23
+2024-11,Invalidný,396.1
+2024-11,Vdovský,245.98
+2024-11,Vdovecký,174.31
+2024-12,Starobný,642.35
+2024-12,Predčasný starobný,729.3
+2024-12,Invalidný,396.51
+2024-12,Vdovský,246.13
+2024-12,Vdovecký,174.42
+2025-01,Starobný,656.22
+2025-01,Predčasný starobný,742.75
+2025-01,Invalidný,405.12
+2025-01,Vdovský,251.47
+2025-01,Vdovecký,178.31
+2025-02,Starobný,657.43
+2025-02,Predčasný starobný,741.25
+2025-02,Invalidný,405.97
+2025-02,Vdovský,251.86
+2025-02,Vdovecký,178.78
+2025-03,Starobný,658.04
+2025-03,Predčasný starobný,742.35
+2025-03,Invalidný,406.76
+2025-03,Vdovský,251.94
+2025-03,Vdovecký,178.86
+2025-04,Starobný,659.2
+2025-04,Predčasný starobný,742.74
+2025-04,Invalidný,407.6
+2025-04,Vdovský,252.18
+2025-04,Vdovecký,179.04
+2025-05,Starobný,659.52
+2025-05,Predčasný starobný,739.81
+2025-05,Invalidný,408.14
+2025-05,Vdovský,252.35
+2025-05,Vdovecký,179.22
+2025-06,Starobný,659.91
+2025-06,Predčasný starobný,737.45
+2025-06,Invalidný,408.59
+2025-06,Vdovský,252.49
+2025-06,Vdovecký,179.28
+2025-07,Starobný,660.21
+2025-07,Predčasný starobný,734.59
+2025-07,Invalidný,408.71
+2025-07,Vdovský,252.75
+2025-07,Vdovecký,179.48
+2025-08,Starobný,660.59
+2025-08,Predčasný starobný,731.13
+2025-08,Invalidný,409.03
+2025-08,Vdovský,252.89
+2025-08,Vdovecký,179.55
+2025-09,Starobný,660.9
+2025-09,Predčasný starobný,727.93
+2025-09,Invalidný,409.03
+2025-09,Vdovský,252.97
+2025-09,Vdovecký,179.64
+2025-10,Starobný,661.26
+2025-10,Predčasný starobný,725.24
+2025-10,Invalidný,409.05
+2025-10,Vdovský,253.17
+2025-10,Vdovecký,179.74
+2025-11,Starobný,661.39
+2025-11,Predčasný starobný,722.91
+2025-11,Invalidný,409.03
+2025-11,Vdovský,253.34
+2025-11,Vdovecký,179.86
+2025-12,Starobný,661.62
+2025-12,Predčasný starobný,720.21
+2025-12,Invalidný,408.87
+2025-12,Vdovský,253.49
+2025-12,Vdovecký,180.04
+2026-01,Starobný,686.28
+2026-01,Predčasný starobný,744.01
+2026-01,Invalidný,423.79
+2026-01,Vdovský,263.04
+2026-01,Vdovecký,186.84
+2026-02,Starobný,686.98
+2026-02,Predčasný starobný,740.12
+2026-02,Invalidný,423.62
+2026-02,Vdovský,263.55
+2026-02,Vdovecký,187.37
+2026-03,Starobný,687.49
+2026-03,Predčasný starobný,737.82
+2026-03,Invalidný,423.71
+2026-03,Vdovský,263.7
+2026-03,Vdovecký,187.51
+2026-04,Starobný,732.05
+2026-04,Predčasný starobný,738.78
+2026-04,Invalidný,426.94
+2026-04,Vdovský,400.12
+2026-04,Vdovecký,336.6

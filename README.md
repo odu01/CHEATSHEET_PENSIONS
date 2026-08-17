@@ -34,6 +34,9 @@ Schéma pre editor: `data/manifest.schema.json`.
 
 Bez grafu: `tiles` (kľúčové čísla) · `table`
 
+Na weboch je 8 stránok: prehľad, výdavky, počty, priemerné dôchodky, novopriznané,
+sezónnosť (teplotná mapa + 3D povrch), demografia a dátový katalóg.
+
 Každý graf dostane automaticky tabuľku s presnými hodnotami, export do CSV,
 tooltip so všetkými sériami na danom X, ovládanie klávesnicou, prepínanie sérií v
 legende a svetlý aj tmavý režim.
@@ -57,30 +60,45 @@ lib/view.js                zloží jednu kartu: graf + legenda + tabuľka + prov
 
 data/manifest.json         KONTRAKT: datasety, stránky, views
 data/manifest.schema.json  JSON Schema pre editor
-data/*.csv                 dátové súbory
+data/sp_*.csv              dátové súbory (generované z data/zdroj/)
+data/zdroj/*.xlsx          pôvodné zošity Sociálnej poisťovne
 
 tools/serve.mjs            lokálny server bez závislostí
 tools/validate-manifest.mjs kontroluje, že všetko, čo stránka načíta, existuje
 tools/check-palette.mjs    premeria paletu proti prístupnostným limitom
 tools/screenshots.mjs      vykreslí všetky stránky v oboch režimoch, hľadá chyby
-tools/make-sample-data.mjs regeneruje ilustračné dáta (deterministicky)
+tools/import_sp.py         prevod zošitov SP na tidy CSV + kontrolné súčty
 
 vendor/                    d3 7.9.0, Observable Plot 0.6.17, Plotly gl3d 3.0.1
 ```
 
-## Dáta v repozitári sú zatiaľ ilustračné
+## Dáta
 
-Okrem `data/vekova_struktura_2024.csv` (veková štruktúra prevzatá z projektu
-DYNAMIC_PYRAMID_WEB, Eurostat/UN) sú **všetky priložené čísla vygenerované** ako
-ukážka. Sú rádovo vierohodné a vnútorne konzistentné, aby grafy vyzerali ako
-skutočný výstup, ale **nie sú oficiálna štatistika a nedajú sa citovať**.
+Web stojí na reálnych dátach **Sociálnej poisťovne**: mesačná rada výdavkov,
+počtov a priemerných dôchodkov 2009-01 – 2026-04 a ročná štatistika dôchodkového
+poistenia 2021–2024. Zdrojové zošity sú commitnuté v `data/zdroj/` a CSV v `data/`
+sa z nich generujú skriptom:
 
-Každý taký dataset má v manifeste `"illustrative": true` a na každej karte sa
-zobrazuje výstražný odznak. Keď nahradíš súbor reálnymi dátami, doplň `source` a
-prepni príznak na `false` — odznak zmizne.
+```bash
+npm run data     # python3 tools/import_sp.py
+```
 
-Ukážkové dáta sa regenerujú deterministicky (`npm run data`), takže diff v `data/`
-vždy znamená skutočnú zmenu.
+Skript rieši sedem pascí, ktoré sa pri ručnom prepise ľahko prehliadnu — počty
+uvedené v tisícoch, kumulatívne stĺpce výdavkov, dve rôzne definície priemerného
+dôchodku, rozdiel medzi počtom dôchodkov a počtom dôchodcov, definičné zlomy pri
+rodičovskom a 13. dôchodku, a rozdiel medzi hotovostnou a ročnou metodikou. Každú
+z nich kontroluje súčtom proti riadku „Celkom" v zošite a pri nezhode skončí
+chybou. Podrobne: **[docs/ZDROJOVE_DATA.md](docs/ZDROJOVE_DATA.md)**.
+
+Jediná výnimka je `data/vekova_struktura_2024.csv` — veková štruktúra prevzatá z
+projektu DYNAMIC_PYRAMID_WEB (Eurostat/UN).
+
+Čo v priložených zošitoch **nie je**: príjmy systému a saldo, HDP ako menovateľ
+pre podiely, priemerná mzda pre náhradový pomer, II. pilier. Web preto tieto
+ukazovatele nezobrazuje — pridaním ďalšieho CSV a bloku do manifestu pribudnú.
+
+Dataset bez `source`, ktorý nie je označený `"illustrative": true`, neprejde
+validáciou. Ilustračné datasety dostanú na každej karte výstražný odznak.
 
 ## Kontroly
 
@@ -90,9 +108,9 @@ vždy znamená skutočnú zmenu.
   ukazuje na niečo, čo existuje
 - každý dataset má zdroj, alebo je označený ako ilustračný
 - paleta prechádza limitmi pre farbosleposť a kontrast v oboch režimoch
-- ukážkové dáta súhlasia s generátorom
+- CSV v `data/` sa zhodujú so zošitmi v `data/zdroj/` (pregenerovaním importu)
 
-Navyše `tools/screenshots.mjs --check` vykreslí všetkých 7 stránok v svetlom aj
+Navyše `tools/screenshots.mjs --check` vykreslí všetkých 8 stránok v svetlom aj
 tmavom režime a spadne na chybe v konzole, na neúspešnej požiadavke, na prázdnej
 ploche grafu alebo na pretekajúcej karte.
 
@@ -126,5 +144,7 @@ na GitHub Pages. Žiadny build.
 
 - **[docs/AKO_PRIDAT_DATA.md](docs/AKO_PRIDAT_DATA.md)** — pridanie dát a grafu,
   typy grafov, transformácie, riešenie problémov
+- **[docs/ZDROJOVE_DATA.md](docs/ZDROJOVE_DATA.md)** — zdrojové zošity, čo z čoho
+  vzniklo, sedem pascí v týchto dátach a čo dáta ešte neobsahujú
 - **[docs/ZHODNOTENIE_PRISTUPU.md](docs/ZHODNOTENIE_PRISTUPU.md)** — zhodnotenie
   prístupu z DYNAMIC_PYRAMID_WEB: čo som prevzal, čo nie a prečo

@@ -15,6 +15,10 @@ jobs:
         with:
           node-version: '20'
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       # Catches the failure mode the DYNAMIC_PYRAMID_WEB repo shipped with: a
       # published site whose files do not resolve. Every dataset, column, view,
       # page, script src and import path is checked against what is on disk.
@@ -26,16 +30,16 @@ jobs:
       - name: Validate palette accessibility gates
         run: node tools/check-palette.mjs
 
-      # Sample data is generated deterministically; a diff here means someone
-      # hand-edited a generated file, which the next regeneration would silently
-      # overwrite.
-      - name: Check generated sample data is up to date
+      # The CSVs in data/ are derived from the workbooks in data/zdroj/. Re-running
+      # the import must reproduce them byte for byte; a diff means someone edited
+      # a generated file by hand and the next import would silently overwrite it.
+      - name: Check data/ matches the source workbooks
         run: |
-          node tools/make-sample-data.mjs
+          pip install --quiet openpyxl
+          python3 tools/import_sp.py
           if ! git diff --quiet -- data/; then
-            echo "::error::Generované dáta v data/ nesúhlasia s tools/make-sample-data.mjs."
-            echo "Spusti 'npm run data' a commitni výsledok — alebo, ak sú to už reálne dáta,"
-            echo "vyraď ich zo skriptu a označ ich v manifeste ako neilustračné."
+            echo "::error::CSV v data/ nesúhlasia s zošitmi v data/zdroj/."
+            echo "Spusti 'npm run data' a commitni výsledok. Needituj generované CSV ručne."
             git diff --stat -- data/
             exit 1
           fi

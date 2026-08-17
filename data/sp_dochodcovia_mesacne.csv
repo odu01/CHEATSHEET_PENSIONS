@@ -1,0 +1,337 @@
+mesiac,kategoria,pocet
+2021-01,Starobný,1094184
+2021-01,Predčasný starobný,11720
+2021-01,Invalidný,232829
+2021-01,Sirotský,20151
+2021-01,Vdovský sólo,28489
+2021-01,Vdovecký sólo,5467
+2021-01,Spolu,1412316
+2021-02,Starobný,1085427
+2021-02,Predčasný starobný,11984
+2021-02,Invalidný,232526
+2021-02,Sirotský,20772
+2021-02,Vdovský sólo,28388
+2021-02,Vdovecký sólo,5456
+2021-02,Spolu,1404117
+2021-03,Starobný,1083038
+2021-03,Predčasný starobný,11917
+2021-03,Invalidný,231741
+2021-03,Sirotský,20977
+2021-03,Vdovský sólo,28255
+2021-03,Vdovecký sólo,5440
+2021-03,Spolu,1400971
+2021-04,Starobný,1080271
+2021-04,Predčasný starobný,12024
+2021-04,Invalidný,230357
+2021-04,Sirotský,20681
+2021-04,Vdovský sólo,28035
+2021-04,Vdovecký sólo,5417
+2021-04,Spolu,1396388
+2021-05,Starobný,1081483
+2021-05,Predčasný starobný,11953
+2021-05,Invalidný,229236
+2021-05,Sirotský,19900
+2021-05,Vdovský sólo,27785
+2021-05,Vdovecký sólo,5393
+2021-05,Spolu,1395411
+2021-06,Starobný,1084226
+2021-06,Predčasný starobný,11798
+2021-06,Invalidný,228315
+2021-06,Sirotský,19943
+2021-06,Vdovský sólo,27641
+2021-06,Vdovecký sólo,5404
+2021-06,Spolu,1397080
+2021-07,Starobný,1087176
+2021-07,Predčasný starobný,11917
+2021-07,Invalidný,228010
+2021-07,Sirotský,17938
+2021-07,Vdovský sólo,27525
+2021-07,Vdovecký sólo,5433
+2021-07,Spolu,1397874
+2021-08,Starobný,1090935
+2021-08,Predčasný starobný,10271
+2021-08,Invalidný,227878
+2021-08,Sirotský,18192
+2021-08,Vdovský sólo,27534
+2021-08,Vdovecký sólo,5455
+2021-08,Spolu,1400239
+2021-09,Starobný,1091310
+2021-09,Predčasný starobný,10958
+2021-09,Invalidný,228220
+2021-09,Sirotský,17352
+2021-09,Vdovský sólo,27305
+2021-09,Vdovecký sólo,5438
+2021-09,Spolu,1400650
+2021-10,Starobný,1092782
+2021-10,Predčasný starobný,11711
+2021-10,Invalidný,228653
+2021-10,Sirotský,17653
+2021-10,Vdovský sólo,27179
+2021-10,Vdovecký sólo,5421
+2021-10,Spolu,1403572
+2021-11,Starobný,1095027
+2021-11,Predčasný starobný,11545
+2021-11,Invalidný,228059
+2021-11,Sirotský,17600
+2021-11,Vdovský sólo,27124
+2021-11,Vdovecký sólo,5421
+2021-11,Spolu,1404994
+2021-12,Starobný,1096225
+2021-12,Predčasný starobný,11992
+2021-12,Invalidný,227426
+2021-12,Sirotský,19075
+2021-12,Vdovský sólo,27119
+2021-12,Vdovecký sólo,5445
+2021-12,Spolu,1407595
+2022-01,Starobný,1096396
+2022-01,Predčasný starobný,11409
+2022-01,Invalidný,226723
+2022-01,Sirotský,19562
+2022-01,Vdovský sólo,27067
+2022-01,Vdovecký sólo,5458
+2022-01,Spolu,1406978
+2022-02,Starobný,1090307
+2022-02,Predčasný starobný,12332
+2022-02,Invalidný,226446
+2022-02,Sirotský,20994
+2022-02,Vdovský sólo,26951
+2022-02,Vdovecký sólo,5507
+2022-02,Spolu,1403120
+2022-03,Starobný,1091552
+2022-03,Predčasný starobný,12429
+2022-03,Invalidný,225975
+2022-03,Sirotský,21413
+2022-03,Vdovský sólo,27042
+2022-03,Vdovecký sólo,5566
+2022-03,Spolu,1404688
+2022-04,Starobný,1091009
+2022-04,Predčasný starobný,12212
+2022-04,Invalidný,225259
+2022-04,Sirotský,21071
+2022-04,Vdovský sólo,27033
+2022-04,Vdovecký sólo,5583
+2022-04,Spolu,1402931
+2022-05,Starobný,1092380
+2022-05,Predčasný starobný,11891
+2022-05,Invalidný,224651
+2022-05,Sirotský,20419
+2022-05,Vdovský sólo,26977
+2022-05,Vdovecký sólo,5596
+2022-05,Spolu,1402747
+2022-06,Starobný,1096369
+2022-06,Predčasný starobný,11806
+2022-06,Invalidný,224577
+2022-06,Sirotský,20503
+2022-06,Vdovský sólo,26896
+2022-06,Vdovecký sólo,5585
+2022-06,Spolu,1406713
+2022-07,Starobný,1099296
+2022-07,Predčasný starobný,11446
+2022-07,Invalidný,224238
+2022-07,Sirotský,18369
+2022-07,Vdovský sólo,26751
+2022-07,Vdovecký sólo,5574
+2022-07,Spolu,1406741
+2022-08,Starobný,1099287
+2022-08,Predčasný starobný,11582
+2022-08,Invalidný,224217
+2022-08,Sirotský,18376
+2022-08,Vdovský sólo,26318
+2022-08,Vdovecký sólo,5473
+2022-08,Spolu,1406486
+2022-09,Starobný,1100429
+2022-09,Predčasný starobný,11770
+2022-09,Invalidný,224011
+2022-09,Sirotský,17758
+2022-09,Vdovský sólo,26092
+2022-09,Vdovecký sólo,5429
+2022-09,Spolu,1406804
+2022-10,Starobný,1102360
+2022-10,Predčasný starobný,11770
+2022-10,Invalidný,223749
+2022-10,Sirotský,18194
+2022-10,Vdovský sólo,25977
+2022-10,Vdovecký sólo,5431
+2022-10,Spolu,1408875
+2022-11,Starobný,1104225
+2022-11,Predčasný starobný,12112
+2022-11,Invalidný,224055
+2022-11,Sirotský,18644
+2022-11,Vdovský sólo,26008
+2022-11,Vdovecký sólo,5450
+2022-11,Spolu,1411962
+2022-12,Starobný,1104304
+2022-12,Predčasný starobný,12311
+2022-12,Invalidný,224143
+2022-12,Sirotský,19584
+2022-12,Vdovský sólo,26035
+2022-12,Vdovecký sólo,5451
+2022-12,Spolu,1413377
+2023-01,Starobný,1105403
+2023-01,Predčasný starobný,12061
+2023-01,Invalidný,223698
+2023-01,Sirotský,20292
+2023-01,Vdovský sólo,26022
+2023-01,Vdovecký sólo,5453
+2023-01,Spolu,1414565
+2023-02,Starobný,1100987
+2023-02,Predčasný starobný,12981
+2023-02,Invalidný,223698
+2023-02,Sirotský,21178
+2023-02,Vdovský sólo,26081
+2023-02,Vdovecký sólo,5482
+2023-02,Spolu,1412224
+2023-03,Starobný,1102878
+2023-03,Predčasný starobný,13993
+2023-03,Invalidný,223244
+2023-03,Sirotský,21500
+2023-03,Vdovský sólo,26157
+2023-03,Vdovecký sólo,5536
+2023-03,Spolu,1415240
+2023-04,Starobný,1102785
+2023-04,Predčasný starobný,13986
+2023-04,Invalidný,222810
+2023-04,Sirotský,21064
+2023-04,Vdovský sólo,26697
+2023-04,Vdovecký sólo,5694
+2023-04,Spolu,1415078
+2023-05,Starobný,1104323
+2023-05,Predčasný starobný,13884
+2023-05,Invalidný,222654
+2023-05,Sirotský,20308
+2023-05,Vdovský sólo,26747
+2023-05,Vdovecký sólo,5733
+2023-05,Spolu,1415777
+2023-06,Starobný,1106488
+2023-06,Predčasný starobný,13899
+2023-06,Invalidný,222339
+2023-06,Sirotský,20278
+2023-06,Vdovský sólo,26610
+2023-06,Vdovecký sólo,5721
+2023-06,Spolu,1417582
+2023-07,Starobný,1110234
+2023-07,Predčasný starobný,13589
+2023-07,Invalidný,222320
+2023-07,Sirotský,18221
+2023-07,Vdovský sólo,26582
+2023-07,Vdovecký sólo,5703
+2023-07,Spolu,1419005
+2023-08,Starobný,1112078
+2023-08,Predčasný starobný,12880
+2023-08,Invalidný,221815
+2023-08,Sirotský,18251
+2023-08,Vdovský sólo,26504
+2023-08,Vdovecký sólo,5685
+2023-08,Spolu,1419600
+2023-09,Starobný,1111698
+2023-09,Predčasný starobný,14303
+2023-09,Invalidný,221606
+2023-09,Sirotský,17695
+2023-09,Vdovský sólo,26235
+2023-09,Vdovecký sólo,5619
+2023-09,Spolu,1419722
+2023-10,Starobný,1114611
+2023-10,Predčasný starobný,15072
+2023-10,Invalidný,221430
+2023-10,Sirotský,17980
+2023-10,Vdovský sólo,26027
+2023-10,Vdovecký sólo,5579
+2023-10,Spolu,1423372
+2023-11,Starobný,1116955
+2023-11,Predčasný starobný,14964
+2023-11,Invalidný,220880
+2023-11,Sirotský,17772
+2023-11,Vdovský sólo,25949
+2023-11,Vdovecký sólo,5590
+2023-11,Spolu,1424843
+2023-12,Starobný,1118242
+2023-12,Predčasný starobný,15427
+2023-12,Invalidný,220349
+2023-12,Sirotský,18714
+2023-12,Vdovský sólo,25897
+2023-12,Vdovecký sólo,5578
+2023-12,Spolu,1426994
+2024-01,Starobný,1118247
+2024-01,Predčasný starobný,16667
+2024-01,Invalidný,220538
+2024-01,Sirotský,19604
+2024-01,Vdovský sólo,25870
+2024-01,Vdovecký sólo,5568
+2024-01,Spolu,1429342
+2024-02,Starobný,1113744
+2024-02,Predčasný starobný,23749
+2024-02,Invalidný,220373
+2024-02,Sirotský,20661
+2024-02,Vdovský sólo,25647
+2024-02,Vdovecký sólo,5535
+2024-02,Spolu,1432721
+2024-03,Starobný,1115298
+2024-03,Predčasný starobný,29102
+2024-03,Invalidný,219272
+2024-03,Sirotský,21074
+2024-03,Vdovský sólo,25519
+2024-03,Vdovecký sólo,5511
+2024-03,Spolu,1438876
+2024-04,Starobný,1115164
+2024-04,Predčasný starobný,35045
+2024-04,Invalidný,217837
+2024-04,Sirotský,20520
+2024-04,Vdovský sólo,25317
+2024-04,Vdovecký sólo,5448
+2024-04,Spolu,1442517
+2024-05,Starobný,1117144
+2024-05,Predčasný starobný,40258
+2024-05,Invalidný,216287
+2024-05,Sirotský,19748
+2024-05,Vdovský sólo,25163
+2024-05,Vdovecký sólo,5388
+2024-05,Spolu,1447263
+2024-06,Starobný,1121502
+2024-06,Predčasný starobný,40869
+2024-06,Invalidný,216931
+2024-06,Sirotský,19818
+2024-06,Vdovský sólo,24903
+2024-06,Vdovecký sólo,5385
+2024-06,Spolu,1452924
+2024-07,Starobný,1124218
+2024-07,Predčasný starobný,42149
+2024-07,Invalidný,217321
+2024-07,Sirotský,17202
+2024-07,Vdovský sólo,24713
+2024-07,Vdovecký sólo,5384
+2024-07,Spolu,1454661
+2024-08,Starobný,1125907
+2024-08,Predčasný starobný,42741
+2024-08,Invalidný,217388
+2024-08,Sirotský,17261
+2024-08,Vdovský sólo,24555
+2024-08,Vdovecký sólo,5335
+2024-08,Spolu,1456997
+2024-09,Starobný,1127657
+2024-09,Predčasný starobný,41907
+2024-09,Invalidný,217721
+2024-09,Sirotský,17248
+2024-09,Vdovský sólo,24403
+2024-09,Vdovecký sólo,5312
+2024-09,Spolu,1458194
+2024-10,Starobný,1129519
+2024-10,Predčasný starobný,40919
+2024-10,Invalidný,217751
+2024-10,Sirotský,17728
+2024-10,Vdovský sólo,24360
+2024-10,Vdovecký sólo,5303
+2024-10,Spolu,1459633
+2024-11,Starobný,1133049
+2024-11,Predčasný starobný,39909
+2024-11,Invalidný,218037
+2024-11,Sirotský,18869
+2024-11,Vdovský sólo,24366
+2024-11,Vdovecký sólo,5322
+2024-11,Spolu,1463712
+2024-12,Starobný,1134690
+2024-12,Predčasný starobný,39055
+2024-12,Invalidný,217975
+2024-12,Sirotský,20023
+2024-12,Vdovský sólo,24354
+2024-12,Vdovecký sólo,5333
+2024-12,Spolu,1465702

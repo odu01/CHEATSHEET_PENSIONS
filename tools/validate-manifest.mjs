@@ -51,6 +51,22 @@ const REQUIRED = {
 // Keys whose value must name a real column in the view's dataset.
 const COLUMN_KEYS = ['x', 'y', 'z', 'value', 'series', 'label', 'totalFlag'];
 
+/**
+ * Columns a transform pipeline creates. They are legal targets even though they
+ * are not in the CSV header — `derive` and `aggregate` invent them.
+ */
+function producedBy(pipeline) {
+  const produced = new Set();
+  for (const t of pipeline || []) {
+    if (t.into) produced.add(t.into);
+    if (t.kind === 'unpivot') { produced.add(t.into || 'kategoria'); produced.add(t.value || 'hodnota'); }
+    if (t.kind === 'aggregate') produced.add(t.into || t.value);
+    if (t.kind === 'index') produced.add(t.into || t.value);
+    if (t.kind === 'pivot' && t.key) produced.add('*');   // pivot column names are data-dependent
+  }
+  return produced;
+}
+
 // ── 1. manifest parses ──────────────────────────────────────────────────────
 const manifestPath = join(ROOT, 'data', 'manifest.json');
 if (!existsSync(manifestPath)) {
@@ -119,15 +135,7 @@ for (const [id, v] of Object.entries(views)) {
   const cols = headers[v.dataset];
   if (!cols) continue;
 
-  // Columns produced by a transform are legal even though they are not in the CSV.
-  const produced = new Set();
-  for (const t of v.transform || []) {
-    if (t.into) produced.add(t.into);
-    if (t.kind === 'unpivot') { produced.add(t.into || 'kategoria'); produced.add(t.value || 'hodnota'); }
-    if (t.kind === 'aggregate') produced.add(t.into || t.value);
-    if (t.kind === 'index') produced.add(t.into || t.value);
-    if (t.kind === 'pivot' && t.key) produced.add('*');   // pivot column names are data-dependent
-  }
+  const produced = producedBy(v.transform);
   const known = c => cols.has(c) || produced.has(c) || produced.has('*');
 
   for (const key of COLUMN_KEYS) {
@@ -143,10 +151,26 @@ for (const [id, v] of Object.entries(views)) {
       if (!known(c)) err(`view "${id}": transform filtruje podľa "${c}", ktorý v datasete "${v.dataset}" nie je`);
     }
   }
+  // A tile may name its own dataset and carry its own transform pipeline, so it
+  // is resolved against that, not against the view's dataset.
   for (const tile of v.tiles || []) {
-    if (tile.value && !known(tile.value))
-      err(`view "${id}": tile "${tile.label}" používa "${tile.value}", ktorý v datasete "${v.dataset}" nie je`);
     if (!tile.label) err(`view "${id}": tile bez "label"`);
+    const ds = tile.dataset || v.dataset;
+    if (tile.dataset && !manifest.datasets?.[tile.dataset]) {
+      err(`view "${id}": tile "${tile.label}" odkazuje na neexistujúci dataset "${tile.dataset}"`);
+      continue;
+    }
+    const tileCols = headers[ds];
+    if (!tileCols) continue;
+    const tileProduced = producedBy(tile.transform);
+    const tileKnown = c => tileCols.has(c) || tileProduced.has(c) || tileProduced.has('*');
+    if (tile.value && !tileKnown(tile.value))
+      err(`view "${id}": tile "${tile.label}" používa "${tile.value}", ktorý v datasete "${ds}" nie je`);
+    for (const t of tile.transform || []) {
+      for (const c of Object.keys(t.where || {})) {
+        if (!tileKnown(c)) err(`view "${id}": tile "${tile.label}" filtruje podľa "${c}", ktorý v datasete "${ds}" nie je`);
+      }
+    }
   }
 }
 

@@ -124,8 +124,10 @@ async function openPage(pageId, resetFilters = true) {
     return { ...v, id };
   });
 
-  // Load every dataset this page needs, once, in parallel.
-  const needed = [...new Set(specs.map(s => s.dataset).filter(Boolean))];
+  // Load every dataset this page needs, once, in parallel. Tiles may name their
+  // own dataset, so a KPI row can pull from several files — those count too.
+  const needed = [...new Set(specs.flatMap(s =>
+    [s.dataset, ...(s.tiles || []).map(t => t.dataset)]).filter(Boolean))];
   const bundles = {};
   await Promise.all(needed.map(async ds => {
     const def = state.manifest.datasets?.[ds];
@@ -172,7 +174,7 @@ async function drawViews(grid, specs, bundles) {
     }
     // The shared filter row is applied before the view's own transforms.
     const scoped = scopeRows(bundle, spec);
-    const card = await renderView(spec, scoped);
+    const card = await renderView(spec, scoped, { bundles });
     cards.push(card);
   }
   grid.replaceChildren(...cards);
@@ -215,17 +217,24 @@ function buildFilterRow(host, page, specs, bundles) {
     const sel = document.createElement('select');
     sel.className = 'filter-select';
 
-    const all = document.createElement('option');
-    all.value = '';
-    all.textContent = def.allLabel || 'Všetko';
-    sel.appendChild(all);
+    // A `required` filter offers no "all" option. Some views only make sense for
+    // one value at a time: a chart whose series is "new vs paid" would, with every
+    // pension type selected at once, draw one line zig-zagging across all of them.
+    if (!def.required) {
+      const all = document.createElement('option');
+      all.value = '';
+      all.textContent = def.allLabel || 'Všetko';
+      sel.appendChild(all);
+    }
     for (const v of values) {
       const o = document.createElement('option');
       o.value = String(v);
       o.textContent = String(v);
       sel.appendChild(o);
     }
-    if (def.default != null) sel.value = String(def.default);
+    if (def.default != null && values.some(v => String(v) === String(def.default)))
+      sel.value = String(def.default);
+    else if (def.required) sel.value = String(values[0] ?? '');
     state.filters[def.column] = sel.value === '' ? null
       : (typeof values[0] === 'number' ? Number(sel.value) : sel.value);
 

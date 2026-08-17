@@ -54,9 +54,10 @@ rokov × 101 kohort × 2 pohlavia, worker to drží mimo UI vlákno. Tento web j
 transformácia je otázka milisekúnd, worker by pridal len asynchrónnu zložitosť bez
 prínosu.
 
-Vrátil by som ho, keby sa niekedy počítalo priamo v stránke (napr. interaktívny
-slider dôchodkového veku, ktorý dopočítava saldo). Dnes je to preddefinovaná
-mriežka v CSV — pozri `data/saldo_povrch.csv`.
+Vrátil by som ho, keby sa niekedy počítalo priamo v stránke — napríklad slider
+dôchodkového veku, ktorý dopočítava saldo. Dnes sú všetky hodnoty už v CSV a
+transformácie nad nimi (agregácie, prepočty na milióny, indexácia) sú otázka
+milisekúnd na hlavnom vlákne.
 
 ### 3.2 Zadrôtované grafy → deklaratívny manifest
 
@@ -92,7 +93,14 @@ a tabuľku.
 Ten projekt nikde neuvádza, odkiaľ čísla sú a ako sú staré. Pre štatistický prehľad
 je to zásadné. Každý dataset tu deklaruje `source`, `vintage`, `unit`, a validácia
 neprejde, ak dataset nemá zdroj a ani nie je explicitne označený ako ilustračný.
-Ilustračné datasety dostanú na každej karte výstražný odznak.
+Ilustračné datasety dostanú na každej karte výstražný odznak. Karta, ktorá čerpá z
+viacerých datasetov (napr. riadok kľúčových čísel), vypíše zdroj každého z nich —
+jeden spoločný riadok by pripísal všetky čísla jednému zošitu a jednému obdobiu.
+
+Pri reálnych dátach Sociálnej poisťovne sa to hneď vyplatilo: dva zošity používajú
+dve rôzne definície priemerného dôchodku (642,35 € vs 683,10 € za ten istý
+december 2024), takže bez jasnej provenancie na karte by sa dali nechtiac porovnať.
+Podrobne v `docs/ZDROJOVE_DATA.md`.
 
 ## 4. Čo tam je rozbité a čo som z toho urobil
 
@@ -119,8 +127,14 @@ dáta tam pod iným názvom sú. Stránka teda spadne pri načítaní.
 Nič to nezachytilo, pretože nič nekontrolovalo, že súbory, ktoré stránka načítava,
 existujú. Preto `tools/validate-manifest.mjs` overuje každý `<script src>`, každý
 `<link href>`, každý `import` a každý dataset proti disku, a `tools/screenshots.mjs`
-vykreslí všetkých 7 stránok v oboch režimoch a spadne na akejkoľvek chybe v konzole.
+vykreslí všetkých 8 stránok v oboch režimoch a spadne na akejkoľvek chybe v konzole.
 Oboje beží v CI pred nasadením.
+
+Že to nie je teoretické: smoke test odhalil počas vývoja štyri chyby, ktoré
+statická validácia nevidí — zmizli stĺpce (výpočet odsadenia pásma ignoroval
+padding), slovenské formátovanie čísel sa tichо zahodilo (explicitná os prepísala
+nastavenia škály), body v bodovom grafe sa nekreslili (výška karty `"l"` sa poslala
+ako polomer bodu) a roky sa zobrazovali ako „2 010,0".
 
 **Druhý problém:** knižnice sa ťahajú z CDN na plávajúcom rozsahu
 (`@observablehq/plot@0.6`, `d3@7`). Upstream release môže kedykoľvek zmeniť
@@ -187,8 +201,9 @@ Skelet teda áno, jadro nie. Súčasný web má z toho projektu tvar, nie obsah.
 
 Nie je to v tejto dodávke, lebo si to nežiadal, ale je to logické pokračovanie:
 
-1. **Skript na import z Excelu** — dnes je vstup CSV. Ak budeš dodávať `.xlsx`,
-   `tools/` si zaslúži prevodník (Python + pandas) a validáciu už pri commite.
+1. ~~**Skript na import z Excelu**~~ — hotové: `tools/import_sp.py` prevádza zošity
+   Sociálnej poisťovne z `data/zdroj/` a kontroluje súčty proti riadku „Celkom".
+   Pozri `docs/ZDROJOVE_DATA.md`.
 2. **Vlastné rozpätie rokov ako filter** — filtre teraz filtrujú podľa hodnoty
    stĺpca; posuvník rozsahu rokov by bol užitočný na časových radách.
 3. **Trvalý odkaz na stav stránky** — filtre a skryté série do URL, aby sa dal

@@ -473,3 +473,7 @@ body {
   html { scroll-behavior: auto; }
   * { transition: none !important; animation: none !important; }
 }
+
+/* several datasets behind one card (a KPI row): one credit line each */
+.viz-source-list { display: flex; flex-direction: column; gap: 1px; }
+.viz-source-row { font-size: 0.72rem; color: var(--ink-muted); }

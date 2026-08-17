@@ -73,8 +73,11 @@ Tri veci, ktoré sa dajú ľahko pokaziť:
   zdroja.
 - **`unit` má význam pre formátovanie.** `"tis. osôb"` znamená, že čísla **už sú**
   v tisícoch — web ich neprepočíta znova. Ak sú v CSV surové osoby, napíš
-  `"osôb"` a web ich sám skráti na „1,2 mil.".
+  `"osôb"` alebo `"dôchodkov"`: v tabuľke sa zobrazí presne (`1 134 690`), na osi
+  skrátene (`1,13 mil.`).
 - **`"type": "year"`** pri letopočtoch. Bez toho sa `2024` zobrazí ako `2 024,0`.
+- **`"type": "month"`** pri mesačných radách v tvare `2024-01`. Načíta sa ako
+  dátum, takže os použije časovú škálu namiesto 200 kategórií.
 
 ## 3. Zápis view
 
@@ -126,8 +129,7 @@ A pridaj id do niektorej stránky:
 - **Dve veličiny v rovnakých jednotkách** (mzda a dôchodok v EUR) → jeden `line`
   s `series`.
 - **Dve veličiny v rôznych jednotkách** → **nikdy nie druhá os.** Buď dva grafy,
-  alebo `index` transformácia na spoločný základ = 100 (vzor:
-  `mzda_dochodok_index` v manifeste).
+  alebo `index` transformácia na spoločný základ = 100.
 - **Nominálne kategórie** (druhy dôchodkov, krajiny) → jedna farba pre všetky
   stĺpce. Dĺžka stĺpca už nesie hodnotu; farbiť ju podľa veľkosti je dvojité
   kódovanie.
@@ -136,6 +138,10 @@ A pridaj id do niektorej stránky:
 - **Bodový graf** znesie najviac **3 barevné série** (limit je zmeraný, nie
   odhadnutý — pozri `docs/ZHODNOTENIE_PRISTUPU.md` §5). Viac sérií sa zlúči a
   identitu nesie tabuľka.
+- **Viac než 6 kategórií v skladanom grafe** → nezlučuj ich mechanicky do
+  „Ostatné": sivá prejde limitom susednosti len vedľa červenej. Zlúč ich vecne.
+  Vzor: vdovský + vdovecký + sirotský = „Pozostalostné", čím z 8 druhov dôchodku
+  vzniknú presne 4 zmysluplné kategórie plus rodičovský a 13. dôchodok.
 
 ## 5. Transformácie
 
@@ -148,10 +154,10 @@ strane view, takže jedno CSV môže živiť viacero grafov.
 | `aggregate` | zoskupí a spočíta | `{"kind":"aggregate","by":["rok"],"value":"podiel_hdp","as":"sum"}` |
 | `unpivot` | široký → dlhý | `{"kind":"unpivot","keep":["rok"],"into":"druh","value":"hodnota"}` |
 | `pivot` | dlhý → široký | `{"kind":"pivot","key":"druh","value":"hodnota","by":["rok"]}` |
-| `rename` | premenuje HODNOTY v stĺpci | `{"kind":"rename","column":"druh","map":{"starobne":"Starobné"}}` |
+| `rename` | premenuje HODNOTY v stĺpci | `{"kind":"rename","column":"druh","map":{"Vdovský":"Pozostalostné"}}` |
 | `derive` | vypočíta nový stĺpec | `{"kind":"derive","into":"pomer","expr":"a / b * 100","vars":{"a":"dochodok","b":"mzda"}}` |
 | `index` | prepočíta na základ = 100 | `{"kind":"index","value":"hodnota","by":["druh"],"on":"rok","at":2020}` |
-| `sort` | zoradí | `{"kind":"sort","by":"hodnota","dir":"desc"}` |
+| `sort` | zoradí (`dir` môže byť pole podľa `by`) | `{"kind":"sort","by":["rok","mesiac"],"dir":["desc","asc"]}` |
 | `topN` | ponechá N, zvyšok do „Ostatné" | `{"kind":"topN","n":6,"by":"hodnota","group":"krajina"}` |
 | `limit` | prvých N riadkov | `{"kind":"limit","n":20}` |
 
@@ -172,6 +178,17 @@ navzájom odpovedajú.
 
 Filter sa aplikuje len na datasety, ktoré daný stĺpec majú — karty z iných datasetov
 zostanú nedotknuté.
+
+Dve veci, na ktoré si dať pozor:
+
+- **`"required": true`** vypne možnosť „Všetko". Použi ju, keď view predpokladá
+  jednu hodnotu naraz. Vzor: graf „novopriznaný vs vyplácaný" má sériu
+  `kategoria` (dve hodnoty); keby v dátach zostalo päť druhov dôchodku, Plot by
+  nakreslil jednu čiaru cikcakom cez všetky.
+- **Filter platí pre celú stránku.** Graf, ktorý má zmysel len bez filtra (napr.
+  „podľa druhu" so všetkými sériami), preto nedávaj na tú istú stránku — filter ho
+  zredukuje na jednu sériu. Rozdeľ stránky; presne preto sú „Priemerné dôchodky"
+  a „Novopriznané" dve.
 
 ## 7. Čo dostaneš zadarmo ku každému grafu
 
@@ -201,5 +218,7 @@ npm run shots               # vykreslí všetky stránky do screenshots/ a nájd
 | `súbor ... neexistuje` | cesta v `file` je od koreňa repozitára, nie od `data/` |
 | `riadok N má iný počet stĺpcov` | v CSV je čiarka v texte bez úvodzoviek |
 | rok sa zobrazuje `2 024,0` | chýba `"type": "year"` |
+| na osi je 200 popiskov mesiacov | mesiac je string; nastav `"type": "month"` a `"xTickFormat": "month"` |
+| os počtov opakuje `1,7 mil.` | rozsah je úzky — už sa rieši automaticky podľa rozpätia osi |
 | v legende je `nazov_stlpca` | po `unpivot` chýba `rename` |
 | hodnoty sú 1000× menšie | `unit` hovorí „tis.", ale dáta sú surové (alebo naopak) |

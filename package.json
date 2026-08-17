@@ -9,7 +9,7 @@
     "validate": "node tools/validate-manifest.mjs && node tools/check-palette.mjs",
     "validate:manifest": "node tools/validate-manifest.mjs",
     "validate:palette": "node tools/check-palette.mjs",
-    "data": "node tools/make-sample-data.mjs",
+    "data": "python3 tools/import_sp.py",
     "shots": "node tools/screenshots.mjs"
   },
   "comment": "There are no runtime dependencies on purpose: d3, Observable Plot and the Plotly gl3d bundle are vendored under vendor/ at pinned versions. devDependencies are only needed for `npm run shots`.",
