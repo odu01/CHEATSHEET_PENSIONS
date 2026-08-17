@@ -1,0 +1,475 @@
+/* style.css — RRZ theme for the pension cheatsheet.
+ *
+ * Both modes are *selected*, not flipped: the dark values are their own steps,
+ * validated against the dark surface (see lib/theme.js for the measurements).
+ * The dark block is declared twice on purpose — once under the media query for
+ * the OS setting, once under [data-theme="dark"] for the in-page toggle, which
+ * has to win both ways.
+ *
+ * No webfont is loaded. The type is the system sans, so the page makes no
+ * third-party requests at all.
+ */
+
+:root {
+  color-scheme: light;
+
+  --surface:      #ffffff;
+  --plane:        #f4f6fa;
+  --ink-primary:  #0f1a33;
+  --ink-secondary:#44536e;
+  --ink-muted:    #6b7890;
+  --grid:         #e6eaf1;
+  --axis:         #c3cbd9;
+  --border:       rgba(15, 26, 51, 0.10);
+  --border-strong:rgba(15, 26, 51, 0.16);
+
+  --series-1: #079fcf;
+  --series-2: #d62928;
+  --series-3: #31a861;
+  --series-4: #3657aa;
+  --series-5: #bb8b41;
+  --series-6: #9d469c;
+  --other:    #82868e;
+
+  --brand:      #13B5EA;
+  --accent:     #3657aa;
+  --delta-good: #006300;
+  --delta-bad:  #b3231f;
+
+  --status-warning: #fab219;
+
+  --shadow: 0 1px 2px rgba(15, 26, 51, 0.05), 0 4px 16px rgba(15, 26, 51, 0.05);
+  --radius: 10px;
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --surface:      #1a2949;
+    --plane:        #101c36;
+    --ink-primary:  #f2f5fa;
+    --ink-secondary:#c2ccdd;
+    --ink-muted:    #8f9db6;
+    --grid:         #28385c;
+    --axis:         #3b4c72;
+    --border:       rgba(242, 245, 250, 0.12);
+    --border-strong:rgba(242, 245, 250, 0.20);
+
+    --series-1: #079fcf;
+    --series-2: #da2d2b;
+    --series-3: #35ab64;
+    --series-4: #4e70bf;
+    --series-5: #b7883e;
+    --series-6: #a755a5;
+    --other:    #7d8088;
+
+    --accent:     #4e70bf;
+    --delta-good: #0ca30c;
+    --delta-bad:  #e66767;
+
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.30), 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface:      #1a2949;
+  --plane:        #101c36;
+  --ink-primary:  #f2f5fa;
+  --ink-secondary:#c2ccdd;
+  --ink-muted:    #8f9db6;
+  --grid:         #28385c;
+  --axis:         #3b4c72;
+  --border:       rgba(242, 245, 250, 0.12);
+  --border-strong:rgba(242, 245, 250, 0.20);
+
+  --series-1: #079fcf;
+  --series-2: #da2d2b;
+  --series-3: #35ab64;
+  --series-4: #4e70bf;
+  --series-5: #b7883e;
+  --series-6: #a755a5;
+  --other:    #7d8088;
+
+  --accent:     #4e70bf;
+  --delta-good: #0ca30c;
+  --delta-bad:  #e66767;
+
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.30), 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font);
+  background: var(--plane);
+  color: var(--ink-secondary);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+}
+
+.skip-link {
+  position: absolute; left: -9999px; top: 0;
+  background: var(--surface); color: var(--ink-primary);
+  padding: 10px 16px; z-index: 100; border-radius: 0 0 var(--radius) 0;
+}
+.skip-link:focus { left: 0; }
+
+/* ── header ──────────────────────────────────────────────────────────────── */
+
+.app-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+  padding: 14px clamp(12px, 3vw, 32px);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.brand-logo { height: 30px; width: auto; color: var(--ink-primary); flex: none; }
+.brand-text { min-width: 0; }
+.brand h1 {
+  font-size: 1.05rem; font-weight: 700; color: var(--ink-primary);
+  letter-spacing: -0.01em; line-height: 1.25;
+}
+.brand-sub { font-size: 0.8rem; color: var(--ink-muted); }
+
+.header-tools { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── nav ─────────────────────────────────────────────────────────────────── */
+
+.app-nav {
+  display: flex; gap: 2px; flex-wrap: wrap;
+  padding: 0 clamp(12px, 3vw, 32px);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+.nav-item {
+  padding: 10px 14px;
+  font-size: 0.85rem; font-weight: 600;
+  color: var(--ink-muted); text-decoration: none;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.nav-item:hover { color: var(--ink-primary); background: color-mix(in oklab, var(--brand) 6%, transparent); }
+.nav-item.is-active { color: var(--ink-primary); border-bottom-color: var(--brand); }
+
+/* ── content ─────────────────────────────────────────────────────────────── */
+
+.app-content {
+  padding: clamp(16px, 3vw, 28px) clamp(12px, 3vw, 32px) 40px;
+  max-width: 1560px; margin: 0 auto;
+}
+.app-content:focus { outline: none; }
+.app-content.is-loading { opacity: 0.55; transition: opacity 120ms; }
+
+.page-intro { margin-bottom: 18px; max-width: 78ch; }
+.page-intro h2 {
+  font-size: 1.35rem; font-weight: 700; color: var(--ink-primary);
+  letter-spacing: -0.015em; margin-bottom: 4px;
+}
+.page-intro p { color: var(--ink-secondary); font-size: 0.9rem; }
+
+/* one filter row, above everything it scopes */
+.filter-row {
+  display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;
+  padding: 12px 14px; margin-bottom: 16px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+/* an explicit `display` beats the UA stylesheet's [hidden] rule, so pages with no
+   filters rendered an empty box; restore the hiding here */
+.filter-row[hidden] { display: none; }
+.filter { display: flex; flex-direction: column; gap: 4px; }
+.filter-label { font-size: 0.72rem; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.filter-select {
+  font: inherit; font-size: 0.85rem;
+  padding: 6px 10px; min-width: 130px;
+  color: var(--ink-primary); background: var(--plane);
+  border: 1px solid var(--border-strong); border-radius: 6px;
+}
+.filter-reset { align-self: flex-end; }
+
+.viz-grid {
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  align-items: start;
+}
+.viz-grid.is-refetching { opacity: 0.6; transition: opacity 100ms; }
+.viz-card.span-2 { grid-column: span 2; }
+.viz-card.span-full { grid-column: 1 / -1; }
+@media (max-width: 900px) {
+  .viz-card.span-2 { grid-column: 1 / -1; }
+}
+
+/* ── card ────────────────────────────────────────────────────────────────── */
+
+.viz-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 16px 12px;
+  min-width: 0;
+}
+
+.viz-card-head { margin-bottom: 10px; }
+.viz-card-title {
+  font-size: 0.95rem; font-weight: 700; color: var(--ink-primary);
+  letter-spacing: -0.01em; line-height: 1.35;
+}
+.viz-card-sub { font-size: 0.8rem; color: var(--ink-muted); margin-top: 2px; }
+
+/* The stage sizes to plot height + axis band, so the axis is never cut off and
+   the card never grows an inner scrollbar. */
+.viz-stage { position: relative; width: 100%; }
+.viz-stage svg { display: block; max-width: 100%; height: auto; }
+.viz-3d { width: 100%; }
+
+/* ── hover layer ─────────────────────────────────────────────────────────── */
+
+.viz-overlay { position: absolute; inset: 0; }
+.viz-overlay:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+.viz-crosshair {
+  position: absolute; top: 0; bottom: 0; width: 1px;
+  background: var(--axis); pointer-events: none;
+}
+
+.viz-hit {
+  position: absolute; appearance: none; border: 0; padding: 0;
+  background: transparent; cursor: default;
+}
+.viz-hit:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; border-radius: 4px; }
+/* the hovered mark lifts, so the reader sees it respond */
+.viz-hit-active { background: color-mix(in oklab, var(--ink-primary) 6%, transparent); border-radius: 4px; }
+
+.viz-tip {
+  position: absolute; top: 0; left: 0; z-index: 5;
+  min-width: 132px; max-width: 260px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  pointer-events: none;
+  font-size: 0.8rem;
+}
+.viz-tip-head {
+  font-weight: 700; color: var(--ink-primary);
+  padding-bottom: 5px; margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.viz-tip-row { display: flex; align-items: baseline; gap: 7px; padding: 1px 0; }
+/* a line key, not a filled box — at tooltip density a box is data-weight ink */
+.viz-tip-key { width: 12px; height: 2px; border-radius: 1px; flex: none; transform: translateY(-3px); }
+.viz-tip-key-rect { height: 9px; border-radius: 2px; transform: none; }
+/* value leads, label follows: the reader has the series and wants the number */
+.viz-tip-value {
+  font-weight: 700; color: var(--ink-primary);
+  font-variant-numeric: tabular-nums; margin-left: auto; order: 3;
+}
+.viz-tip-label { color: var(--ink-secondary); order: 2; }
+.viz-tip-total { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 4px; }
+.viz-tip-total .viz-tip-label { font-weight: 600; color: var(--ink-primary); }
+
+/* ── legend ──────────────────────────────────────────────────────────────── */
+
+.viz-legend-host { margin-top: 10px; }
+.viz-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.viz-legend-item {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: inherit; font-size: 0.78rem; color: var(--ink-secondary);
+  background: none; border: 0; padding: 3px 4px; border-radius: 5px; cursor: pointer;
+}
+.viz-legend-item:hover { background: color-mix(in oklab, var(--ink-primary) 6%, transparent); color: var(--ink-primary); }
+.viz-legend-item:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+.viz-legend-item.is-off { opacity: 0.42; text-decoration: line-through; }
+.viz-legend-swatch { flex: none; }
+/* the legend mirrors the mark: rect for fills, line for lines, dot for scatter */
+.viz-legend-rect { width: 11px; height: 11px; border-radius: 2px; }
+.viz-legend-line { width: 14px; height: 2px; border-radius: 1px; }
+.viz-legend-dot  { width: 9px; height: 9px; border-radius: 50%; }
+
+.viz-scale-legend {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.75rem; color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+.viz-scale-bar { flex: 1 1 90px; max-width: 190px; height: 8px; border-radius: 4px; }
+.viz-scale-unit { color: var(--ink-secondary); font-weight: 600; }
+
+.viz-note {
+  font-size: 0.76rem; color: var(--ink-muted);
+  margin-top: 6px; max-width: 72ch;
+}
+
+/* ── stat tiles ──────────────────────────────────────────────────────────── */
+
+.viz-tiles {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.viz-tile {
+  padding: 12px 14px;
+  background: var(--plane);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.viz-tile-label {
+  font-size: 0.75rem; color: var(--ink-muted); font-weight: 600;
+  margin-bottom: 3px;
+}
+/* proportional figures: tabular-nums makes a display-size number look loose */
+.viz-tile-value {
+  font-size: 1.5rem; font-weight: 650; color: var(--ink-primary);
+  letter-spacing: -0.02em; line-height: 1.15;
+}
+.viz-tile-hero { grid-column: span 2; }
+.viz-tile-hero .viz-tile-value { font-size: 3rem; letter-spacing: -0.03em; }
+@media (max-width: 560px) { .viz-tile-hero { grid-column: 1 / -1; } }
+
+.viz-tile-delta { font-size: 0.78rem; font-weight: 600; margin-top: 3px; color: var(--ink-muted); }
+.viz-tile-delta.up-good { color: var(--delta-good); }
+.viz-tile-delta.up-bad  { color: var(--delta-bad); }
+.viz-tile-arrow { font-size: 0.65rem; }
+.viz-tile-delta-note { color: var(--ink-muted); font-weight: 500; margin-left: 5px; }
+.viz-tile-note { font-size: 0.72rem; color: var(--ink-muted); margin-top: 4px; }
+.viz-spark { margin-top: 6px; display: block; }
+
+/* ── table ───────────────────────────────────────────────────────────────── */
+
+.viz-table-details { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
+.viz-table-summary {
+  font-size: 0.78rem; font-weight: 600; color: var(--ink-secondary);
+  cursor: pointer; list-style: none; padding: 2px 0;
+}
+.viz-table-summary::before { content: '▸ '; color: var(--ink-muted); }
+.viz-table-details[open] .viz-table-summary::before { content: '▾ '; }
+.viz-table-summary:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 4px; }
+
+.viz-table-wrap { overflow-x: auto; margin-top: 8px; max-height: 420px; overflow-y: auto; }
+.viz-table { border-collapse: collapse; width: 100%; font-size: 0.8rem; }
+.viz-table caption {
+  text-align: left; font-size: 0.78rem; color: var(--ink-muted);
+  padding-bottom: 6px;
+}
+.viz-table th, .viz-table td {
+  padding: 6px 10px; text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.viz-table thead th {
+  position: sticky; top: 0; z-index: 1;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-strong);
+  padding: 0;
+}
+.viz-table th.num, .viz-table td.num { text-align: right; }
+/* tabular figures only where numbers stack vertically */
+.viz-table td.num { font-variant-numeric: tabular-nums; }
+.viz-table td.empty { color: var(--ink-muted); }
+.viz-table tbody tr:hover { background: color-mix(in oklab, var(--brand) 5%, transparent); }
+
+.viz-th-sort {
+  font: inherit; font-size: 0.76rem; font-weight: 700;
+  color: var(--ink-secondary); background: none; border: 0;
+  padding: 7px 10px; width: 100%; text-align: inherit;
+  cursor: pointer; display: flex; align-items: baseline; gap: 5px;
+}
+.viz-table th.num .viz-th-sort { justify-content: flex-end; }
+.viz-th-sort:hover { color: var(--ink-primary); }
+.viz-th-sort:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+.viz-th-unit { font-weight: 500; color: var(--ink-muted); font-size: 0.72rem; }
+.viz-th-caret::after { content: ''; }
+.viz-table th.sorted .viz-th-caret::after { content: '▲'; font-size: 0.6rem; color: var(--brand); }
+.viz-table th.sorted.desc .viz-th-caret::after { content: '▼'; }
+
+.viz-table-tools {
+  display: flex; align-items: center; gap: 12px;
+  margin-top: 8px; font-size: 0.75rem; color: var(--ink-muted);
+}
+
+/* ── buttons ─────────────────────────────────────────────────────────────── */
+
+.viz-btn {
+  font: inherit; font-size: 0.78rem; font-weight: 600;
+  padding: 6px 12px; border-radius: 6px; cursor: pointer;
+  color: var(--ink-primary);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+}
+.viz-btn:hover { background: color-mix(in oklab, var(--brand) 8%, var(--surface)); }
+.viz-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.viz-btn.ghost { background: transparent; }
+
+/* ── provenance & errors ─────────────────────────────────────────────────── */
+
+.viz-source {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-top: 10px; padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 0.72rem; color: var(--ink-muted);
+}
+.viz-source-text { font-variant-numeric: tabular-nums; }
+.viz-source-note { font-style: italic; }
+
+/* status colours ship with an icon + a label, never colour alone */
+.viz-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 7px; border-radius: 100px;
+  font-size: 0.7rem; font-weight: 700;
+  border: 1px solid;
+}
+.viz-badge-warn {
+  color: var(--ink-primary);
+  background: color-mix(in oklab, var(--status-warning) 22%, var(--surface));
+  border-color: color-mix(in oklab, var(--status-warning) 55%, var(--surface));
+}
+.viz-badge-icon { font-size: 0.75rem; }
+
+.viz-error {
+  padding: 12px 14px; border-radius: 8px;
+  font-size: 0.82rem; color: var(--ink-primary);
+  background: color-mix(in oklab, var(--series-2) 12%, var(--surface));
+  border: 1px solid color-mix(in oklab, var(--series-2) 45%, var(--surface));
+}
+
+/* ── footer ──────────────────────────────────────────────────────────────── */
+
+.app-footer {
+  padding: 18px clamp(12px, 3vw, 32px) 28px;
+  border-top: 1px solid var(--border);
+  font-size: 0.76rem; color: var(--ink-muted);
+  max-width: 1560px; margin: 0 auto;
+}
+.app-footer code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.95em;
+  background: var(--surface); padding: 1px 5px; border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+/* ── print: the table twin is what carries to paper ──────────────────────── */
+
+@media print {
+  :root { color-scheme: light; }
+  .app-nav, .header-tools, .filter-row, .viz-table-tools, .skip-link { display: none; }
+  body { background: #fff; }
+  .viz-card { break-inside: avoid; box-shadow: none; border-color: #ccc; }
+  .viz-grid { display: block; }
+  .viz-card { margin-bottom: 14px; }
+  .viz-table-details { display: block; }
+  .viz-table-wrap { max-height: none; overflow: visible; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; animation: none !important; }
+}

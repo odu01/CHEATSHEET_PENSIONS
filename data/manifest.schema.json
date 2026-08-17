@@ -1,0 +1,227 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/odu01/CHEATSHEET_PENSIONS/data/manifest.schema.json",
+  "title": "Manifest prehľadu dôchodkového systému",
+  "description": "Kontrakt medzi dátami a webom. Editor s podporou JSON Schema podľa tohto súboru dopĺňa kľúče a upozorní na typo skôr, než ho odhalí tools/validate-manifest.mjs.",
+  "type": "object",
+  "required": ["title", "datasets", "pages", "views"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "title": { "type": "string", "description": "Nadpis webu." },
+    "subtitle": { "type": "string" },
+
+    "datasets": {
+      "type": "object",
+      "description": "Zdrojové súbory. Kľúč je id, na ktoré sa odvolávajú views.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["file"],
+        "additionalProperties": false,
+        "properties": {
+          "file": {
+            "type": "string",
+            "description": "Cesta od koreňa repozitára, napr. data/vydavky.csv. Podporené: .csv, .tsv, .json.",
+            "pattern": "\\.(csv|tsv|json)$"
+          },
+          "label": { "type": "string" },
+          "unit": {
+            "type": "string",
+            "description": "Jednotka hodnôt. POZOR na význam: \"tis. osôb\" znamená, že čísla už SÚ v tisícoch a web ich nesmie prepočítať znova."
+          },
+          "source": {
+            "type": "string",
+            "description": "Povinné, ak dataset nie je označený ako illustrative. Bez zdroja alebo príznaku validácia neprejde."
+          },
+          "vintage": { "type": "string", "description": "Dátum alebo verzia dát, napr. \"2026-03\"." },
+          "illustrative": {
+            "type": "boolean",
+            "default": false,
+            "description": "true = vygenerované ukážkové čísla. Na každej karte sa zobrazí výstražný odznak."
+          },
+          "note": { "type": "string", "description": "Metodická poznámka pod grafom." },
+          "columns": {
+            "type": "object",
+            "description": "Vynútené typy stĺpcov. Bez nich sa typ odhadne z prvých 50 hodnôt.",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "enum": ["int", "number", "string", "bool", "date", "year"],
+                  "description": "year = ordinálny letopočet: bez oddeľovača tisícov a bez desatín."
+                },
+                "label": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "pages": {
+      "type": "array",
+      "description": "Záložky v hlavnej navigácii, v tomto poradí.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "views"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9_-]+$", "description": "Použije sa ako #hash v URL." },
+          "label": { "type": "string" },
+          "description": { "type": "string" },
+          "hint": { "type": "string", "description": "Tooltip na položke v navigácii." },
+          "views": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "filters": {
+            "type": "array",
+            "description": "Jeden riadok filtrov nad celou stránkou; filtruje všetky views naraz.",
+            "items": {
+              "type": "object",
+              "required": ["column"],
+              "additionalProperties": false,
+              "properties": {
+                "dataset": { "type": "string" },
+                "column": { "type": "string" },
+                "label": { "type": "string" },
+                "allLabel": { "type": "string", "default": "Všetko" },
+                "default": {}
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "views": {
+      "type": "object",
+      "description": "Definície kariet. Kľúč je id, na ktoré sa odvolávajú pages.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "enum": [
+              "line", "area", "area-stacked",
+              "column", "bar", "bar-stacked", "bar-stacked-h", "bar-grouped",
+              "scatter", "heatmap", "pyramid", "waterfall",
+              "surface3d", "scatter3d",
+              "tiles", "table"
+            ]
+          },
+          "title": { "type": "string" },
+          "subtitle": { "type": "string" },
+          "note": { "type": "string" },
+          "dataset": { "type": "string" },
+
+          "x": { "type": "string", "description": "Stĺpec na os X (pri bar/column kategória)." },
+          "y": { "type": "string", "description": "Stĺpec na os Y. Pri pyramid je to vekové pásmo." },
+          "z": { "type": "string", "description": "Len 3D: stĺpec na os Z." },
+          "value": { "type": "string", "description": "Hodnota pri heatmap a pyramid." },
+          "series": { "type": "string", "description": "Stĺpec, ktorý delí dáta na série (farby)." },
+          "label": { "type": "string", "description": "Stĺpec s názvom bodu (scatter)." },
+          "highlight": {
+            "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }],
+            "description": "Hodnoty z 'label', ktoré sa priamo označia v grafe. Napr. \"Slovensko\"."
+          },
+          "totalFlag": { "type": "string", "description": "Len waterfall: stĺpec 0/1, ktorý označuje úrovne (nie zmeny)." },
+
+          "unit": { "type": "string" },
+          "xUnit": { "type": "string" },
+          "decimals": { "type": "integer", "minimum": 0, "maximum": 6 },
+          "xLabel": { "type": "string" },
+          "yLabel": { "type": "string" },
+          "zLabel": { "type": "string" },
+          "xTickFormat": { "enum": ["year"], "description": "\"year\" vypne oddeľovač tisícov na osi X." },
+          "labels": {
+            "type": "object",
+            "description": "Preklad NÁZVOV STĹPCOV pre tabuľku a export. Na premenovanie HODNOT použi transform kind \"rename\".",
+            "additionalProperties": { "type": "string" }
+          },
+
+          "size": { "enum": ["s", "m", "l", "xl"], "default": "m", "description": "Výška grafu, nie veľkosť bodov." },
+          "dotRadius": { "type": "number", "description": "Polomer bodu v scatter grafe." },
+          "span": { "enum": ["2", "full"], "description": "Šírka karty v mriežke." },
+          "curve": { "type": "string", "description": "Interpolácia čiary, napr. \"linear\", \"catmull-rom\"." },
+          "directLabels": { "type": "boolean", "default": true },
+          "table": { "type": "boolean", "default": true, "description": "false vypne tabuľku pod grafom (rob to len s dobrým dôvodom)." },
+          "tableColumns": { "type": "array", "items": { "type": "string" } },
+          "sortKey": { "type": "string" },
+          "sortDir": { "enum": ["asc", "desc"] },
+          "hidden": { "type": "array", "items": { "type": "string" }, "description": "Série skryté pri prvom zobrazení." },
+          "scale": { "enum": ["sequential", "diverging"], "description": "Heatmap. diverging použi LEN ak dáta reálne prechádzajú stredom." },
+          "pivot": { "type": "number", "description": "Stred divergentnej škály." },
+          "contours": { "type": "boolean", "default": true, "description": "Kontúry na 3D povrchu." },
+          "camera": { "type": "object", "description": "Počiatočná pozícia kamery Plotly." },
+
+          "transform": { "$ref": "#/definitions/transformPipeline" },
+
+          "tiles": {
+            "type": "array",
+            "description": "Len type=tiles.",
+            "items": {
+              "type": "object",
+              "required": ["label"],
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string" },
+                "value": { "type": "string", "description": "Stĺpec. Bez agg sa berie POSLEDNÁ hodnota rady." },
+                "text": { "type": "string", "description": "Pevný text namiesto vypočítanej hodnoty." },
+                "agg": { "enum": ["last", "sum", "mean", "min", "max"], "default": "last" },
+                "unit": { "type": "string" },
+                "decimals": { "type": "integer", "minimum": 0, "maximum": 6 },
+                "hero": { "type": "boolean", "description": "Veľké číslo. Najviac jedno na stránku." },
+                "note": { "type": "string" },
+                "delta": { "type": "boolean", "default": true },
+                "deltaUnit": { "type": "string", "description": "Napr. \"p. b.\"" },
+                "deltaNote": { "type": "string", "default": "r/r" },
+                "higherIsBetter": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "false = rast je zlá správa (deficit, výdavky). Určuje farbu zmeny."
+                },
+                "spark": { "type": "boolean", "default": true },
+                "transform": { "$ref": "#/definitions/transformPipeline" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "definitions": {
+    "transformPipeline": {
+      "type": "array",
+      "description": "Transformácie sa aplikujú v poradí. Neznámy kind zhodí view s chybovou správou.",
+      "items": {
+        "type": "object",
+        "required": ["kind"],
+        "properties": {
+          "kind": {
+            "enum": ["filter", "aggregate", "pivot", "unpivot", "derive", "index", "rename", "sort", "limit", "topN"]
+          },
+          "where": { "type": "object", "description": "filter: { stlpec: hodnota | [hodnoty] | {gte,lte,gt,lt,ne,in,notIn} }" },
+          "by": { "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }] },
+          "value": { "type": "string" },
+          "as": { "enum": ["sum", "mean", "min", "max", "count", "first", "last"] },
+          "into": { "type": "string" },
+          "key": { "type": "string" },
+          "keep": { "type": "array", "items": { "type": "string" } },
+          "only": { "type": "array", "items": { "type": "string" } },
+          "expr": { "type": "string", "description": "derive: aritmetika + - * / ( ). Nie eval — manifest nemôže spustiť kód." },
+          "vars": { "type": "object", "additionalProperties": { "type": "string" } },
+          "on": { "type": "string" },
+          "at": {},
+          "base": { "type": "number", "default": 100 },
+          "column": { "type": "string" },
+          "map": { "type": "object", "additionalProperties": { "type": "string" } },
+          "dir": { "enum": ["asc", "desc"] },
+          "n": { "type": "integer", "minimum": 1 },
+          "group": { "type": "string" },
+          "other": { "type": "string", "default": "Ostatné" }
+        }
+      }
+    }
+  }
+}

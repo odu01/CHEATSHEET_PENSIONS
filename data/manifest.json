@@ -1,0 +1,800 @@
+{
+  "$schema": "./manifest.schema.json",
+  "title": "Prehľad dôchodkového systému",
+  "subtitle": "Dynamické grafy a tabuľky k PAYGO systému",
+  "datasets": {
+    "vekova_struktura": {
+      "file": "data/vekova_struktura_2024.csv",
+      "label": "Veková štruktúra 2024",
+      "unit": "tis. osôb",
+      "source": "Eurostat / UN WPP — prevzaté z projektu DYNAMIC_PYRAMID_WEB (anchors 2024)",
+      "vintage": "2024",
+      "illustrative": false,
+      "note": "5-ročné vekové pásma; hodnoty sú súčty za pásmo.",
+      "columns": {
+        "vekova_skupina": {
+          "type": "string"
+        },
+        "pohlavie": {
+          "type": "string"
+        },
+        "pocet_tis": {
+          "type": "number"
+        }
+      }
+    },
+    "vydavky": {
+      "file": "data/vydavky_dochodky.csv",
+      "label": "Výdavky na dôchodky",
+      "unit": "% HDP",
+      "vintage": "2026-08 (generované)",
+      "illustrative": true,
+      "columns": {
+        "rok": {
+          "type": "int"
+        },
+        "druh": {
+          "type": "string"
+        },
+        "podiel_hdp": {
+          "type": "number"
+        }
+      }
+    },
+    "platitelia": {
+      "file": "data/platitelia_poberatelia.csv",
+      "label": "Platitelia a poberatelia",
+      "unit": "tis. osôb",
+      "vintage": "2026-08 (generované)",
+      "illustrative": true,
+      "columns": {
+        "rok": {
+          "type": "int"
+        },
+        "skupina": {
+          "type": "string"
+        },
+        "pocet_tis": {
+          "type": "number"
+        }
+      }
+    },
+    "nahradovy_pomer": {
+      "file": "data/nahradovy_pomer.csv",
+      "label": "Náhradový pomer",
+      "unit": "EUR / mesiac a %",
+      "vintage": "2026-08 (generované)",
+      "illustrative": true,
+      "columns": {
+        "rok": {
+          "type": "int"
+        },
+        "priemerna_mzda_eur": {
+          "type": "number"
+        },
+        "priemerny_dochodok_eur": {
+          "type": "number"
+        },
+        "nahradovy_pomer": {
+          "type": "number"
+        }
+      },
+      "note": "Zmiešané jednotky: dva stĺpce v EUR/mesiac, jeden v %. Jednotku nesie view, nie dataset."
+    },
+    "dochodkovy_vek": {
+      "file": "data/dochodkovy_vek.csv",
+      "label": "Dôchodkový vek",
+      "unit": "rokov",
+      "vintage": "2026-08 (generované)",
+      "illustrative": true,
+      "columns": {
+        "rok": {
+          "type": "int"
+        },
+        "pohlavie": {
+          "type": "string"
+        },
+        "vek": {
+          "type": "number"
+        }
+      }
+    },
+    "saldo_povrch": {
+      "file": "data/saldo_povrch.csv",
+      "label": "Saldo systému podľa dôchodkového veku a plodnosti",
+      "unit": "% HDP",
+      "vintage": "2026-08 (generované)",
+      "illustrative": true,
+      "note": "Odozva na dva parametre — preto povrch, nie čiarový graf.",
+      "columns": {
+        "dochodkovy_vek": {
+          "type": "number"
+        },
+        "tfr": {
+          "type": "number"
+        },
+        "saldo_hdp": {
+          "type": "number"
+        }
+      }
+    },
+    "pilier2": {
+      "file": "data/pilier2.csv",
+      "label": "II. pilier",
+      "unit": "% HDP",
+      "vintage": "2026-08 (generované)",
+      "illustrative": true,
+      "columns": {
+        "rok": {
+          "type": "int"
+        },
+        "aktiva_hdp": {
+          "type": "number"
+        },
+        "sporitelia_tis": {
+          "type": "number"
+        }
+      }
+    },
+    "krajiny": {
+      "file": "data/krajiny_porovnanie.csv",
+      "label": "Medzinárodné porovnanie",
+      "unit": "% HDP",
+      "vintage": "2026-08 (generované)",
+      "illustrative": true,
+      "columns": {
+        "krajina": {
+          "type": "string"
+        },
+        "skupina": {
+          "type": "string"
+        },
+        "zavislost_starych": {
+          "type": "number"
+        },
+        "vydavky_hdp": {
+          "type": "number"
+        }
+      }
+    },
+    "dekompozicia": {
+      "file": "data/dekompozicia.csv",
+      "label": "Dekompozícia zmeny výdavkov",
+      "unit": "p. b. HDP",
+      "vintage": "2026-08 (generované)",
+      "illustrative": true,
+      "columns": {
+        "faktor": {
+          "type": "string"
+        },
+        "zmena_hdp": {
+          "type": "number"
+        },
+        "je_uroven": {
+          "type": "bool"
+        }
+      }
+    }
+  },
+  "pages": [
+    {
+      "id": "prehlad",
+      "label": "Prehľad",
+      "description": "Základné čísla systému a dva hlavné trendy. Každá karta má pod grafom tabuľku s presnými hodnotami a export do CSV.",
+      "views": [
+        "kpi_prehlad",
+        "vydavky_celkom",
+        "pomer_platitelov"
+      ]
+    },
+    {
+      "id": "vydavky",
+      "label": "Výdavky",
+      "description": "Skladba výdavkov na dôchodky a rozklad ich dlhodobej zmeny na faktory.",
+      "filters": [
+        {
+          "dataset": "vydavky",
+          "column": "druh",
+          "label": "Druh dôchodku",
+          "allLabel": "Všetky druhy"
+        }
+      ],
+      "views": [
+        "vydavky_skladba",
+        "vydavky_druhy_2070",
+        "dekompozicia_wf"
+      ]
+    },
+    {
+      "id": "demografia",
+      "label": "Demografia",
+      "description": "Veková štruktúra a vývoj vzťahu medzi tými, kto do systému platia, a tými, kto z neho poberajú.",
+      "views": [
+        "pyramida_2024",
+        "platitelia_trend",
+        "vek_trend"
+      ]
+    },
+    {
+      "id": "adekvatnost",
+      "label": "Adekvátnosť",
+      "description": "Ako sa vyvíja priemerný dôchodok voči priemernej mzde. Obe veličiny sú v eurách, takže patria na jednu os; náhradový pomer je vlastný graf.",
+      "views": [
+        "mzda_dochodok",
+        "nahradovy_trend",
+        "mzda_dochodok_index"
+      ]
+    },
+    {
+      "id": "citlivost",
+      "label": "Citlivosť",
+      "description": "Saldo systému ako odozva na dva parametre naraz. 3D povrch ukazuje tvar odozvy, teplotná mapa pod ním tie isté čísla čitateľne — a tabuľka presne.",
+      "views": [
+        "saldo_3d",
+        "saldo_heatmap"
+      ]
+    },
+    {
+      "id": "porovnanie",
+      "label": "Porovnanie",
+      "description": "Výdavky na dôchodky voči starobnej závislosti v krajinách EU.",
+      "views": [
+        "krajiny_scatter",
+        "krajiny_bar"
+      ]
+    },
+    {
+      "id": "katalog",
+      "label": "Dátový katalóg",
+      "description": "Zdrojové tabuľky tak, ako ich web čítá. Každá sa dá stiahnuť ako CSV.",
+      "views": [
+        "tab_vydavky",
+        "tab_platitelia",
+        "tab_vek",
+        "tab_pilier2"
+      ]
+    }
+  ],
+  "views": {
+    "kpi_prehlad": {
+      "type": "tiles",
+      "title": "Systém v číslach",
+      "subtitle": "Posledný rok dátovej rady; zmena je proti predchádzajúcemu roku.",
+      "dataset": "vydavky",
+      "span": "full",
+      "tiles": [
+        {
+          "label": "Výdavky na dôchodky, posledný rok rady",
+          "value": "podiel_hdp",
+          "unit": "% HDP",
+          "hero": true,
+          "higherIsBetter": false,
+          "deltaUnit": "p. b.",
+          "decimals": 2,
+          "deltaNote": "r/r",
+          "transform": [
+            {
+              "kind": "aggregate",
+              "by": [
+                "rok"
+              ],
+              "value": "podiel_hdp",
+              "as": "sum"
+            },
+            {
+              "kind": "sort",
+              "by": "rok"
+            }
+          ]
+        },
+        {
+          "label": "Starobné dôchodky",
+          "value": "podiel_hdp",
+          "unit": "% HDP",
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "druh": "Starobné"
+              }
+            },
+            {
+              "kind": "sort",
+              "by": "rok"
+            }
+          ],
+          "higherIsBetter": false,
+          "deltaUnit": "p. b.",
+          "decimals": 2,
+          "deltaNote": "r/r"
+        },
+        {
+          "label": "Invalidné dôchodky",
+          "value": "podiel_hdp",
+          "unit": "% HDP",
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "druh": "Invalidné"
+              }
+            },
+            {
+              "kind": "sort",
+              "by": "rok"
+            }
+          ],
+          "higherIsBetter": false,
+          "deltaUnit": "p. b.",
+          "decimals": 2
+        },
+        {
+          "label": "Pozostalostné dôchodky",
+          "value": "podiel_hdp",
+          "unit": "% HDP",
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "druh": "Pozostalostné"
+              }
+            },
+            {
+              "kind": "sort",
+              "by": "rok"
+            }
+          ],
+          "higherIsBetter": false,
+          "deltaUnit": "p. b.",
+          "decimals": 2
+        }
+      ]
+    },
+    "vydavky_celkom": {
+      "type": "line",
+      "title": "Celkové výdavky na dôchodky",
+      "subtitle": "Súčet starobných, invalidných a pozostalostných dôchodkov.",
+      "dataset": "vydavky",
+      "x": "rok",
+      "y": "podiel_hdp",
+      "unit": "% HDP",
+      "xTickFormat": "year",
+      "yLabel": "% HDP",
+      "size": "m",
+      "transform": [
+        {
+          "kind": "aggregate",
+          "by": [
+            "rok"
+          ],
+          "value": "podiel_hdp",
+          "as": "sum"
+        },
+        {
+          "kind": "sort",
+          "by": "rok"
+        }
+      ],
+      "labels": {
+        "rok": "Rok",
+        "podiel_hdp": "Výdavky"
+      }
+    },
+    "pomer_platitelov": {
+      "type": "line",
+      "title": "Platitelia a poberatelia",
+      "subtitle": "Dve série v rovnakých jednotkách, preto jedna os.",
+      "dataset": "platitelia",
+      "x": "rok",
+      "y": "pocet_tis",
+      "series": "skupina",
+      "unit": "tis. osôb",
+      "xTickFormat": "year",
+      "yLabel": "tis. osôb",
+      "size": "m",
+      "labels": {
+        "rok": "Rok",
+        "skupina": "Skupina",
+        "pocet_tis": "Počet"
+      }
+    },
+    "vydavky_skladba": {
+      "type": "area-stacked",
+      "title": "Skladba výdavkov na dôchodky",
+      "subtitle": "Podiel jednotlivých druhov dôchodkov na HDP.",
+      "dataset": "vydavky",
+      "x": "rok",
+      "y": "podiel_hdp",
+      "series": "druh",
+      "unit": "% HDP",
+      "xTickFormat": "year",
+      "yLabel": "% HDP",
+      "size": "l",
+      "span": "2",
+      "labels": {
+        "rok": "Rok",
+        "druh": "Druh",
+        "podiel_hdp": "Výdavky"
+      }
+    },
+    "vydavky_druhy_2070": {
+      "type": "column",
+      "title": "Výdavky podľa druhu, 2070",
+      "subtitle": "Nominálne kategórie, preto jedna farba — dĺžka stĺpca už nesie hodnotu.",
+      "dataset": "vydavky",
+      "x": "druh",
+      "y": "podiel_hdp",
+      "unit": "% HDP",
+      "yLabel": "% HDP",
+      "size": "s",
+      "transform": [
+        {
+          "kind": "filter",
+          "where": {
+            "rok": 2070
+          }
+        }
+      ],
+      "labels": {
+        "druh": "Druh dôchodku",
+        "podiel_hdp": "Výdavky"
+      }
+    },
+    "dekompozicia_wf": {
+      "type": "waterfall",
+      "title": "Rozklad zmeny výdavkov 2024 → 2070",
+      "subtitle": "Rast a pokles nesú polaritu, preto divergentné póly, nie kategorické farby.",
+      "dataset": "dekompozicia",
+      "x": "faktor",
+      "y": "zmena_hdp",
+      "totalFlag": "je_uroven",
+      "unit": "% HDP",
+      "yLabel": "% HDP",
+      "decimals": 2,
+      "size": "m",
+      "span": "full",
+      "labels": {
+        "faktor": "Faktor",
+        "zmena_hdp": "Zmena"
+      }
+    },
+    "pyramida_2024": {
+      "type": "pyramid",
+      "title": "Veková štruktúra, 2024",
+      "subtitle": "Rovnaké dáta ako populačný simulátor RRZ, len staticky.",
+      "dataset": "vekova_struktura",
+      "y": "vekova_skupina",
+      "value": "pocet_tis",
+      "series": "pohlavie",
+      "unit": "tis. osôb",
+      "xLabel": "tis. osôb",
+      "size": "xl",
+      "span": "2",
+      "tableColumns": [
+        "vekova_skupina",
+        "pohlavie",
+        "pocet_tis"
+      ],
+      "labels": {
+        "vekova_skupina": "Vek",
+        "pohlavie": "Pohlavie",
+        "pocet_tis": "Počet"
+      }
+    },
+    "platitelia_trend": {
+      "type": "area",
+      "title": "Poberatelia dôchodkov",
+      "dataset": "platitelia",
+      "x": "rok",
+      "y": "pocet_tis",
+      "unit": "tis. osôb",
+      "xTickFormat": "year",
+      "yLabel": "tis. osôb",
+      "size": "m",
+      "transform": [
+        {
+          "kind": "filter",
+          "where": {
+            "skupina": "Poberatelia"
+          }
+        }
+      ],
+      "labels": {
+        "rok": "Rok",
+        "pocet_tis": "Poberatelia"
+      }
+    },
+    "vek_trend": {
+      "type": "line",
+      "title": "Zákonný dôchodkový vek",
+      "subtitle": "Vek žien sa dobieha na vek mužov, potom oba rastú s dĺžkou života.",
+      "dataset": "dochodkovy_vek",
+      "x": "rok",
+      "y": "vek",
+      "series": "pohlavie",
+      "unit": "rokov",
+      "xTickFormat": "year",
+      "yLabel": "rokov",
+      "size": "m",
+      "labels": {
+        "rok": "Rok",
+        "pohlavie": "Pohlavie",
+        "vek": "Vek"
+      }
+    },
+    "mzda_dochodok": {
+      "type": "line",
+      "title": "Priemerná mzda a priemerný dôchodok",
+      "subtitle": "Obe v eurách za mesiac — jedna os je správna.",
+      "dataset": "nahradovy_pomer",
+      "x": "rok",
+      "y": "hodnota",
+      "series": "ukazovatel",
+      "unit": "EUR",
+      "decimals": 0,
+      "xTickFormat": "year",
+      "yLabel": "EUR / mesiac",
+      "size": "m",
+      "transform": [
+        {
+          "kind": "unpivot",
+          "keep": [
+            "rok"
+          ],
+          "only": [
+            "priemerna_mzda_eur",
+            "priemerny_dochodok_eur"
+          ],
+          "into": "ukazovatel",
+          "value": "hodnota"
+        },
+        {
+          "kind": "rename",
+          "column": "ukazovatel",
+          "map": {
+            "priemerna_mzda_eur": "Priemerná mzda",
+            "priemerny_dochodok_eur": "Priemerný dôchodok"
+          }
+        }
+      ],
+      "labels": {
+        "rok": "Rok",
+        "ukazovatel": "Ukazovateľ",
+        "hodnota": "EUR"
+      }
+    },
+    "nahradovy_trend": {
+      "type": "line",
+      "title": "Náhradový pomer",
+      "subtitle": "Priemerný dôchodok ako podiel priemernej mzdy.",
+      "dataset": "nahradovy_pomer",
+      "x": "rok",
+      "y": "nahradovy_pomer",
+      "unit": "%",
+      "xTickFormat": "year",
+      "yLabel": "%",
+      "size": "m",
+      "labels": {
+        "rok": "Rok",
+        "nahradovy_pomer": "Náhradový pomer"
+      }
+    },
+    "mzda_dochodok_index": {
+      "type": "line",
+      "title": "Mzda a dôchodok, index 2010 = 100",
+      "subtitle": "Takto sa porovnávajú dve rôzne veľké veličiny na jednej osi — nikdy nie druhou osou.",
+      "dataset": "nahradovy_pomer",
+      "x": "rok",
+      "y": "hodnota",
+      "series": "ukazovatel",
+      "unit": "index",
+      "xTickFormat": "year",
+      "yLabel": "index (2010 = 100)",
+      "size": "m",
+      "span": "full",
+      "transform": [
+        {
+          "kind": "unpivot",
+          "keep": [
+            "rok"
+          ],
+          "only": [
+            "priemerna_mzda_eur",
+            "priemerny_dochodok_eur"
+          ],
+          "into": "ukazovatel",
+          "value": "hodnota"
+        },
+        {
+          "kind": "rename",
+          "column": "ukazovatel",
+          "map": {
+            "priemerna_mzda_eur": "Priemerná mzda",
+            "priemerny_dochodok_eur": "Priemerný dôchodok"
+          }
+        },
+        {
+          "kind": "index",
+          "value": "hodnota",
+          "by": [
+            "ukazovatel"
+          ],
+          "on": "rok",
+          "at": 2010,
+          "base": 100
+        }
+      ],
+      "labels": {
+        "rok": "Rok",
+        "ukazovatel": "Ukazovateľ",
+        "hodnota": "Index"
+      }
+    },
+    "saldo_3d": {
+      "type": "surface3d",
+      "title": "Saldo systému: dôchodkový vek × plodnosť",
+      "subtitle": "3D má zmysel tu, pretože ide o odozvu na dva parametre a hľadá sa tvar tejto odozvy. Knižnica pre 3D sa načíta až na tejto stránke.",
+      "dataset": "saldo_povrch",
+      "x": "dochodkovy_vek",
+      "y": "tfr",
+      "z": "saldo_hdp",
+      "unit": "% HDP",
+      "decimals": 2,
+      "xLabel": "Dôchodkový vek",
+      "yLabel": "TFR",
+      "zLabel": "Saldo (% HDP)",
+      "size": "xl",
+      "span": "full",
+      "tableColumns": [
+        "dochodkovy_vek",
+        "tfr",
+        "saldo_hdp"
+      ],
+      "labels": {
+        "dochodkovy_vek": "Dôchodkový vek",
+        "tfr": "TFR",
+        "saldo_hdp": "Saldo"
+      }
+    },
+    "saldo_heatmap": {
+      "type": "heatmap",
+      "title": "To isté ako teplotná mapa",
+      "subtitle": "Projekcia povrchu do 2D: žiadna oklúzia, žiadna perspektíva, hodnoty sa dajú prečítať.",
+      "dataset": "saldo_povrch",
+      "x": "dochodkovy_vek",
+      "y": "tfr",
+      "value": "saldo_hdp",
+      "unit": "% HDP",
+      "decimals": 1,
+      "scale": "sequential",
+      "note": "Sekvenčná škála (jeden odtieň, svetlá → tmavá), pretože saldo je v celej mriežke deficitné. Divergentná škála by tu klamala: mala by stred v nule, ktorý žiadna hodnota neprekračuje, takže by celá mapa vyšla na jednom ramene.",
+      "xLabel": "Dôchodkový vek",
+      "yLabel": "TFR",
+      "size": "l",
+      "span": "full",
+      "tableColumns": [
+        "dochodkovy_vek",
+        "tfr",
+        "saldo_hdp"
+      ],
+      "labels": {
+        "dochodkovy_vek": "Dôchodkový vek",
+        "tfr": "TFR",
+        "saldo_hdp": "Saldo"
+      }
+    },
+    "krajiny_scatter": {
+      "type": "scatter",
+      "title": "Výdavky vs. starobná závislosť",
+      "subtitle": "Bodový graf: hodnotí sa vzťah dvoch veličín, nie poradie krajín.",
+      "dataset": "krajiny",
+      "x": "zavislost_starych",
+      "y": "vydavky_hdp",
+      "series": "skupina",
+      "label": "krajina",
+      "highlight": "Slovensko",
+      "unit": "% HDP",
+      "xUnit": "%",
+      "xLabel": "Starobná závislosť (%)",
+      "yLabel": "Výdavky (% HDP)",
+      "size": "l",
+      "span": "2",
+      "tableColumns": [
+        "krajina",
+        "skupina",
+        "zavislost_starych",
+        "vydavky_hdp"
+      ],
+      "labels": {
+        "krajina": "Krajina",
+        "skupina": "Skupina",
+        "zavislost_starych": "Starobná závislosť",
+        "vydavky_hdp": "Výdavky"
+      }
+    },
+    "krajiny_bar": {
+      "type": "bar",
+      "title": "Výdavky na dôchodky podľa krajiny",
+      "subtitle": "Zoradené — usporiadanie robí porovnanie, nie farba.",
+      "dataset": "krajiny",
+      "x": "krajina",
+      "y": "vydavky_hdp",
+      "unit": "% HDP",
+      "yLabel": "% HDP",
+      "size": "xl",
+      "transform": [
+        {
+          "kind": "sort",
+          "by": "vydavky_hdp",
+          "dir": "desc"
+        }
+      ],
+      "labels": {
+        "krajina": "Krajina",
+        "vydavky_hdp": "Výdavky"
+      }
+    },
+    "tab_vydavky": {
+      "type": "table",
+      "title": "Výdavky na dôchodky",
+      "dataset": "vydavky",
+      "x": "rok",
+      "series": "druh",
+      "y": "podiel_hdp",
+      "unit": "% HDP",
+      "sortKey": "rok",
+      "labels": {
+        "rok": "Rok",
+        "druh": "Druh",
+        "podiel_hdp": "% HDP"
+      }
+    },
+    "tab_platitelia": {
+      "type": "table",
+      "title": "Platitelia a poberatelia",
+      "dataset": "platitelia",
+      "x": "rok",
+      "series": "skupina",
+      "y": "pocet_tis",
+      "unit": "tis. osôb",
+      "sortKey": "rok",
+      "labels": {
+        "rok": "Rok",
+        "skupina": "Skupina",
+        "pocet_tis": "tis. osôb"
+      }
+    },
+    "tab_vek": {
+      "type": "table",
+      "title": "Dôchodkový vek",
+      "dataset": "dochodkovy_vek",
+      "x": "rok",
+      "series": "pohlavie",
+      "y": "vek",
+      "unit": "rokov",
+      "sortKey": "rok",
+      "labels": {
+        "rok": "Rok",
+        "pohlavie": "Pohlavie",
+        "vek": "Vek"
+      }
+    },
+    "tab_pilier2": {
+      "type": "table",
+      "title": "II. pilier",
+      "dataset": "pilier2",
+      "tableColumns": [
+        "rok",
+        "aktiva_hdp",
+        "sporitelia_tis"
+      ],
+      "unit": "% HDP",
+      "sortKey": "rok",
+      "labels": {
+        "rok": "Rok",
+        "aktiva_hdp": "Aktíva (% HDP)",
+        "sporitelia_tis": "Sporitelia (tis.)"
+      }
+    }
+  }
+}

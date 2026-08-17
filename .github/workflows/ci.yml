@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Catches the failure mode the DYNAMIC_PYRAMID_WEB repo shipped with: a
+      # published site whose files do not resolve. Every dataset, column, view,
+      # page, script src and import path is checked against what is on disk.
+      - name: Validate manifest and asset references
+        run: node tools/validate-manifest.mjs
+
+      # The palette in lib/theme.js is derived (brand hues snapped to passing
+      # OKLCH steps), so it has to be re-measured rather than trusted.
+      - name: Validate palette accessibility gates
+        run: node tools/check-palette.mjs
+
+      # Sample data is generated deterministically; a diff here means someone
+      # hand-edited a generated file, which the next regeneration would silently
+      # overwrite.
+      - name: Check generated sample data is up to date
+        run: |
+          node tools/make-sample-data.mjs
+          if ! git diff --quiet -- data/; then
+            echo "::error::Generované dáta v data/ nesúhlasia s tools/make-sample-data.mjs."
+            echo "Spusti 'npm run data' a commitni výsledok — alebo, ak sú to už reálne dáta,"
+            echo "vyraď ich zo skriptu a označ ich v manifeste ako neilustračné."
+            git diff --stat -- data/
+            exit 1
+          fi
+
+      - name: Syntax-check every module
+        run: |
+          for f in app.js lib/*.js tools/*.mjs tools/validate_palette.js; do
+            node --check "$f" || exit 1
+          done
+          echo "Všetky moduly sa parsujú."
+
+  smoke:
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # No lockfile is committed (there are no runtime deps — the libraries are
+      # vendored), so this is `npm install`, not `npm ci`.
+      - name: Install Playwright (Chromium only)
+        run: npm install --no-audit --no-fund && npx playwright install --with-deps chromium
+
+      # Renders every page in both modes and fails on any console error, any
+      # unhandled rejection, any failed request, and any card that rendered an
+      # error box. A chart that throws at runtime is not something the static
+      # checks above can see.
+      - name: Render every page and fail on any console error
+        run: node tools/screenshots.mjs --check
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots
+          path: screenshots/
+          retention-days: 14
+          if-no-files-found: warn
