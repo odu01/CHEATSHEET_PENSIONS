@@ -1,0 +1,2 @@
+# CHEATSHEET_PENSIONS
+statistiky k PAYGO
