@@ -477,3 +477,42 @@ body {
 /* several datasets behind one card (a KPI row): one credit line each */
 .viz-source-list { display: flex; flex-direction: column; gap: 1px; }
 .viz-source-row { font-size: 0.72rem; color: var(--ink-muted); }
+
+/* ── planned card: declared contract, data not yet delivered ─────────────── */
+
+.viz-planned {
+  padding: 14px;
+  background: var(--plane);
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+}
+.viz-planned-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.viz-badge-info {
+  color: var(--ink-primary);
+  background: color-mix(in oklab, var(--series-1) 18%, var(--surface));
+  border-color: color-mix(in oklab, var(--series-1) 50%, var(--surface));
+}
+.viz-planned-kind { font-size: 0.72rem; color: var(--ink-muted); }
+.viz-planned-note { font-size: 0.8rem; color: var(--ink-secondary); margin-bottom: 8px; max-width: 70ch; }
+.viz-planned-file {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem; color: var(--ink-primary);
+  margin-bottom: 8px;
+}
+.viz-planned-cols { border-collapse: collapse; font-size: 0.75rem; width: 100%; }
+.viz-planned-cols th {
+  text-align: left; font-weight: 700; color: var(--ink-muted);
+  padding: 3px 8px 3px 0; border-bottom: 1px solid var(--border);
+}
+.viz-planned-cols td {
+  padding: 3px 8px 3px 0; border-bottom: 1px solid var(--border);
+  color: var(--ink-secondary); vertical-align: top;
+}
+.viz-planned-cols td:first-child {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--ink-primary); white-space: nowrap;
+}
+.viz-planned-cols td:nth-child(2) { color: var(--ink-muted); white-space: nowrap; }
+.filter.is-pending .filter-label { opacity: 0.6; }
+.filter.is-pending .filter-select { opacity: 0.6; cursor: not-allowed; }
+.viz-planned-ref { font-size: 0.75rem; color: var(--ink-muted); font-style: italic; }

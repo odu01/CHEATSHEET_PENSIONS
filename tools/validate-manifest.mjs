@@ -63,6 +63,11 @@ function producedBy(pipeline) {
     if (t.kind === 'aggregate') produced.add(t.into || t.value);
     if (t.kind === 'index') produced.add(t.into || t.value);
     if (t.kind === 'pivot' && t.key) produced.add('*');   // pivot column names are data-dependent
+    if (t.kind === 'bin') {
+      const into = t.into || ((t.column || '') + '_pasmo');
+      produced.add(into);
+      produced.add(into + '_od');                        // numeric band start
+    }
   }
   return produced;
 }
@@ -86,6 +91,25 @@ const headers = {};      // datasetId -> Set(column names)
 
 for (const [id, def] of Object.entries(manifest.datasets || {})) {
   if (!def.file) { err(`dataset "${id}": chýba "file"`); continue; }
+
+  // A planned dataset declares the shape data will arrive in, so the page and its
+  // contract can be reviewed before the file exists. In exchange it must be
+  // fully specified: without columns there would be nothing to check later, and
+  // without a note nobody knows what to go and fetch.
+  if (def.planned) {
+    if (existsSync(join(ROOT, def.file)))
+      err(`dataset "${id}": je označený "planned", ale ${def.file} už existuje — zruš príznak`);
+    if (!def.columns || !Object.keys(def.columns).length)
+      err(`dataset "${id}": "planned" dataset musí deklarovať "columns" (kontrakt pre dodávateľa dát)`);
+    if (!def.note)
+      err(`dataset "${id}": "planned" dataset musí mať "note" s tým, čo presne sa má dodať`);
+    for (const [name, c] of Object.entries(def.columns || {})) {
+      if (!c.label) warn(`dataset "${id}": stĺpec "${name}" bez "label" — kontrakt je bez neho menej jasný`);
+    }
+    headers[id] = new Set(Object.keys(def.columns || {}));
+    continue;
+  }
+
   const p = join(ROOT, def.file);
   if (!existsSync(p)) { err(`dataset "${id}": súbor ${def.file} neexistuje`); continue; }
 
@@ -116,7 +140,7 @@ for (const [id, def] of Object.entries(manifest.datasets || {})) {
       err(`dataset "${id}": manifest deklaruje stĺpec "${name}", v ${def.file} nie je (má: ${[...headers[id]].join(', ')})`);
   }
   // provenance is not optional for a public statistics page
-  if (!def.source && def.illustrative !== true)
+  if (!def.source && def.illustrative !== true && def.planned !== true)
     err(`dataset "${id}": chýba "source" — alebo ho označ "illustrative": true`);
   if (!def.unit) warn(`dataset "${id}": chýba "unit", formátovanie čísel padne na predvolené`);
 }

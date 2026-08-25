@@ -81,10 +81,16 @@
                   "description": "year = ordinálny letopočet (bez oddeľovača tisícov). month = \"YYYY-MM\" sa načíta ako dátum, aby os používala časovú škálu."
                 },
                 "label": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Význam stĺpca. Pri \"planned\" datasete sa zobrazí v tabuľke kontraktu na karte."
                 }
               }
             }
+          },
+          "planned": {
+            "type": "boolean",
+            "default": false,
+            "description": "true = súbor ešte neexistuje; manifest deklaruje tvar, v akom dáta prídu. Karta zobrazí kontrakt namiesto grafu. Vyžaduje \"columns\" (s \"label\" pri každom stĺpci) a \"note\" s tým, čo presne treba dodať. Validácia zlyhá, ak súbor už existuje — vtedy príznak zruš."
           }
         }
       }
@@ -152,6 +158,10 @@
                   "type": "boolean",
                   "default": false,
                   "description": "true = bez možnosti \"Všetko\". Použi, keď view predpokladá jednu hodnotu naraz (napr. séria je \"novopriznaný vs vyplácaný\" a viac druhov dôchodku by nakreslilo jednu čiaru cikcakom cez všetky)."
+                },
+                "values": {
+                  "type": "array",
+                  "description": "Hodnoty do rozbaľovacieho zoznamu. Použijú sa, keď ich dáta nedodajú (napr. pri \"planned\" datasete) — a zároveň dokumentujú presné znenie kategórií, ktoré má dodaný súbor obsahovať."
                 }
               }
             }
@@ -457,6 +467,7 @@
               "index",
               "rename",
               "sort",
+              "bin",
               "limit",
               "topN"
             ]
@@ -567,6 +578,18 @@
           "other": {
             "type": "string",
             "default": "Ostatné"
+          },
+          "width": {
+            "type": "number",
+            "description": "bin: šírka pásma (napr. 5 rokov)."
+          },
+          "max": {
+            "type": "number",
+            "description": "bin: od tejto hodnoty vyššie spadne všetko do jedného pásma."
+          },
+          "maxLabel": {
+            "type": "string",
+            "description": "bin: názov posledného pásma, napr. \"95+\"."
           }
         }
       }

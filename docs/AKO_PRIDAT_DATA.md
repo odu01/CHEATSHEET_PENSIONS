@@ -158,8 +158,13 @@ strane view, takže jedno CSV môže živiť viacero grafov.
 | `derive` | vypočíta nový stĺpec | `{"kind":"derive","into":"pomer","expr":"a / b * 100","vars":{"a":"dochodok","b":"mzda"}}` |
 | `index` | prepočíta na základ = 100 | `{"kind":"index","value":"hodnota","by":["druh"],"on":"rok","at":2020}` |
 | `sort` | zoradí (`dir` môže byť pole podľa `by`) | `{"kind":"sort","by":["rok","mesiac"],"dir":["desc","asc"]}` |
+| `bin` | zoskupí čísla do pásiem | `{"kind":"bin","column":"vek","into":"vekova_skupina","width":5,"max":95,"maxLabel":"95+"}` |
 | `topN` | ponechá N, zvyšok do „Ostatné" | `{"kind":"topN","n":6,"by":"hodnota","group":"krajina"}` |
 | `limit` | prvých N riadkov | `{"kind":"limit","n":20}` |
+
+`bin` píše názov pásma do `into` a jeho číselný začiatok do `<into>_od` — podľa
+toho sa dá pásma zoradiť numericky. Vďaka tomu stačí v CSV vek po jednotlivých
+rokoch a ten istý súbor uživí aj graf po rokoch veku, aj pyramídu po pásmach.
 
 Rozdiel, ktorý mätie: **`labels` premenúva NÁZVY STĹPCOV** (pre tabuľku a export),
 **`rename` premenúva HODNOTY** v stĺpci (pre legendu a tooltip). Po `unpivot`
@@ -190,7 +195,51 @@ Dve veci, na ktoré si dať pozor:
   zredukuje na jednu sériu. Rozdeľ stránky; presne preto sú „Priemerné dôchodky"
   a „Novopriznané" dve.
 
-## 7. Čo dostaneš zadarmo ku každému grafu
+## 7. Stránka pripravená skôr než dáta
+
+Keď je jasné, čo má web zobrazovať, ale súbor ešte nemáš, dá sa dataset označiť
+`"planned": true`. Stránka aj grafy vzniknú, každá karta zobrazí odznak „Čaká na
+dáta", plánovaný typ grafu a presný tvar súboru, ktorý treba dodať:
+
+```json
+"starobni_veky": {
+  "file": "data/sp_starobni_podla_veku.csv",
+  "label": "Starobní dôchodcovia podľa veku",
+  "unit": "osôb",
+  "planned": true,
+  "note": "Jeden riadok = rok × vek × pohlavie × kategória.",
+  "columns": {
+    "vek":   { "type": "int",    "label": "Vek v celých rokoch" },
+    "pocet": { "type": "int",    "label": "Počet starobných dôchodcov" }
+  }
+}
+```
+
+Pravidlá, ktoré validácia vynucuje:
+
+- **`columns` s `label` pri každom stĺpci** — to je ten kontrakt, ktorý sa na karte
+  zobrazí. Bez neho by nebolo čo neskôr kontrolovať.
+- **`note`** — čo presne sa má dodať.
+- **Súbor nesmie existovať.** Keď ho pridáš, zruš príznak `planned`; inak validácia
+  zlyní s tým, že dataset je označený ako plánovaný, ale súbor už tam je.
+- `source` sa pri plánovanom datasete nevyžaduje (zdroj sa doplní s dátami).
+
+Filtre na takej stránke nemajú z čoho vziať hodnoty, preto ich vypíš rovno:
+
+```json
+"filters": [
+  { "dataset": "starobni_veky", "column": "kategoria", "label": "Kategória",
+    "values": ["Iba SP", "SP + II. pilier", "SP + cudzina", "SP + výsluhové"],
+    "default": "Iba SP", "required": true }
+]
+```
+
+`values` zároveň dokumentuje presné znenie, ktoré má dodaný súbor obsahovať.
+
+Prehľad toho, čo je zadané a na čo sa čaká, je v
+[POZADOVANE_UKAZOVATELE.md](POZADOVANE_UKAZOVATELE.md).
+
+## 8. Čo dostaneš zadarmo ku každému grafu
 
 - tabuľku pod grafom so radením podľa stĺpca a exportom do CSV (UTF-8 s BOM, takže
   Excel otvorí diakritiku správne)
@@ -201,7 +250,7 @@ Dve veci, na ktoré si dať pozor:
 - tlač: skryjú sa ovládacie prvky a rozbalia sa tabuľky
 - odznak „Ilustračné dáta", kým dataset nemá reálny zdroj
 
-## 8. Keď niečo nefunguje
+## 9. Keď niečo nefunguje
 
 ```bash
 npm run validate:manifest   # chýbajúci súbor, zlý stĺpec, neznámy typ, rozbitý odkaz
@@ -221,4 +270,6 @@ npm run shots               # vykreslí všetky stránky do screenshots/ a nájd
 | na osi je 200 popiskov mesiacov | mesiac je string; nastav `"type": "month"` a `"xTickFormat": "month"` |
 | os počtov opakuje `1,7 mil.` | rozsah je úzky — už sa rieši automaticky podľa rozpätia osi |
 | v legende je `nazov_stlpca` | po `unpivot` chýba `rename` |
+| filter je prázdny a nedá sa klikať | dataset je `planned` — dopíš do filtra `values` |
+| „dataset je označený planned, ale súbor už existuje" | pridal si dáta, zruš príznak `planned` |
 | hodnoty sú 1000× menšie | `unit` hovorí „tis.", ale dáta sú surové (alebo naopak) |

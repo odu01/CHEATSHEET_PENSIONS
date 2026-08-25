@@ -232,6 +232,85 @@
           "type": "number"
         }
       }
+    },
+    "starobni_veky": {
+      "file": "data/sp_starobni_podla_veku.csv",
+      "label": "Starobní dôchodcovia podľa veku, pohlavia a kategórie",
+      "unit": "osôb",
+      "planned": true,
+      "note": "Jeden riadok = rok × vek × pohlavie × kategória, vek v celých rokoch (5-ročné pásma si web dopočíta). Kategórie musia byť vzájomne výlučné, inak sa nedajú sčítať.",
+      "columns": {
+        "rok": {
+          "type": "year",
+          "label": "Rok, k ktorému je stav"
+        },
+        "vek": {
+          "type": "int",
+          "label": "Vek v celých rokoch"
+        },
+        "pohlavie": {
+          "type": "string",
+          "label": "Muži / Ženy"
+        },
+        "kategoria": {
+          "type": "string",
+          "label": "Iba SP / SP + II. pilier / SP + cudzina / SP + výsluhové"
+        },
+        "pocet": {
+          "type": "int",
+          "label": "Počet starobných dôchodcov"
+        },
+        "priemer_eur": {
+          "type": "number",
+          "label": "Priemerný starobný dôchodok z SP, EUR/mesiac"
+        }
+      }
+    },
+    "doba_poberania": {
+      "file": "data/sp_doba_poberania.csv",
+      "label": "Priemerná doba poberania starobného dôchodku",
+      "unit": "rokov",
+      "planned": true,
+      "note": "Za dôchodcov, ktorí v danom roku zomreli. Počet zomretých je v súbore tiež — bez neho sa priemery za roky nedajú správne zvážiť.",
+      "columns": {
+        "rok": {
+          "type": "year",
+          "label": "Rok úmrtia"
+        },
+        "pohlavie": {
+          "type": "string",
+          "label": "Muži / Ženy"
+        },
+        "priemer_rokov": {
+          "type": "number",
+          "label": "Priemerná doba poberania, roky"
+        },
+        "pocet_zomretych": {
+          "type": "int",
+          "label": "Počet zomretých dôchodcov (váha priemeru)"
+        }
+      }
+    },
+    "pilier2": {
+      "file": "data/sp_pilier2.csv",
+      "label": "II. pilier: aktíva a sporitelia",
+      "unit": "mil. EUR a počet",
+      "planned": true,
+      "note": "Aktíva a sporitelia každý vo vlastnom stĺpci: rôzne jednotky, preto dva samostatné grafy a nikdy nie dve osi jedného.",
+      "columns": {
+        "mesiac": {
+          "type": "month",
+          "label": "Mesiac, 2024-01"
+        },
+        "aktiva_mil_eur": {
+          "type": "number",
+          "label": "Čistá hodnota aktív, mil. EUR"
+        },
+        "pocet_sporitelov": {
+          "type": "int",
+          "label": "Počet sporiteľov"
+        }
+      }
     }
   },
   "pages": [
@@ -306,6 +385,72 @@
       "description": "Veková štruktúra populácie, ktorá stojí za dlhodobým vývojom systému.",
       "views": [
         "pyramida_2024"
+      ]
+    },
+    {
+      "id": "veky_pohlavie",
+      "label": "Podľa veku a pohlavia",
+      "description": "Starobní dôchodcovia po vekoch a podľa pohlavia. Filter vyberá kategóriu — pyramída aj graf priemerov ukazujú vždy jednu, aby sa dali čítať obe pohlavia naraz. Dáta ešte nie sú dodané; karty zobrazujú presný tvar súboru, ktorý treba doplniť.",
+      "filters": [
+        {
+          "dataset": "starobni_veky",
+          "column": "kategoria",
+          "label": "Kategória dôchodcu",
+          "default": "Iba SP",
+          "required": true,
+          "values": [
+            "Iba SP",
+            "SP + II. pilier",
+            "SP + cudzina",
+            "SP + výsluhové"
+          ]
+        }
+      ],
+      "views": [
+        "veky_pyramida",
+        "veky_priemer_pohlavie",
+        "veky_tabulka"
+      ]
+    },
+    {
+      "id": "veky_kategorie",
+      "label": "Podľa kategórie",
+      "description": "Tie isté dáta z druhej strany: ako sa štyri kategórie dôchodcov líšia počtom a priemerným dôchodkom pri rovnakom veku. Filter vyberá pohlavie a je povinný — pri oboch naraz by graf spojil sériu cez dve pohlavia.",
+      "filters": [
+        {
+          "dataset": "starobni_veky",
+          "column": "pohlavie",
+          "label": "Pohlavie",
+          "default": "Muži",
+          "required": true,
+          "values": [
+            "Muži",
+            "Ženy"
+          ]
+        }
+      ],
+      "views": [
+        "veky_pocet_kategorie",
+        "veky_priemer_kategorie",
+        "veky_heatmapa"
+      ]
+    },
+    {
+      "id": "doba_poberania",
+      "label": "Doba poberania",
+      "description": "Ako dlho v priemere poberali starobný dôchodok tí, ktorí v danom roku zomreli. Priamo súvisí s dôchodkovým vekom a dĺžkou života.",
+      "views": [
+        "doba_poberania_trend",
+        "doba_poberania_tabulka"
+      ]
+    },
+    {
+      "id": "pilier2",
+      "label": "II. pilier",
+      "description": "Aktíva a sporitelia v druhom pilieri. Dva grafy, nie dve osi — sú to rôzne jednotky.",
+      "views": [
+        "pilier2_aktiva",
+        "pilier2_sporitelia"
       ]
     },
     {
@@ -938,6 +1083,263 @@
         "mesiac": "Mesiac",
         "kategoria": "Kategória",
         "pocet": "Počet"
+      }
+    },
+    "veky_pyramida": {
+      "type": "pyramid",
+      "title": "Starobní dôchodcovia podľa veku a pohlavia",
+      "subtitle": "Počet dôchodcov vo vybranej kategórii. Vek je zoskupený do 5-ročných pásiem.",
+      "dataset": "starobni_veky",
+      "y": "vekova_skupina",
+      "value": "pocet",
+      "series": "pohlavie",
+      "unit": "osôb",
+      "xLabel": "osôb",
+      "size": "xl",
+      "span": "2",
+      "transform": [
+        {
+          "kind": "bin",
+          "column": "vek",
+          "into": "vekova_skupina",
+          "width": 5,
+          "max": 95,
+          "maxLabel": "95+"
+        },
+        {
+          "kind": "aggregate",
+          "by": [
+            "vekova_skupina",
+            "pohlavie"
+          ],
+          "value": "pocet",
+          "as": "sum"
+        }
+      ],
+      "tableColumns": [
+        "vekova_skupina",
+        "pohlavie",
+        "pocet"
+      ],
+      "labels": {
+        "vekova_skupina": "Vek",
+        "pohlavie": "Pohlavie",
+        "pocet": "Počet"
+      }
+    },
+    "veky_priemer_pohlavie": {
+      "type": "line",
+      "title": "Priemerný dôchodok podľa veku",
+      "subtitle": "Vo vybranej kategórii, po jednotlivých rokoch veku.",
+      "dataset": "starobni_veky",
+      "x": "vek",
+      "y": "priemer_eur",
+      "series": "pohlavie",
+      "unit": "EUR",
+      "decimals": 0,
+      "xLabel": "Vek",
+      "yLabel": "EUR za mesiac",
+      "size": "m",
+      "labels": {
+        "vek": "Vek",
+        "pohlavie": "Pohlavie",
+        "priemer_eur": "Priemer"
+      }
+    },
+    "veky_pocet_kategorie": {
+      "type": "line",
+      "title": "Počet dôchodcov podľa veku a kategórie",
+      "subtitle": "Štyri kategórie pre vybrané pohlavie. Kategórie musia byť vzájomne výlučné, inak sa nedajú sčítať.",
+      "dataset": "starobni_veky",
+      "x": "vek",
+      "y": "pocet",
+      "series": "kategoria",
+      "unit": "osôb",
+      "xLabel": "Vek",
+      "yLabel": "počet dôchodcov",
+      "size": "l",
+      "span": "2",
+      "labels": {
+        "vek": "Vek",
+        "kategoria": "Kategória",
+        "pocet": "Počet"
+      }
+    },
+    "veky_priemer_kategorie": {
+      "type": "line",
+      "title": "Priemerný dôchodok podľa veku a kategórie",
+      "subtitle": "Rozdiel medzi kategóriami pri rovnakom veku je to, čo tento graf ukazuje.",
+      "dataset": "starobni_veky",
+      "x": "vek",
+      "y": "priemer_eur",
+      "series": "kategoria",
+      "unit": "EUR",
+      "decimals": 0,
+      "xLabel": "Vek",
+      "yLabel": "EUR za mesiac",
+      "size": "l",
+      "span": "2",
+      "labels": {
+        "vek": "Vek",
+        "kategoria": "Kategória",
+        "priemer_eur": "Priemer"
+      }
+    },
+    "veky_heatmapa": {
+      "type": "heatmap",
+      "title": "Počet dôchodcov: vekové pásmo × kategória",
+      "subtitle": "Tá istá mriežka čitateľne — v každej ceste je presné číslo.",
+      "dataset": "starobni_veky",
+      "x": "kategoria",
+      "y": "vekova_skupina",
+      "value": "pocet",
+      "unit": "osôb",
+      "scale": "sequential",
+      "xLabel": "Kategória",
+      "yLabel": "Vek",
+      "size": "xl",
+      "span": "full",
+      "transform": [
+        {
+          "kind": "bin",
+          "column": "vek",
+          "into": "vekova_skupina",
+          "width": 5,
+          "max": 95,
+          "maxLabel": "95+"
+        },
+        {
+          "kind": "aggregate",
+          "by": [
+            "vekova_skupina",
+            "kategoria"
+          ],
+          "value": "pocet",
+          "as": "sum"
+        },
+        {
+          "kind": "sort",
+          "by": [
+            "vekova_skupina_od"
+          ],
+          "dir": [
+            "desc"
+          ]
+        }
+      ],
+      "tableColumns": [
+        "vekova_skupina",
+        "kategoria",
+        "pocet"
+      ],
+      "labels": {
+        "vekova_skupina": "Vek",
+        "kategoria": "Kategória",
+        "pocet": "Počet"
+      }
+    },
+    "veky_tabulka": {
+      "type": "table",
+      "title": "Starobní dôchodcovia podľa veku",
+      "dataset": "starobni_veky",
+      "tableColumns": [
+        "rok",
+        "vek",
+        "pohlavie",
+        "kategoria",
+        "pocet",
+        "priemer_eur"
+      ],
+      "unit": "osôb",
+      "sortKey": "vek",
+      "labels": {
+        "rok": "Rok",
+        "vek": "Vek",
+        "pohlavie": "Pohlavie",
+        "kategoria": "Kategória",
+        "pocet": "Počet",
+        "priemer_eur": "Priemer (EUR)"
+      }
+    },
+    "doba_poberania_trend": {
+      "type": "line",
+      "title": "Priemerná doba poberania starobného dôchodku",
+      "subtitle": "Za dôchodcov, ktorí v danom roku zomreli.",
+      "dataset": "doba_poberania",
+      "x": "rok",
+      "y": "priemer_rokov",
+      "series": "pohlavie",
+      "unit": "rokov",
+      "decimals": 1,
+      "xTickFormat": "year",
+      "yLabel": "rokov",
+      "size": "m",
+      "span": "2",
+      "labels": {
+        "rok": "Rok",
+        "pohlavie": "Pohlavie",
+        "priemer_rokov": "Doba poberania"
+      }
+    },
+    "doba_poberania_tabulka": {
+      "type": "table",
+      "title": "Doba poberania a počet zomretých",
+      "dataset": "doba_poberania",
+      "tableColumns": [
+        "rok",
+        "pohlavie",
+        "priemer_rokov",
+        "pocet_zomretych"
+      ],
+      "unit": "rokov",
+      "sortKey": "rok",
+      "sortDir": "desc",
+      "labels": {
+        "rok": "Rok",
+        "pohlavie": "Pohlavie",
+        "priemer_rokov": "Doba poberania (rokov)",
+        "pocet_zomretych": "Zomretých"
+      }
+    },
+    "pilier2_aktiva": {
+      "type": "area",
+      "title": "Aktíva v II. pilieri",
+      "subtitle": "Čistá hodnota majetku v dôchodkových fondoch.",
+      "dataset": "pilier2",
+      "x": "mesiac",
+      "y": "aktiva_mil_eur",
+      "unit": "mil. EUR",
+      "decimals": 0,
+      "xTickFormat": "month",
+      "yLabel": "mil. EUR",
+      "size": "m",
+      "tableColumns": [
+        "mesiac",
+        "aktiva_mil_eur"
+      ],
+      "labels": {
+        "mesiac": "Mesiac",
+        "aktiva_mil_eur": "Aktíva (mil. €)"
+      }
+    },
+    "pilier2_sporitelia": {
+      "type": "line",
+      "title": "Počet sporiteľov v II. pilieri",
+      "subtitle": "Vlastný graf, nie druhá os: aktíva sú v eurách, sporitelia v osobách.",
+      "dataset": "pilier2",
+      "x": "mesiac",
+      "y": "pocet_sporitelov",
+      "unit": "osôb",
+      "xTickFormat": "month",
+      "yLabel": "počet sporiteľov",
+      "size": "m",
+      "tableColumns": [
+        "mesiac",
+        "pocet_sporitelov"
+      ],
+      "labels": {
+        "mesiac": "Mesiac",
+        "pocet_sporitelov": "Sporitelia"
       }
     }
   }

@@ -34,8 +34,15 @@ Schéma pre editor: `data/manifest.schema.json`.
 
 Bez grafu: `tiles` (kľúčové čísla) · `table`
 
-Na weboch je 8 stránok: prehľad, výdavky, počty, priemerné dôchodky, novopriznané,
-sezónnosť (teplotná mapa + 3D povrch), demografia a dátový katalóg.
+Na weboch je 12 stránok. Osem beží na reálnych dátach (prehľad, výdavky, počty,
+priemerné dôchodky, novopriznané, sezónnosť s teplotnou mapou a 3D povrchom,
+demografia, dátový katalóg), štyri sú pripravené a čakajú na dodanie súborov
+(podľa veku a pohlavia, podľa kategórie, doba poberania, II. pilier).
+
+Dataset sa dá označiť `"planned": true`: stránka a grafy vzniknú, ale namiesto
+grafu sa zobrazí odznak „Čaká na dáta" a presný tvar súboru, ktorý treba doplniť —
+žiadne vymyslené čísla. Evidencia zadaných ukazovateľov je v
+**[docs/POZADOVANE_UKAZOVATELE.md](docs/POZADOVANE_UKAZOVATELE.md)**.
 
 Každý graf dostane automaticky tabuľku s presnými hodnotami, export do CSV,
 tooltip so všetkými sériami na danom X, ovládanie klávesnicou, prepínanie sérií v
@@ -62,6 +69,7 @@ data/manifest.json         KONTRAKT: datasety, stránky, views
 data/manifest.schema.json  JSON Schema pre editor
 data/sp_*.csv              dátové súbory (generované z data/zdroj/)
 data/zdroj/*.xlsx          pôvodné zošity Sociálnej poisťovne
+data/sablony/*.csv         hlavičky pre súbory, ktoré ešte len prídu
 
 tools/serve.mjs            lokálny server bez závislostí
 tools/validate-manifest.mjs kontroluje, že všetko, čo stránka načíta, existuje
@@ -110,7 +118,7 @@ validáciou. Ilustračné datasety dostanú na každej karte výstražný odznak
 - paleta prechádza limitmi pre farbosleposť a kontrast v oboch režimoch
 - CSV v `data/` sa zhodujú so zošitmi v `data/zdroj/` (pregenerovaním importu)
 
-Navyše `tools/screenshots.mjs --check` vykreslí všetkých 8 stránok v svetlom aj
+Navyše `tools/screenshots.mjs --check` vykreslí všetkých 12 stránok v svetlom aj
 tmavom režime a spadne na chybe v konzole, na neúspešnej požiadavke, na prázdnej
 ploche grafu alebo na pretekajúcej karte.
 
@@ -144,6 +152,8 @@ na GitHub Pages. Žiadny build.
 
 - **[docs/AKO_PRIDAT_DATA.md](docs/AKO_PRIDAT_DATA.md)** — pridanie dát a grafu,
   typy grafov, transformácie, riešenie problémov
+- **[docs/POZADOVANE_UKAZOVATELE.md](docs/POZADOVANE_UKAZOVATELE.md)** — čo má web
+  zobrazovať, čo je hotové, čo čaká na dáta a v akom tvare ich dodať
 - **[docs/ZDROJOVE_DATA.md](docs/ZDROJOVE_DATA.md)** — zdrojové zošity, čo z čoho
   vzniklo, sedem pascí v týchto dátach a čo dáta ešte neobsahujú
 - **[docs/ZHODNOTENIE_PRISTUPU.md](docs/ZHODNOTENIE_PRISTUPU.md)** — zhodnotenie

@@ -147,6 +147,8 @@ async function openPage(pageId, resetFilters = true) {
 
 async function drawViews(grid, specs, bundles) {
   const cards = [];
+  // One long "waiting for data" note per dataset per page, not per card.
+  const shownNotes = new Set();
   for (const spec of specs) {
     if (spec.type === 'missing') {
       const card = document.createElement('section');
@@ -174,7 +176,7 @@ async function drawViews(grid, specs, bundles) {
     }
     // The shared filter row is applied before the view's own transforms.
     const scoped = scopeRows(bundle, spec);
-    const card = await renderView(spec, scoped, { bundles });
+    const card = await renderView(spec, scoped, { bundles, shownNotes });
     cards.push(card);
   }
   grid.replaceChildren(...cards);
@@ -206,8 +208,12 @@ function buildFilterRow(host, page, specs, bundles) {
     const bundle = bundles[def.dataset] || Object.values(bundles).find(b => b?.columns?.[def.column]);
     if (!bundle || bundle.error) continue;
 
-    const values = [...new Set(bundle.rows.map(r => r[def.column]).filter(v => v != null))];
+    // A filter's options normally come from the data. A planned dataset has no
+    // rows yet, so the manifest may declare them instead — which also documents
+    // the exact category strings the incoming file has to use.
+    let values = [...new Set(bundle.rows.map(r => r[def.column]).filter(v => v != null))];
     values.sort((a, b) => typeof a === 'number' ? a - b : String(a).localeCompare(String(b), 'sk'));
+    if (!values.length && Array.isArray(def.values)) values = [...def.values];
 
     const wrap = document.createElement('label');
     wrap.className = 'filter';
@@ -246,6 +252,12 @@ function buildFilterRow(host, page, specs, bundles) {
       await drawViews(grid, specs, bundles);
       grid.classList.remove('is-refetching');
     });
+
+    if (!bundle.rows.length) {
+      sel.disabled = true;
+      sel.title = 'Dáta pre tento filter ešte nie sú dodané.';
+      wrap.classList.add('is-pending');
+    }
 
     wrap.append(span, sel);
     host.appendChild(wrap);

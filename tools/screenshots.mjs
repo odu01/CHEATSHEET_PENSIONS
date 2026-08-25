@@ -119,6 +119,23 @@ try {
         }
         return out;
       });
+      // A planned card deliberately has no plot stage. Each must name its file,
+      // and the page must state the contract at least once — later cards over the
+      // same file point back at the first instead of repeating the table.
+      const plannedBroken = await page.evaluate(() => {
+        const cards = [...document.querySelectorAll('.viz-planned')];
+        const out = [];
+        for (const p of cards) {
+          const ok = p.querySelector('.viz-planned-cols') || p.querySelector('.viz-planned-ref');
+          if (!p.querySelector('.viz-planned-file') || !ok)
+            out.push(p.closest('.viz-card')?.querySelector('.viz-card-title')?.textContent || '(bez názvu)');
+        }
+        if (cards.length && !document.querySelector('.viz-planned-cols'))
+          out.push('(stránka bez kontraktu stĺpcov)');
+        return out;
+      });
+      for (const e of plannedBroken)
+        problems.push(`[${mode}] ${id}: plánovaná karta bez kontraktu — "${e}"`);
       for (const e of empty) problems.push(`[${mode}] ${id}: prázdna plocha grafu — "${e}"`);
 
       // a chart wider than its card means the layout overflows
