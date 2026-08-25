@@ -87,6 +87,12 @@ try {
       if (m.type() === 'error') problems.push(`[${mode}] console.error: ${m.text()}`);
       if (m.type() === 'warning' && /deprecat/i.test(m.text()))
         problems.push(`[${mode}] deprecation: ${m.text()}`);
+      // Observable Plot warns on the console AND draws a ⚠ glyph into the chart
+      // it is unhappy about. Both are build failures: the glyph is visible to
+      // every visitor, and the warning names a real modelling mistake (a year
+      // column left as a string put 55 ticks on top of each other).
+      if (m.type() === 'warning' && /^Warning:/.test(m.text()))
+        problems.push(`[${mode}] Plot warning: ${m.text().slice(0, 160)}`);
     });
     page.on('pageerror', e => problems.push(`[${mode}] pageerror: ${e.message}`));
     page.on('requestfailed', r =>
@@ -137,6 +143,14 @@ try {
       for (const e of plannedBroken)
         problems.push(`[${mode}] ${id}: plánovaná karta bez kontraktu — "${e}"`);
       for (const e of empty) problems.push(`[${mode}] ${id}: prázdna plocha grafu — "${e}"`);
+
+      // Plot's own warning marker, in case a warning arrives without a console
+      // message (a redraw after a resize does not re-log).
+      const glyphs = await page.evaluate(() => [...document.querySelectorAll('.viz-stage svg text')]
+        .filter(t => /\u26a0/.test(t.textContent))
+        .map(t => t.closest('.viz-card')?.querySelector('.viz-card-title')?.textContent || '(bez názvu)'));
+      for (const g of glyphs)
+        problems.push(`[${mode}] ${id}: Plot vykreslil výstražnú značku do grafu — "${g}"`);
 
       // a chart wider than its card means the layout overflows
       const overflow = await page.evaluate(() => {

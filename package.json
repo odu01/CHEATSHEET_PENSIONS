@@ -6,9 +6,11 @@
   "type": "module",
   "scripts": {
     "serve": "node tools/serve.mjs",
-    "validate": "node tools/validate-manifest.mjs && node tools/check-palette.mjs",
+    "validate": "node tools/validate-manifest.mjs && node tools/check-vstup.mjs && node tools/check-palette.mjs",
     "validate:manifest": "node tools/validate-manifest.mjs",
     "validate:palette": "node tools/check-palette.mjs",
+    "vstup": "node tools/check-vstup.mjs",
+    "vstup:gen": "python3 tools/gen_vstup.py",
     "data": "python3 tools/import_sp.py",
     "shots": "node tools/screenshots.mjs"
   },

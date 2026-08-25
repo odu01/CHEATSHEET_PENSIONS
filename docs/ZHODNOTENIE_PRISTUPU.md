@@ -127,14 +127,23 @@ dáta tam pod iným názvom sú. Stránka teda spadne pri načítaní.
 Nič to nezachytilo, pretože nič nekontrolovalo, že súbory, ktoré stránka načítava,
 existujú. Preto `tools/validate-manifest.mjs` overuje každý `<script src>`, každý
 `<link href>`, každý `import` a každý dataset proti disku, a `tools/screenshots.mjs`
-vykreslí všetkých 8 stránok v oboch režimoch a spadne na akejkoľvek chybe v konzole.
+vykreslí všetky stránky v oboch režimoch a spadne na akejkoľvek chybe v konzole.
 Oboje beží v CI pred nasadením.
 
-Že to nie je teoretické: smoke test odhalil počas vývoja štyri chyby, ktoré
+Že to nie je teoretické: smoke test odhalil počas vývoja sedem chýb, ktoré
 statická validácia nevidí — zmizli stĺpce (výpočet odsadenia pásma ignoroval
-padding), slovenské formátovanie čísel sa tichо zahodilo (explicitná os prepísala
+padding), slovenské formátovanie čísel sa ticho zahodilo (explicitná os prepísala
 nastavenia škály), body v bodovom grafe sa nekreslili (výška karty `"l"` sa poslala
-ako polomer bodu) a roky sa zobrazovali ako „2 010,0".
+ako polomer bodu), roky sa zobrazovali ako „2 010,0", stĺpec rokov ostal textom a
+os z neho urobila 55 značiek natlačených na sebe, počty osôb sa v tabuľke písali
+s desatinou („23 281,0") a stav filtra z jednej stránky sa preniesol na ďalšiu,
+takže graf inej stránky ticho ukazoval len mužov.
+
+Posledné tri stoja za povšimnutie z iného dôvodu: prvý z nich nahlásil sám
+Observable Plot — varovaním do konzoly a značkou ⚠ vykreslenou do grafu. Smoke
+test vtedy varovania ignoroval, tak prešlo. Odvtedy je varovanie Plotu chybou
+buildu a hľadá sa aj tá značka v SVG: keď knižnica hlási, že s dátami niečo nie
+je v poriadku, má to zastaviť nasadenie, nie skončiť ako ikona v grafe.
 
 **Druhý problém:** knižnice sa ťahajú z CDN na plávajúcom rozsahu
 (`@observablehq/plot@0.6`, `d3@7`). Upstream release môže kedykoľvek zmeniť

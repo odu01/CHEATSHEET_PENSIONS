@@ -40,7 +40,14 @@ async function boot() {
 
   buildNav();
   initTheme();
-  window.addEventListener('hashchange', () => openPage(pageFromHash(), false));
+  // A different page starts with its own filters. Carrying them over looked
+  // harmless while every page filtered a different column, but "pohlavie: Muži"
+  // set on one page silently cut every other page that has a pohlavie column
+  // down to men — the chart still drew, just wrong.
+  window.addEventListener('hashchange', () => {
+    const id = pageFromHash();
+    openPage(id, id !== state.pageId);
+  });
   await openPage(pageFromHash(), false);
 }
 

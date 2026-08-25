@@ -25,6 +25,12 @@ jobs:
       - name: Validate manifest and asset references
         run: node tools/validate-manifest.mjs
 
+      # The files in data/vstup/ are filled in by hand, so the contract they are
+      # supposed to match has to be checked against what is actually in them:
+      # header, types, empty cells, duplicate keys, gaps in a run of years.
+      - name: Validate hand-filled input files
+        run: node tools/check-vstup.mjs
+
       # The palette in lib/theme.js is derived (brand hues snapped to passing
       # OKLCH steps), so it has to be re-measured rather than trusted.
       - name: Validate palette accessibility gates
@@ -43,6 +49,13 @@ jobs:
             git diff --stat -- data/
             exit 1
           fi
+
+      # Synthetic input files must be reproducible from their generator, the same
+      # way data/ must be reproducible from the workbooks. The check only covers
+      # files still flagged illustrative in the manifest — once real numbers
+      # arrive and the flag goes, the generator stops owning that file.
+      - name: Check synthetic input files match their generator
+        run: python3 tools/gen_vstup.py --check
 
       - name: Syntax-check every module
         run: |

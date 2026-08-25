@@ -68,6 +68,13 @@ function producedBy(pipeline) {
       produced.add(into);
       produced.add(into + '_od');                        // numeric band start
     }
+    if (t.kind === 'cumsum') {
+      const suffix = t.suffix || '_kum';
+      for (const c of (t.columns || [t.column])) {
+        produced.add(c + suffix);
+        if (t.share) produced.add(c + suffix + '_pct');
+      }
+    }
   }
   return produced;
 }

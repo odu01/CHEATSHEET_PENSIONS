@@ -133,12 +133,35 @@ Aby bolo jasné, čo na webe nenájdeš, kým nedodáš ďalšie zdroje:
   dopočítať transformáciou `derive`.
 - **Sirotské počty v mesačnej rade** — list SIR má len výdavky, nie počty. Počty
   sirotských dôchodkov sú preto len v ročných zošitoch (2021–2024).
-- **II. pilier** — v priložených zošitoch nie je.
+- **II. pilier** — v priložených zošitoch nie je; koncoročné stavy majetku a
+  sporiteľov zverejňujú ADSS, MPSVR a NBS a web ich má v `data/vstup/pilier2.csv`
+  (mesiace medzi kotvami sú interpolované).
 - **Náhradový pomer** — chýba priemerná mzda.
 - **Roky pred 2021 v ročnej štatistike** — sólo priemery a počty dôchodcov máme
   len 2021–2024. Mesačná rada ide do roku 2009, ale s inou definíciou priemeru.
 - **Rok 2026 je neúplný** (január–apríl). V mriežke rok × mesiac chýbajúce
   mesiace zostávajú prázdne; nedopočítavajú sa a nevstupujú do ročných súčtov.
+
+## Druhý zdroj: `data/vstup/`
+
+Ukazovatele, ktoré v zošitoch nie sú, majú vlastný vstup: `data/vstup/*.csv`.
+Nič sa z nich negeneruje z XLSX — sú to súbory, do ktorých sa čísla dopĺňajú
+ručne. Dnes v nich sú syntetické rady z `tools/gen_vstup.py`, kalibrované na
+zverejnené kotvy; každá karta nad takým súborom to priznáva odznakom
+„Syntetické dáta".
+
+Rozdiel v režime, ktorý je dôležitý:
+
+| | `data/*.csv` | `data/vstup/*.csv` |
+|---|---|---|
+| vzniká | `npm run data` zo zošitov | ručne (dnes `npm run vstup:gen`) |
+| ručná úprava | nie, import prepíše | áno, presne na to sú |
+| kontroluje | kontrolné súčty proti „Celkom" | `npm run vstup` proti kontraktu |
+| CI kontroluje | zhodu so zošitmi | zhodu s generátorom, kým je dataset syntetický |
+
+Keď do vstupného súboru prídu reálne čísla a v manifeste sa zmaže
+`illustrative`, generátor stráca nad tým súborom právo — už ho neprepíše a CI
+prestane porovnávať. Postup: [../data/vstup/README.md](../data/vstup/README.md).
 
 ## Výmena dát za novšie
 

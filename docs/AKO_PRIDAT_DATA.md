@@ -3,16 +3,26 @@
 Pridanie grafu nevyžaduje zmenu kódu. Vložíš CSV do `data/` a jeden blok do
 `data/manifest.json`.
 
+Dve miesta, kde CSV žijú, a nemiešajú sa:
+
+- **`data/*.csv`** — generované zo zošitov v `data/zdroj/` skriptom
+  `npm run data`. Ručne sa needitujú, najbližší import ich prepíše.
+- **`data/vstup/*.csv`** — ručný vstup. Sem sa dopĺňajú čísla, ktoré v zošitoch
+  nie sú. Súbory tam už dáta majú (syntetické, viditeľne označené), takže
+  „doplniť" znamená prepísať hodnoty. Postup:
+  [../data/vstup/README.md](../data/vstup/README.md).
+
 ## Rýchly postup
 
 ```bash
-# 1. CSV do data/
+# 1. CSV do data/ (alebo prepíš hodnoty v data/vstup/)
 cp ~/moje_data.csv data/vydavky_2027.csv
 
 # 2. dopíš dataset + view do data/manifest.json  (nižšie sú vzory)
 
 # 3. skontroluj
-npm run validate          # manifest + odkazy + paleta
+npm run validate          # manifest + vstupné súbory + odkazy + paleta
+npm run vstup             # čo je v data/vstup a čo v ňom chýba
 npm run serve             # http://localhost:8080
 ```
 
@@ -159,12 +169,34 @@ strane view, takže jedno CSV môže živiť viacero grafov.
 | `index` | prepočíta na základ = 100 | `{"kind":"index","value":"hodnota","by":["druh"],"on":"rok","at":2020}` |
 | `sort` | zoradí (`dir` môže byť pole podľa `by`) | `{"kind":"sort","by":["rok","mesiac"],"dir":["desc","asc"]}` |
 | `bin` | zoskupí čísla do pásiem | `{"kind":"bin","column":"vek","into":"vekova_skupina","width":5,"max":95,"maxLabel":"95+"}` |
+| `cumsum` | bežiaci súčet a podiel | `{"kind":"cumsum","columns":["pocet","vydavky"],"by":["rok"],"share":true,"origin":true}` |
 | `topN` | ponechá N, zvyšok do „Ostatné" | `{"kind":"topN","n":6,"by":"hodnota","group":"krajina"}` |
 | `limit` | prvých N riadkov | `{"kind":"limit","n":20}` |
 
 `bin` píše názov pásma do `into` a jeho číselný začiatok do `<into>_od` — podľa
 toho sa dá pásma zoradiť numericky. Vďaka tomu stačí v CSV vek po jednotlivých
 rokoch a ten istý súbor uživí aj graf po rokoch veku, aj pyramídu po pásmach.
+
+`cumsum` sčítava **v poradí riadkov**, tak pred neho patrí `sort`. So `share`
+pridá aj `<stlpec>_kum_pct`, teda bežiaci podiel na súčte skupiny; dva takéto
+podiely proti sebe na osiach sú kumulatívna distribúcia (Lorenzova krivka).
+`origin` predradí nulový bod, bez ktorého by krivka nezačínala v (0, 0) — taký
+riadok v dátach neexistuje, tabuľka pásiem začína až na hornej hranici prvého
+pásma. Celá krivka „koľko % výdavkov ide na koľko % dôchodcov" je potom:
+
+```json
+[{ "kind": "sort", "by": "od_eur" },
+ { "kind": "derive", "into": "vydavky_eur", "expr": "n * p", "vars": { "n": "pocet", "p": "priemer_eur" } },
+ { "kind": "cumsum", "columns": ["pocet", "vydavky_eur"], "by": ["rok"], "share": true, "origin": true },
+ { "kind": "derive", "into": "rovnomerne", "expr": "v", "vars": { "v": "pocet_kum_pct" } },
+ { "kind": "unpivot", "keep": ["pocet_kum_pct"], "only": ["vydavky_eur_kum_pct", "rovnomerne"],
+   "into": "kategoria", "value": "hodnota" },
+ { "kind": "rename", "column": "kategoria",
+   "map": { "vydavky_eur_kum_pct": "Výdavky na dôchodky", "rovnomerne": "Rovnomerné rozdelenie" } }]
+```
+
+Posledné dva kroky pridajú do grafu diagonálu rovnomerného rozdelenia — bez nej
+sa krivka nedá s ničím porovnať.
 
 Rozdiel, ktorý mätie: **`labels` premenúva NÁZVY STĹPCOV** (pre tabuľku a export),
 **`rename` premenúva HODNOTY** v stĺpci (pre legendu a tooltip). Po `unpivot`
@@ -195,36 +227,56 @@ Dve veci, na ktoré si dať pozor:
   zredukuje na jednu sériu. Rozdeľ stránky; presne preto sú „Priemerné dôchodky"
   a „Novopriznané" dve.
 
-## 7. Stránka pripravená skôr než dáta
+## 7. Ukazovateľ, ku ktorému ešte nemáme reálne čísla
 
-Keď je jasné, čo má web zobrazovať, ale súbor ešte nemáš, dá sa dataset označiť
-`"planned": true`. Stránka aj grafy vzniknú, každá karta zobrazí odznak „Čaká na
-dáta", plánovaný typ grafu a presný tvar súboru, ktorý treba dodať:
+Prázdna karta s nápisom „čaká na dáta" nič nehovorí — nedá sa na nej posúdiť, či
+je zvolený tvar grafu ten správny. Preto taký ukazovateľ dostane **syntetické
+dáta**: rad z modelu kalibrovaného na zverejnené čísla, jasne označený, a
+uložený v `data/vstup/` — teda presne v tom súbore, ktorý sa neskôr prepíše
+reálnymi hodnotami.
 
 ```json
-"starobni_veky": {
-  "file": "data/sp_starobni_podla_veku.csv",
-  "label": "Starobní dôchodcovia podľa veku",
-  "unit": "osôb",
-  "planned": true,
-  "note": "Jeden riadok = rok × vek × pohlavie × kategória.",
+"dochodky_pasma": {
+  "file": "data/vstup/dochodky_pasma.csv",
+  "label": "Starobné dôchodky podľa výšky",
+  "unit": "dôchodkov",
+  "source": "Syntetické dáta (tools/gen_vstup.py) — kalibrované na 1 134 690 dôchodkov a priemer 683,10 € k 31. 12. 2024",
+  "vintage": "2024 (modelované na zverejnené súčty)",
+  "illustrative": true,
+  "badge": "Syntetické dáta",
+  "badgeNote": "Presné počty po pásmach SP nezverejňuje. Model drží zverejnené súčty a medzi nimi interpoluje.",
   "columns": {
-    "vek":   { "type": "int",    "label": "Vek v celých rokoch" },
-    "pocet": { "type": "int",    "label": "Počet starobných dôchodcov" }
+    "pasmo":       { "type": "string", "label": "Označenie pásma", "unit": null },
+    "od_eur":      { "type": "int",    "label": "Dolná hranica pásma v EUR (radí pásma)", "unit": "EUR" },
+    "pocet":       { "type": "int",    "label": "Počet dôchodkov v pásme", "measure": true },
+    "priemer_eur": { "type": "number", "label": "Priemer v pásme, EUR/mes.", "unit": "EUR", "decimals": 2 }
   }
 }
 ```
 
-Pravidlá, ktoré validácia vynucuje:
+Tri veci, ktoré to nastavuje:
 
-- **`columns` s `label` pri každom stĺpci** — to je ten kontrakt, ktorý sa na karte
-  zobrazí. Bez neho by nebolo čo neskôr kontrolovať.
-- **`note`** — čo presne sa má dodať.
-- **Súbor nesmie existovať.** Keď ho pridáš, zruš príznak `planned`; inak validácia
-  zlyní s tým, že dataset je označený ako plánovaný, ale súbor už tam je.
-- `source` sa pri plánovanom datasete nevyžaduje (zdroj sa doplní s dátami).
+- **`illustrative: true`** — karta dostane výstražný odznak a validácia neprosí o
+  zdroj. Je to zároveň prepínač pre generátor: kým je nastavený, `npm run
+  vstup:gen` smie súbor prepísať; keď sa zmaže, generátor sa ho už nedotkne.
+  Prepísať reálne dáta modelom je presne ten tichý úraz, ktorý sa nesmie stať.
+- **`badge` / `badgeNote`** — čo za číslo to je. „Syntetické dáta" (rad z modelu
+  na zverejnených kotvách) je iné tvrdenie než „Ilustračné dáta" (vymyslená
+  ukážka) a čitateľ to má vidieť bez čítania zdroja.
+- **`columns` s `label`** — kontrakt. `unit` a `decimals` platia pre ten stĺpec
+  v tabuľke (dataset môže mať počty vedľa eur), `measure: true` označí stĺpec ako
+  hodnotu, nie rozmer — podľa toho `npm run vstup` kontroluje duplicitné kľúče.
 
-Filtre na takej stránke nemajú z čoho vziať hodnoty, preto ich vypíš rovno:
+Model a jeho kotvy sú v `tools/gen_vstup.py`; každý dataset si tam kontroluje
+súčtom, že kotvy naozaj drží, inak generátor skončí chybou. Postup dopĺňania
+reálnych čísel je v [../data/vstup/README.md](../data/vstup/README.md), kontrola
+súboru je `npm run vstup`.
+
+Ak dáta naozaj nemajú byť zobrazené vôbec (nie sú a ani model by nemal zmysel),
+existuje ešte `"planned": true`: karta zobrazí odznak „Čaká na dáta" a tvar
+súboru, ktorý sa má dodať. Vtedy súbor **nesmie existovať** a dataset musí mať
+`note` a `columns` s `label`. Filtre na takej stránke nemajú z čoho vziať
+hodnoty, tak sa vypíšu rovno:
 
 ```json
 "filters": [
@@ -271,5 +323,8 @@ npm run shots               # vykreslí všetky stránky do screenshots/ a nájd
 | os počtov opakuje `1,7 mil.` | rozsah je úzky — už sa rieši automaticky podľa rozpätia osi |
 | v legende je `nazov_stlpca` | po `unpivot` chýba `rename` |
 | filter je prázdny a nedá sa klikať | dataset je `planned` — dopíš do filtra `values` |
+| na osi je 55 rokov natlačených na sebe a v grafe je ⚠ | stĺpec rokov nemá `"type": "year"`, tak z neho je text a os je ordinálna |
+| počet osôb sa vypíše ako „23 281,0" | stĺpec nemá `"type": "int"` |
+| graf ukazuje len jedno pohlavie a filter na stránke nie je | starý stav filtra z inej stránky; `openPage` ho pri zmene stránky maže |
 | „dataset je označený planned, ale súbor už existuje" | pridal si dáta, zruš príznak `planned` |
 | hodnoty sú 1000× menšie | `unit` hovorí „tis.", ale dáta sú surové (alebo naopak) |

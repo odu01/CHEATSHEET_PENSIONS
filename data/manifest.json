@@ -93,7 +93,8 @@
           "type": "string"
         },
         "pocet": {
-          "type": "int"
+          "type": "int",
+          "measure": true
         }
       }
     },
@@ -112,7 +113,8 @@
           "type": "string"
         },
         "pocet": {
-          "type": "int"
+          "type": "int",
+          "measure": true
         }
       }
     },
@@ -131,7 +133,8 @@
           "type": "string"
         },
         "pocet": {
-          "type": "int"
+          "type": "int",
+          "measure": true
         }
       }
     },
@@ -210,7 +213,8 @@
           "type": "string"
         },
         "pocet": {
-          "type": "int"
+          "type": "int",
+          "measure": true
         }
       }
     },
@@ -234,11 +238,10 @@
       }
     },
     "starobni_veky": {
-      "file": "data/sp_starobni_podla_veku.csv",
+      "file": "data/vstup/starobni_podla_veku.csv",
       "label": "Starobní dôchodcovia podľa veku, pohlavia a kategórie",
       "unit": "osôb",
-      "planned": true,
-      "note": "Jeden riadok = rok × vek × pohlavie × kategória, vek v celých rokoch (5-ročné pásma si web dopočíta). Kategórie musia byť vzájomne výlučné, inak sa nedajú sčítať.",
+      "note": "Jeden riadok = rok × vek × pohlavie × kategória. Kategórie sú modelované ako vzájomne výlučné, aby sa dali sčítať; súčet za rok 2024 dáva zverejnený stav starobných dôchodkov.",
       "columns": {
         "rok": {
           "type": "year",
@@ -258,20 +261,28 @@
         },
         "pocet": {
           "type": "int",
-          "label": "Počet starobných dôchodcov"
+          "label": "Počet starobných dôchodcov",
+          "measure": true,
+          "unit": "osôb"
         },
         "priemer_eur": {
           "type": "number",
-          "label": "Priemerný starobný dôchodok z SP, EUR/mesiac"
+          "label": "Priemerný starobný dôchodok z SP, EUR/mesiac",
+          "unit": "EUR",
+          "decimals": 2
         }
-      }
+      },
+      "source": "Syntetické dáta (tools/gen_vstup.py) — kalibrované na počet starobných dôchodkov 1 134 690 a priemerný starobný dôchodok 683,10 € k 31. 12. 2024 (Sociálna poisťovňa); profil po vekoch z modelu úmrtnosti, podiely kategórií sú odhad",
+      "vintage": "2022–2024 (modelované)",
+      "illustrative": true,
+      "badge": "Syntetické dáta",
+      "badgeNote": "Modelové čísla kalibrované na zverejnené súčty SP. Rozdelenie po vekoch, pohlaviach a kategóriách zo SP dodané nie je — až príde, prepíše sa súbor data/vstup/starobni_podla_veku.csv."
     },
     "doba_poberania": {
-      "file": "data/sp_doba_poberania.csv",
+      "file": "data/vstup/doba_poberania.csv",
       "label": "Priemerná doba poberania starobného dôchodku",
       "unit": "rokov",
-      "planned": true,
-      "note": "Za dôchodcov, ktorí v danom roku zomreli. Počet zomretých je v súbore tiež — bez neho sa priemery za roky nedajú správne zvážiť.",
+      "note": "Za dôchodcov, ktorí v danom roku zomreli. Ženy majú výrazne dlhšiu dobu poberania — nie preto, že žijú dlhšie, ale najmä preto, že do roku 2004 odchádzali do dôchodku už v 53–57 rokoch.",
       "columns": {
         "rok": {
           "type": "year",
@@ -283,20 +294,28 @@
         },
         "priemer_rokov": {
           "type": "number",
-          "label": "Priemerná doba poberania, roky"
+          "label": "Priemerná doba poberania, roky",
+          "unit": "rokov",
+          "decimals": 1
         },
         "pocet_zomretych": {
           "type": "int",
-          "label": "Počet zomretých dôchodcov (váha priemeru)"
+          "label": "Počet zomretých dôchodcov (váha priemeru)",
+          "measure": true,
+          "unit": "osôb"
         }
-      }
+      },
+      "source": "Syntetické dáta (tools/gen_vstup.py) — z toho istého modelu úmrtnosti ako krivky prežitia generácií, v kombinácii s dôchodkovým vekom platným pre daný ročník; počet zomretých dôchodcov je odhad z celkovej úmrtnosti v SR",
+      "vintage": "2000–2024 (modelované)",
+      "illustrative": true,
+      "badge": "Syntetické dáta",
+      "badgeNote": "Doba poberania je dopočítaná z modelu úmrtnosti a z dôchodkového veku, nie zo štatistiky zomretých dôchodcov. Reálne čísla vedie SP."
     },
     "pilier2": {
-      "file": "data/sp_pilier2.csv",
+      "file": "data/vstup/pilier2.csv",
       "label": "II. pilier: aktíva a sporitelia",
       "unit": "mil. EUR a počet",
-      "planned": true,
-      "note": "Aktíva a sporitelia každý vo vlastnom stĺpci: rôzne jednotky, preto dva samostatné grafy a nikdy nie dve osi jedného.",
+      "note": "Aktíva a sporitelia každý vo vlastnom grafe: rôzne jednotky, nikdy nie dve osi jedného grafu. Pokles majetku v roku 2022 je skutočný (trhy), nie chyba modelu.",
       "columns": {
         "mesiac": {
           "type": "month",
@@ -304,11 +323,112 @@
         },
         "aktiva_mil_eur": {
           "type": "number",
-          "label": "Čistá hodnota aktív, mil. EUR"
+          "label": "Čistá hodnota aktív, mil. EUR",
+          "unit": "mil. EUR",
+          "decimals": 0
         },
         "pocet_sporitelov": {
           "type": "int",
-          "label": "Počet sporiteľov"
+          "label": "Počet sporiteľov",
+          "measure": true,
+          "unit": "osôb"
+        }
+      },
+      "source": "Syntetické dáta (tools/gen_vstup.py) — koncoročné stavy sú zverejnené (ADSS, MPSVR, NBS: 14,1 mld. € a 1 838 665 sporiteľov ku koncu 2023, 1 949 000 sporiteľov ku koncu 2024, 19,1 mld. € ku koncu 2025, 21,57 mld. € v 06/2026), mesiace medzi nimi sú interpolované",
+      "vintage": "2013-12 až 2026-06 (medziročne kotvené, mesačne modelované)",
+      "illustrative": true,
+      "badge": "Syntetické dáta",
+      "badgeNote": "Koncoročné body sú zverejnené čísla, mesiace medzi nimi sú hladká interpolácia — mesačná volatilita trhu tu chýba, lebo by bola vymyslená."
+    },
+    "prezitie_kohort": {
+      "file": "data/vstup/prezitie_kohort.csv",
+      "label": "Prežitie generácií podľa veku",
+      "unit": "% generácie",
+      "source": "Syntetické dáta (tools/gen_vstup.py) — Silerov model úmrtnosti kalibrovaný na strednú dĺžku života v SR (1970: 69,7 · 2019: 77,8 · 2021: 74,6 · 2023: 78,2), na kojeneckú úmrtnosť (1960: 31 ‰ · 1990: 14,7 ‰ · 2023: 5 ‰) a na nádej dožitia vo veku 65 v roku 2023 (18,4 roka)",
+      "vintage": "generácie 1930–2030 (modelované)",
+      "illustrative": true,
+      "badge": "Syntetické dáta",
+      "badgeNote": "Kohortné tabuľky života pre SR zverejnené nie sú — krivky sú dopočítané z modelu kalibrovaného na zverejnené strednú dĺžku života a kojeneckú úmrtnosť.",
+      "note": "Podiel generácie, ktorý sa dožil daného veku. U generácie 1990 a mladších je väčšina krivky projekcia — generácia 2030 sa ešte nezačala rodiť. Pre dôchodkový systém je kľúčové čítanie „koľko % sa dožije dôchodkového veku a ako dlho potom ešte žijú\".",
+      "columns": {
+        "kohorta": {
+          "type": "string",
+          "label": "Rok narodenia generácie"
+        },
+        "vek": {
+          "type": "int",
+          "label": "Vek v celých rokoch"
+        },
+        "prezitie_pct": {
+          "type": "number",
+          "label": "Podiel generácie, ktorý sa dožil veku (%)",
+          "unit": "%",
+          "decimals": 1
+        }
+      }
+    },
+    "nadej_dozitia_vek": {
+      "file": "data/vstup/nadej_dozitia_vek.csv",
+      "label": "Nádej dožitia podľa dosiahnutého veku",
+      "unit": "rokov",
+      "source": "Syntetické dáta (tools/gen_vstup.py) — periódové tabuľky života z modelu kalibrovaného na strednú dĺžku života v SR 1970–2024 (Eurostat/ŠÚ SR) a na nádej dožitia vo veku 65 v roku 2023 (18,4 roka)",
+      "vintage": "1970–2024 (modelované)",
+      "illustrative": true,
+      "badge": "Syntetické dáta",
+      "badgeNote": "Body pre vek 0 sedia na zverejnenú strednú dĺžku života, ostatné veky sú dopočítané modelom. Reálne tabuľky života vedie ŠÚ SR.",
+      "note": "Do akého veku sa priemerne dožije ten, kto sa už dožil veku x. Krivka pre vek 80 leží najvyššie — nie je to chyba: kto prežil rizikové roky, má pred sebou viac než priemer pri narodení. Preto je stredná dĺžka života pri narodení zlá miera na dôchodkový vek.",
+      "columns": {
+        "rok": {
+          "type": "year",
+          "label": "Rok"
+        },
+        "vek": {
+          "type": "string",
+          "label": "Dosiahnutý vek (0, 10, 45, 65, 80)"
+        },
+        "nadej_dozitia_celkom": {
+          "type": "number",
+          "label": "Vek, ktorého sa priemerne dožije (vek + nádej dožitia)",
+          "unit": "rokov",
+          "decimals": 1
+        }
+      }
+    },
+    "dochodky_pasma": {
+      "file": "data/vstup/dochodky_pasma.csv",
+      "label": "Starobné dôchodky podľa výšky",
+      "unit": "dôchodkov",
+      "source": "Syntetické dáta (tools/gen_vstup.py) — rozdelenie kalibrované na štyri zverejnené čísla SP k 31. 12. 2024: 1 134 690 starobných dôchodkov, priemer 683,10 €, 107 131 dôchodkov nad 1 000 €, 84 693 poberateľov minimálneho dôchodku; horný chvost na 469 dôchodkov nad 2 000 € a 50 nad 2 500 €",
+      "vintage": "2024 (modelované na zverejnené súčty)",
+      "illustrative": true,
+      "badge": "Syntetické dáta",
+      "badgeNote": "Presné počty po pásmach SP v priložených zošitoch nezverejňuje. Model drží všetky zverejnené súčty a medzi nimi interpoluje — až príde reálna tabuľka pásiem, prepíše sa data/vstup/dochodky_pasma.csv.",
+      "note": "Jeden riadok = pásmo výšky dôchodku. Z počtu a priemeru za pásmo si web dopočíta kumulatívnu distribúciu výdavkov. Reálne dáta majú v pásme 390–600 € špičku — tam sa dorovnáva minimálny dôchodok.",
+      "columns": {
+        "rok": {
+          "type": "year",
+          "label": "Rok, ku ktorému je stav"
+        },
+        "pasmo": {
+          "type": "string",
+          "label": "Označenie pásma, napr. „600–700\""
+        },
+        "od_eur": {
+          "type": "int",
+          "label": "Dolná hranica pásma v EUR (radí pásma)",
+          "unit": "EUR"
+        },
+        "pocet": {
+          "type": "int",
+          "label": "Počet dôchodkov v pásme",
+          "measure": true,
+          "unit": "dôchodkov"
+        },
+        "priemer_eur": {
+          "type": "number",
+          "label": "Priemerný dôchodok v pásme, EUR/mes. (ak nie je, stred pásma)",
+          "unit": "EUR",
+          "decimals": 2
         }
       }
     }
@@ -353,6 +473,17 @@
       ]
     },
     {
+      "id": "rozdelenie",
+      "label": "Rozdelenie dôchodkov",
+      "description": "Nie priemer, ale rozdelenie: koľko dôchodcov je v ktorom pásme a aká časť výdavkov na nich ide. Kumulatívna krivka je to isté čítanie, aké sa vo zdravotníctve robí pre koncentráciu nákladov.",
+      "views": [
+        "dochodky_tiles",
+        "dochodky_kumulativ",
+        "dochodky_histogram",
+        "dochodky_tabulka"
+      ]
+    },
+    {
       "id": "novopriznane",
       "label": "Novopriznané",
       "description": "Novopriznané dôchodky a ich výška proti už vyplácaným. Filter platí pre celú stránku a je povinný: obe karty zobrazujú jeden druh dôchodku naraz.",
@@ -382,16 +513,31 @@
     {
       "id": "demografia",
       "label": "Demografia",
-      "description": "Veková štruktúra populácie, ktorá stojí za dlhodobým vývojom systému.",
+      "description": "Demografia, z ktorej vyplýva všetko ostatné: koľko ľudí je v akom veku, aká časť generácie sa dožije dôchodku a ako dlho ho potom poberá.",
       "views": [
-        "pyramida_2024"
+        "prezitie_tiles",
+        "pyramida_2024",
+        "prezitie_krivky",
+        "nadej_dozitia_krivky"
       ]
     },
     {
       "id": "veky_pohlavie",
       "label": "Podľa veku a pohlavia",
-      "description": "Starobní dôchodcovia po vekoch a podľa pohlavia. Filter vyberá kategóriu — pyramída aj graf priemerov ukazujú vždy jednu, aby sa dali čítať obe pohlavia naraz. Dáta ešte nie sú dodané; karty zobrazujú presný tvar súboru, ktorý treba doplniť.",
+      "description": "Starobní dôchodcovia po vekoch a podľa pohlavia. Filtre vyberajú rok a kategóriu — pyramída aj graf priemerov ukazujú vždy jednu kategóriu, aby sa dali čítať obe pohlavia naraz. Čísla sú syntetické, kým SP nedodá rozpad po vekoch.",
       "filters": [
+        {
+          "dataset": "starobni_veky",
+          "column": "rok",
+          "label": "Rok",
+          "default": 2024,
+          "required": true,
+          "values": [
+            2022,
+            2023,
+            2024
+          ]
+        },
         {
           "dataset": "starobni_veky",
           "column": "kategoria",
@@ -415,8 +561,20 @@
     {
       "id": "veky_kategorie",
       "label": "Podľa kategórie",
-      "description": "Tie isté dáta z druhej strany: ako sa štyri kategórie dôchodcov líšia počtom a priemerným dôchodkom pri rovnakom veku. Filter vyberá pohlavie a je povinný — pri oboch naraz by graf spojil sériu cez dve pohlavia.",
+      "description": "Tie isté dáta z druhej strany: ako sa štyri kategórie dôchodcov líšia počtom a priemerným dôchodkom pri rovnakom veku. Filter pohlavia je povinný — pri oboch naraz by graf spojil sériu cez dve pohlavia. Čísla sú syntetické, kým SP nedodá rozpad po vekoch.",
       "filters": [
+        {
+          "dataset": "starobni_veky",
+          "column": "rok",
+          "label": "Rok",
+          "default": 2024,
+          "required": true,
+          "values": [
+            2022,
+            2023,
+            2024
+          ]
+        },
         {
           "dataset": "starobni_veky",
           "column": "pohlavie",
@@ -1259,7 +1417,8 @@
         "kategoria": "Kategória",
         "pocet": "Počet",
         "priemer_eur": "Priemer (EUR)"
-      }
+      },
+      "span": "full"
     },
     "doba_poberania_trend": {
       "type": "line",
@@ -1299,7 +1458,8 @@
         "pohlavie": "Pohlavie",
         "priemer_rokov": "Doba poberania (rokov)",
         "pocet_zomretych": "Zomretých"
-      }
+      },
+      "span": "full"
     },
     "pilier2_aktiva": {
       "type": "area",
@@ -1341,6 +1501,473 @@
         "mesiac": "Mesiac",
         "pocet_sporitelov": "Sporitelia"
       }
+    },
+    "prezitie_tiles": {
+      "type": "tiles",
+      "title": "Kto sa dožije dôchodku",
+      "subtitle": "Podiel generácie, ktorý sa dožil 65 rokov. Rozdiel medzi generáciami je celá zmena dôchodkového systému v jednom čísle.",
+      "dataset": "prezitie_kohort",
+      "unit": "%",
+      "decimals": 1,
+      "tiles": [
+        {
+          "label": "Generácia 1930 sa dožila 65 rokov",
+          "value": "prezitie_pct",
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "kohorta": "1930",
+                "vek": 65
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false
+        },
+        {
+          "label": "Generácia 1970 sa dožije 65 rokov",
+          "value": "prezitie_pct",
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "kohorta": "1970",
+                "vek": 65
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false
+        },
+        {
+          "label": "Generácia 2010 sa dožije 65 rokov",
+          "value": "prezitie_pct",
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "kohorta": "2010",
+                "vek": 65
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false
+        },
+        {
+          "label": "Generácia 1930 sa dožila 85 rokov",
+          "value": "prezitie_pct",
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "kohorta": "1930",
+                "vek": 85
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false
+        }
+      ]
+    },
+    "prezitie_krivky": {
+      "type": "line",
+      "title": "Prežitie generácií: koľko % ročníka sa dožilo veku",
+      "subtitle": "Každá krivka je jedna generácia. Čím je krivka vyššie a plochejšie, tým viac ľudí sa dožíva dôchodku — a tým dlhšie ho poberajú.",
+      "dataset": "prezitie_kohort",
+      "x": "vek",
+      "y": "prezitie_pct",
+      "series": "kohorta",
+      "unit": "%",
+      "decimals": 1,
+      "xLabel": "Vek",
+      "yLabel": "% generácie",
+      "size": "xl",
+      "span": "2",
+      "labels": {
+        "vek": "Vek",
+        "kohorta": "Generácia",
+        "prezitie_pct": "Prežitie (%)"
+      }
+    },
+    "nadej_dozitia_krivky": {
+      "type": "line",
+      "title": "Nádej dožitia podľa už dosiahnutého veku",
+      "subtitle": "Do akého veku sa priemerne dožije ten, kto sa dožil veku x. Krivky sa nezbiehajú — kto prežil rizikové roky, má pred sebou viac než novorodenec.",
+      "dataset": "nadej_dozitia_vek",
+      "x": "rok",
+      "y": "nadej_dozitia_celkom",
+      "series": "vek",
+      "unit": "rokov",
+      "decimals": 1,
+      "xTickFormat": "year",
+      "xLabel": "Rok",
+      "yLabel": "dožije sa veku",
+      "size": "l",
+      "span": "2",
+      "transform": [
+        {
+          "kind": "rename",
+          "column": "vek",
+          "map": {
+            "0": "Pri narodení",
+            "10": "Vo veku 10",
+            "45": "Vo veku 45",
+            "65": "Vo veku 65",
+            "80": "Vo veku 80"
+          }
+        }
+      ],
+      "labels": {
+        "rok": "Rok",
+        "vek": "Dosiahnutý vek",
+        "nadej_dozitia_celkom": "Dožije sa veku"
+      }
+    },
+    "dochodky_tiles": {
+      "type": "tiles",
+      "title": "Ako sú výdavky na dôchodky rozdelené",
+      "subtitle": "Hranice pásiem sú tie, ktoré zverejňuje Sociálna poisťovňa, takže podiely sedia presne na okraj pásma.",
+      "dataset": "dochodky_pasma",
+      "unit": "%",
+      "decimals": 1,
+      "tiles": [
+        {
+          "label": "Dôchodky do 700 € — podiel poberateľov",
+          "value": "pocet_kum_pct",
+          "agg": "max",
+          "transform": [
+            {
+              "kind": "sort",
+              "by": "od_eur",
+              "dir": "asc"
+            },
+            {
+              "kind": "derive",
+              "into": "vydavky_eur",
+              "expr": "n * p",
+              "vars": {
+                "n": "pocet",
+                "p": "priemer_eur"
+              }
+            },
+            {
+              "kind": "cumsum",
+              "columns": [
+                "pocet",
+                "vydavky_eur"
+              ],
+              "by": [
+                "rok"
+              ],
+              "share": true,
+              "origin": true
+            },
+            {
+              "kind": "filter",
+              "where": {
+                "od_eur": {
+                  "lte": 600
+                }
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false
+        },
+        {
+          "label": "Dôchodky do 700 € — podiel výdavkov",
+          "value": "vydavky_eur_kum_pct",
+          "agg": "max",
+          "transform": [
+            {
+              "kind": "sort",
+              "by": "od_eur",
+              "dir": "asc"
+            },
+            {
+              "kind": "derive",
+              "into": "vydavky_eur",
+              "expr": "n * p",
+              "vars": {
+                "n": "pocet",
+                "p": "priemer_eur"
+              }
+            },
+            {
+              "kind": "cumsum",
+              "columns": [
+                "pocet",
+                "vydavky_eur"
+              ],
+              "by": [
+                "rok"
+              ],
+              "share": true,
+              "origin": true
+            },
+            {
+              "kind": "filter",
+              "where": {
+                "od_eur": {
+                  "lte": 600
+                }
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false
+        },
+        {
+          "label": "Dôchodky nad 1 000 € — podiel poberateľov",
+          "value": "zvysok_osob",
+          "agg": "min",
+          "transform": [
+            {
+              "kind": "sort",
+              "by": "od_eur",
+              "dir": "asc"
+            },
+            {
+              "kind": "derive",
+              "into": "vydavky_eur",
+              "expr": "n * p",
+              "vars": {
+                "n": "pocet",
+                "p": "priemer_eur"
+              }
+            },
+            {
+              "kind": "cumsum",
+              "columns": [
+                "pocet",
+                "vydavky_eur"
+              ],
+              "by": [
+                "rok"
+              ],
+              "share": true,
+              "origin": true
+            },
+            {
+              "kind": "filter",
+              "where": {
+                "od_eur": {
+                  "lte": 900
+                }
+              }
+            },
+            {
+              "kind": "derive",
+              "into": "zvysok_osob",
+              "expr": "100 - v",
+              "vars": {
+                "v": "pocet_kum_pct"
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false
+        },
+        {
+          "label": "Dôchodky nad 1 000 € — podiel výdavkov",
+          "value": "zvysok_eur",
+          "agg": "min",
+          "transform": [
+            {
+              "kind": "sort",
+              "by": "od_eur",
+              "dir": "asc"
+            },
+            {
+              "kind": "derive",
+              "into": "vydavky_eur",
+              "expr": "n * p",
+              "vars": {
+                "n": "pocet",
+                "p": "priemer_eur"
+              }
+            },
+            {
+              "kind": "cumsum",
+              "columns": [
+                "pocet",
+                "vydavky_eur"
+              ],
+              "by": [
+                "rok"
+              ],
+              "share": true,
+              "origin": true
+            },
+            {
+              "kind": "filter",
+              "where": {
+                "od_eur": {
+                  "lte": 900
+                }
+              }
+            },
+            {
+              "kind": "derive",
+              "into": "zvysok_eur",
+              "expr": "100 - v",
+              "vars": {
+                "v": "vydavky_eur_kum_pct"
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false
+        }
+      ]
+    },
+    "dochodky_kumulativ": {
+      "type": "line",
+      "title": "Kumulatívna distribúcia výdavkov na starobné dôchodky",
+      "subtitle": "Dôchodcovia sú zoradení od najnižšieho dôchodku. Čím bližšie je krivka k priamke, tým rovnomernejšie sú výdavky rozdelené.",
+      "dataset": "dochodky_pasma",
+      "x": "pocet_kum_pct",
+      "y": "hodnota",
+      "series": "kategoria",
+      "unit": "%",
+      "decimals": 1,
+      "xLabel": "% dôchodcov (zoradených od najnižšieho dôchodku)",
+      "yLabel": "% výdavkov",
+      "size": "l",
+      "span": "2",
+      "transform": [
+        {
+          "kind": "sort",
+          "by": "od_eur",
+          "dir": "asc"
+        },
+        {
+          "kind": "derive",
+          "into": "vydavky_eur",
+          "expr": "n * p",
+          "vars": {
+            "n": "pocet",
+            "p": "priemer_eur"
+          }
+        },
+        {
+          "kind": "cumsum",
+          "columns": [
+            "pocet",
+            "vydavky_eur"
+          ],
+          "by": [
+            "rok"
+          ],
+          "share": true,
+          "origin": true
+        },
+        {
+          "kind": "derive",
+          "into": "rovnomerne",
+          "expr": "v",
+          "vars": {
+            "v": "pocet_kum_pct"
+          }
+        },
+        {
+          "kind": "unpivot",
+          "keep": [
+            "pocet_kum_pct"
+          ],
+          "only": [
+            "vydavky_eur_kum_pct",
+            "rovnomerne"
+          ],
+          "into": "kategoria",
+          "value": "hodnota"
+        },
+        {
+          "kind": "rename",
+          "column": "kategoria",
+          "map": {
+            "vydavky_eur_kum_pct": "Výdavky na dôchodky",
+            "rovnomerne": "Rovnomerné rozdelenie"
+          }
+        }
+      ],
+      "tableColumns": [
+        "pocet_kum_pct",
+        "kategoria",
+        "hodnota"
+      ],
+      "labels": {
+        "pocet_kum_pct": "% dôchodcov",
+        "kategoria": "Séria",
+        "hodnota": "% výdavkov"
+      }
+    },
+    "dochodky_histogram": {
+      "type": "bar",
+      "title": "Počet starobných dôchodkov podľa výšky",
+      "subtitle": "Rozdelenie je stlačené: väčšina dôchodkov leží v troch stovkách eur okolo priemeru, nad 2 000 € je ich niekoľko stoviek z 1,13 milióna.",
+      "dataset": "dochodky_pasma",
+      "x": "pasmo",
+      "y": "pocet",
+      "unit": "dôchodkov",
+      "decimals": 0,
+      "yLabel": "dôchodkov",
+      "xLabel": "Pásmo výšky dôchodku (EUR/mesiac)",
+      "size": "xl",
+      "span": "2",
+      "transform": [
+        {
+          "kind": "sort",
+          "by": "od_eur",
+          "dir": "asc"
+        }
+      ],
+      "tableColumns": [
+        "pasmo",
+        "pocet",
+        "priemer_eur"
+      ],
+      "labels": {
+        "pasmo": "Pásmo (EUR)",
+        "pocet": "Počet dôchodkov",
+        "priemer_eur": "Priemer v pásme (EUR)"
+      }
+    },
+    "dochodky_tabulka": {
+      "type": "table",
+      "title": "Starobné dôchodky podľa pásiem výšky",
+      "dataset": "dochodky_pasma",
+      "unit": "EUR",
+      "sortKey": "od_eur",
+      "transform": [
+        {
+          "kind": "derive",
+          "into": "vydavky_mes_eur",
+          "expr": "n * p",
+          "vars": {
+            "n": "pocet",
+            "p": "priemer_eur"
+          }
+        }
+      ],
+      "tableColumns": [
+        "pasmo",
+        "pocet",
+        "priemer_eur",
+        "vydavky_mes_eur"
+      ],
+      "labels": {
+        "pasmo": "Pásmo (EUR)",
+        "pocet": "Počet dôchodkov",
+        "priemer_eur": "Priemer v pásme (EUR)",
+        "vydavky_mes_eur": "Výdavky za mesiac (EUR)"
+      },
+      "span": "full",
+      "y": "vydavky_mes_eur",
+      "decimals": 0
     }
   }
 }

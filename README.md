@@ -8,7 +8,8 @@ Repozitár *je* stránka.
 
 ```bash
 npm run serve      # http://localhost:8080
-npm run validate   # manifest + odkazy na súbory + prístupnosť palety
+npm run validate   # manifest + vstupné súbory + odkazy + prístupnosť palety
+npm run vstup      # čo treba naplniť dátami a či to, čo tam je, sedí
 ```
 
 ## Ako to funguje
@@ -30,18 +31,25 @@ Schéma pre editor: `data/manifest.schema.json`.
 2D (Observable Plot): `line` · `area` · `area-stacked` · `column` · `bar` ·
 `bar-stacked` · `bar-grouped` · `scatter` · `heatmap` · `pyramid` · `waterfall`
 
+Kumulatívne rozdelenie (Lorenzova krivka) nie je vlastný typ grafu — je to `line`
+nad transformáciou `cumsum`. Zdroj dát zostáva tabuľka pásiem, akú zverejňuje SP.
+
 3D (Plotly, načíta sa až na stránke, ktorá ho obsahuje): `surface3d` · `scatter3d`
 
 Bez grafu: `tiles` (kľúčové čísla) · `table`
 
-Na weboch je 12 stránok. Osem beží na reálnych dátach (prehľad, výdavky, počty,
-priemerné dôchodky, novopriznané, sezónnosť s teplotnou mapou a 3D povrchom,
-demografia, dátový katalóg), štyri sú pripravené a čakajú na dodanie súborov
-(podľa veku a pohlavia, podľa kategórie, doba poberania, II. pilier).
+Na weboch je 13 stránok a žiadna prázdna karta. Osem beží na reálnych dátach
+Sociálnej poisťovne (prehľad, výdavky, počty, priemerné dôchodky, novopriznané,
+sezónnosť s teplotnou mapou a 3D povrchom, demografia, dátový katalóg), päť na
+syntetických (rozdelenie dôchodkov, podľa veku a pohlavia, podľa kategórie, doba
+poberania, II. pilier).
 
-Dataset sa dá označiť `"planned": true`: stránka a grafy vzniknú, ale namiesto
-grafu sa zobrazí odznak „Čaká na dáta" a presný tvar súboru, ktorý treba doplniť —
-žiadne vymyslené čísla. Evidencia zadaných ukazovateľov je v
+Syntetické neznamená vymyslené naslepo: sú to rady z modelu, ktorý drží
+zverejnené čísla a dopočítava len to, čo medzi nimi chýba. Každá taká karta má
+odznak **„Syntetické dáta"** a v zdroji vypísané kotvy, na ktorých model stojí.
+Vstupné súbory ležia v `data/vstup/` — doplniť reálne čísla znamená prepísať v
+nich hodnoty; postup je v **[data/vstup/README.md](data/vstup/README.md)**,
+kontrolu robí `npm run vstup`. Evidencia zadaných ukazovateľov je v
 **[docs/POZADOVANE_UKAZOVATELE.md](docs/POZADOVANE_UKAZOVATELE.md)**.
 
 Každý graf dostane automaticky tabuľku s presnými hodnotami, export do CSV,
@@ -69,13 +77,15 @@ data/manifest.json         KONTRAKT: datasety, stránky, views
 data/manifest.schema.json  JSON Schema pre editor
 data/sp_*.csv              dátové súbory (generované z data/zdroj/)
 data/zdroj/*.xlsx          pôvodné zošity Sociálnej poisťovne
-data/sablony/*.csv         hlavičky pre súbory, ktoré ešte len prídu
+data/vstup/*.csv           ručný vstup — sem sa dopĺňajú čísla, ktoré v zošitoch nie sú
 
 tools/serve.mjs            lokálny server bez závislostí
 tools/validate-manifest.mjs kontroluje, že všetko, čo stránka načíta, existuje
 tools/check-palette.mjs    premeria paletu proti prístupnostným limitom
 tools/screenshots.mjs      vykreslí všetky stránky v oboch režimoch, hľadá chyby
 tools/import_sp.py         prevod zošitov SP na tidy CSV + kontrolné súčty
+tools/check-vstup.mjs      čo je v data/vstup, čo v ňom chýba, či sedí na kontrakt
+tools/gen_vstup.py         model pre syntetické vstupné dáta (kalibrovaný na kotvy)
 
 vendor/                    d3 7.9.0, Observable Plot 0.6.17, Plotly gl3d 3.0.1
 ```
@@ -101,9 +111,16 @@ chybou. Podrobne: **[docs/ZDROJOVE_DATA.md](docs/ZDROJOVE_DATA.md)**.
 Jediná výnimka je `data/vekova_struktura_2024.csv` — veková štruktúra prevzatá z
 projektu DYNAMIC_PYRAMID_WEB (Eurostat/UN).
 
+Súbory v `data/vstup/` sú ručný vstup pre ukazovatele, ktoré v zošitoch nie sú.
+Dnes v nich sú syntetické čísla z `tools/gen_vstup.py` — Silerov model úmrtnosti
+a rozdelenie dôchodkov, oboje kalibrované na zverejnené kotvy (stredná dĺžka
+života a kojenecká úmrtnosť v SR, počet a priemer starobných dôchodkov, počty nad
+1 000 / 2 000 / 2 500 €, koncoročné stavy II. piliera). Generátor si pri každom
+datasete kontroluje súčtom, že kotvy drží, inak skončí chybou.
+
 Čo v priložených zošitoch **nie je**: príjmy systému a saldo, HDP ako menovateľ
-pre podiely, priemerná mzda pre náhradový pomer, II. pilier. Web preto tieto
-ukazovatele nezobrazuje — pridaním ďalšieho CSV a bloku do manifestu pribudnú.
+pre podiely, priemerná mzda pre náhradový pomer. Web tieto ukazovatele
+nezobrazuje — pridaním ďalšieho CSV a bloku do manifestu pribudnú.
 
 Dataset bez `source`, ktorý nie je označený `"illustrative": true`, neprejde
 validáciou. Ilustračné datasety dostanú na každej karte výstražný odznak.
@@ -115,12 +132,18 @@ validáciou. Ilustračné datasety dostanú na každej karte výstražný odznak
 - každý dataset, stĺpec, view, stránka, `<script src>`, `<link href>` a `import`
   ukazuje na niečo, čo existuje
 - každý dataset má zdroj, alebo je označený ako ilustračný
+- každý súbor v `data/vstup/` sedí na kontrakt: hlavička, typy, prázdne hodnoty,
+  duplicitné kľúče, diery v radoch rokov a vekov
 - paleta prechádza limitmi pre farbosleposť a kontrast v oboch režimoch
-- CSV v `data/` sa zhodujú so zošitmi v `data/zdroj/` (pregenerovaním importu)
+- CSV v `data/` sa zhodujú so zošitmi v `data/zdroj/` (pregenerovaním importu) a
+  syntetické súbory v `data/vstup/` so svojím generátorom (kým sú syntetické)
 
-Navyše `tools/screenshots.mjs --check` vykreslí všetkých 12 stránok v svetlom aj
+Navyše `tools/screenshots.mjs --check` vykreslí všetkých 13 stránok v svetlom aj
 tmavom režime a spadne na chybe v konzole, na neúspešnej požiadavke, na prázdnej
-ploche grafu alebo na pretekajúcej karte.
+ploche grafu, na pretekajúcej karte — a na varovaní Observable Plot. To posledné
+nie je prepis: Plot kreslí pri varovaní ⚠ priamo do grafu a jeho varovanie
+zvyčajne pomenúva skutočnú chybu (stĺpec rokov ponechaný ako text natlačil 55
+značiek na os).
 
 Prečo tak dôkladne: pôvodný `DYNAMIC_PYRAMID_WEB` je publikovaný v stave, v ktorom
 sa nedá spustiť — má pomiešané názvy súborov s obsahom, chýba mu `worker.js` a

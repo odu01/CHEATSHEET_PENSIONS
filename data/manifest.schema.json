@@ -55,7 +55,7 @@
           "illustrative": {
             "type": "boolean",
             "default": false,
-            "description": "true = vygenerované ukážkové čísla. Na každej karte sa zobrazí výstražný odznak."
+            "description": "true = čísla nie sú merané. Karta dostane výstražný odznak a validácia prestane vyžadovať zdroj. Zároveň je to prepínač pre tools/gen_vstup.py: kým je nastavený, generátor smie súbor prepisovať; keď sa zmaže, súbor je považovaný za reálne dáta a generátor sa ho nedotkne."
           },
           "note": {
             "type": "string",
@@ -83,6 +83,18 @@
                 "label": {
                   "type": "string",
                   "description": "Význam stĺpca. Pri \"planned\" datasete sa zobrazí v tabuľke kontraktu na karte."
+                },
+                "unit": {
+                  "type": "string",
+                  "description": "Jednotka stĺpca. Dataset môže mať stĺpce v rôznych jednotkách (počty vedľa eur); tabuľka si jednotku pre stĺpec, ktorý nie je hodnotou grafu, berie odtiaľto."
+                },
+                "decimals": {
+                  "type": "integer",
+                  "description": "Počet desatinných miest pre tento stĺpec v tabuľke."
+                },
+                "measure": {
+                  "type": "boolean",
+                  "description": "true = stĺpec je meraná hodnota, nie rozmer. Typ na to nestačí: vek aj počet osôb sú „int\", ale vek riadok identifikuje a počet je hodnota. Používa to `npm run vstup` na kontrolu duplicitných kľúčov a na výpis pokrytia rozmerov."
                 }
               }
             }
@@ -91,6 +103,14 @@
             "type": "boolean",
             "default": false,
             "description": "true = súbor ešte neexistuje; manifest deklaruje tvar, v akom dáta prídu. Karta zobrazí kontrakt namiesto grafu. Vyžaduje \"columns\" (s \"label\" pri každom stĺpci) a \"note\" s tým, čo presne treba dodať. Validácia zlyhá, ak súbor už existuje — vtedy príznak zruš."
+          },
+          "badge": {
+            "type": "string",
+            "description": "Text výstražného odznaku namiesto „Ilustračné dáta\" — napr. „Syntetické dáta\" pre rad z modelu kalibrovaného na zverejnené kotvy. Iné tvrdenie než vymyslená ukážka, preto iný odznak."
+          },
+          "badgeNote": {
+            "type": "string",
+            "description": "Vysvetlenie odznaku (tooltip): čo presne je modelované a čo merané."
           }
         }
       }
@@ -468,6 +488,7 @@
               "rename",
               "sort",
               "bin",
+              "cumsum",
               "limit",
               "topN"
             ]
@@ -590,6 +611,26 @@
           "maxLabel": {
             "type": "string",
             "description": "bin: názov posledného pásma, napr. \"95+\"."
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "cumsum: stĺpce, ktoré sa majú kumulovať."
+          },
+          "share": {
+            "type": "boolean",
+            "description": "cumsum: pridá aj <stlpec>_kum_pct, teda bežiaci podiel na súčte skupiny. Dve takéto osi proti sebe sú kumulatívna distribúcia (Lorenzova krivka)."
+          },
+          "origin": {
+            "type": "boolean",
+            "description": "cumsum: predradí nulový bod. Kumulatívna krivka musí začínať v (0, 0) a taký riadok v dátach nie je — tabuľka pásiem začína až na hornej hranici prvého pásma."
+          },
+          "suffix": {
+            "type": "string",
+            "default": "_kum",
+            "description": "cumsum: prípona nových stĺpcov."
           }
         }
       }
