@@ -486,6 +486,8 @@
               "derive",
               "index",
               "rename",
+              "expand",
+              "pageFilter",
               "sort",
               "bin",
               "cumsum",
@@ -567,7 +569,8 @@
             "type": "object",
             "additionalProperties": {
               "type": "string"
-            }
+            },
+            "description": "rename: { stará hodnota: nová hodnota }. expand: { hodnota: [vlastnosť, …] } — jeden riadok sa rozpadne na jeden riadok za každú vlastnosť, ktorú nesie."
           },
           "dir": {
             "oneOf": [
@@ -631,6 +634,26 @@
             "type": "string",
             "default": "_kum",
             "description": "cumsum: prípona nových stĺpcov."
+          },
+          "values": {
+            "type": "object",
+            "additionalProperties": {
+              "enum": [
+                "sum",
+                "mean",
+                "min",
+                "max",
+                "count",
+                "first",
+                "last"
+              ]
+            },
+            "description": "aggregate: viac mier v jednom kroku, { stlpec: agregátor }. Toto potrebuje vážený priemer — priemer priemerov nie je priemer: sčítaj počty aj počet × hodnotu a podiel dopočítaj cez `derive`."
+          },
+          "keepUnmapped": {
+            "type": "boolean",
+            "default": true,
+            "description": "expand: čo s hodnotami, ktoré v `map` nie sú — prejdú (true) alebo vypadnú."
           }
         }
       }

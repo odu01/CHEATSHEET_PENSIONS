@@ -60,7 +60,11 @@ function producedBy(pipeline) {
   for (const t of pipeline || []) {
     if (t.into) produced.add(t.into);
     if (t.kind === 'unpivot') { produced.add(t.into || 'kategoria'); produced.add(t.value || 'hodnota'); }
-    if (t.kind === 'aggregate') produced.add(t.into || t.value);
+    if (t.kind === 'aggregate') {
+      if (t.values) for (const c of Object.keys(t.values)) produced.add(c);
+      else produced.add(t.into || t.value);
+    }
+    if (t.kind === 'expand') produced.add(t.into || t.column);
     if (t.kind === 'index') produced.add(t.into || t.value);
     if (t.kind === 'pivot' && t.key) produced.add('*');   // pivot column names are data-dependent
     if (t.kind === 'bin') {
@@ -215,12 +219,39 @@ for (const page of manifest.pages || []) {
     if (!views[vid]) err(`page "${page.id}": view "${vid}" nie je v manifeste`);
     used.add(vid);
   }
+  // A filter may also target a column that a transform on this page produces
+  // (`expand` inventing a property column, say). That only works where the view
+  // says where the filter lands, so require a `pageFilter` marker as well — a
+  // filter with nowhere to go would silently do nothing.
+  const derivedHere = new Set();
+  const marked = new Set();
+  for (const vid of page.views || []) {
+    const v = views[vid];
+    if (!v) continue;
+    for (const c of producedBy(v.transform)) derivedHere.add(c);
+    if (v.transform?.some(t => t.kind === 'pageFilter')) marked.add(vid);
+  }
   for (const f of page.filters || []) {
     if (!f.column) err(`page "${page.id}": filter bez "column"`);
     if (f.dataset && !manifest.datasets?.[f.dataset])
       err(`page "${page.id}": filter odkazuje na neexistujúci dataset "${f.dataset}"`);
-    if (f.dataset && headers[f.dataset] && f.column && !headers[f.dataset].has(f.column))
-      err(`page "${page.id}": filter podľa "${f.column}", ktorý v datasete "${f.dataset}" nie je`);
+    const inData = f.dataset && headers[f.dataset] && f.column && headers[f.dataset].has(f.column);
+    if (f.dataset && headers[f.dataset] && f.column && !inData) {
+      if (!derivedHere.has(f.column))
+        err(`page "${page.id}": filter podľa "${f.column}", ktorý v datasete "${f.dataset}" nie je ` +
+            `a ani ho žiadna transformácia na stránke nevyrába`);
+      else if (!marked.size)
+        err(`page "${page.id}": filter podľa "${f.column}" vyrába transformácia, ale žiadny view ` +
+            `na stránke nemá krok { "kind": "pageFilter" } — filter by nemal kam pôsobiť`);
+      else if (!f.values?.length)
+        err(`page "${page.id}": filter podľa vyrobeného stĺpca "${f.column}" musí mať "values" ` +
+            `— v dátach ten stĺpec nie je, takže sa hodnoty nedajú prečítať`);
+      else
+        for (const vid of page.views || [])
+          if (views[vid] && !marked.has(vid))
+            warn(`page "${page.id}": view "${vid}" nemá krok "pageFilter", filter "${f.column}" ` +
+                 `sa naň nevzťahuje`);
+    }
   }
 }
 for (const id of Object.keys(views)) if (!used.has(id)) warn(`view "${id}" nie je na žiadnej stránke`);

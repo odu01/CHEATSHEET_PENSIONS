@@ -241,7 +241,7 @@
       "file": "data/vstup/starobni_podla_veku.csv",
       "label": "Starobní dôchodcovia podľa veku, pohlavia a kategórie",
       "unit": "osôb",
-      "note": "Jeden riadok = rok × vek × pohlavie × kategória. Kategórie sú modelované ako vzájomne výlučné, aby sa dali sčítať; súčet za rok 2024 dáva zverejnený stav starobných dôchodkov.",
+      "note": "Jeden riadok = rok × vek × pohlavie × kategória. Kategórie sa neprekrývajú: kto má dve vlastnosti naraz, patrí do kombinovanej kategórie, takže súčet za vek dáva presne celok. Vlastnosti samotné sa prekrývať môžu a kombinácie sú zriedke — dohromady okolo pol percenta dôchodcov. Skupiny ako „všetci sporitelia\" si web dopočíta sám, aby sa nikto nepočítal dvakrát.",
       "columns": {
         "rok": {
           "type": "year",
@@ -257,7 +257,7 @@
         },
         "kategoria": {
           "type": "string",
-          "label": "Iba SP / SP + II. pilier / SP + cudzina / SP + výsluhové"
+          "label": "Nepretínajúca sa kombinácia: Iba SP / SP + II. pilier / SP + cudzina / SP + výsluhové / SP + II. pilier + cudzina / SP + II. pilier + výsluhové / SP + cudzina + výsluhové / SP + všetky tri"
         },
         "pocet": {
           "type": "int",
@@ -272,11 +272,11 @@
           "decimals": 2
         }
       },
-      "source": "Syntetické dáta (tools/gen_vstup.py) — kalibrované na počet starobných dôchodkov 1 134 690 a priemerný starobný dôchodok 683,10 € k 31. 12. 2024 (Sociálna poisťovňa); profil po vekoch z modelu úmrtnosti, podiely kategórií sú odhad",
+      "source": "Syntetické dáta (tools/gen_vstup.py) — kalibrované na počet starobných dôchodkov 1 134 690 a priemerný starobný dôchodok 683,10 € k 31. 12. 2024 (Sociálna poisťovňa); profil po vekoch z modelu úmrtnosti, podiely vlastností a ich kombinácií sú odhad",
       "vintage": "2022–2024 (modelované)",
       "illustrative": true,
       "badge": "Syntetické dáta",
-      "badgeNote": "Modelové čísla kalibrované na zverejnené súčty SP. Rozdelenie po vekoch, pohlaviach a kategóriách zo SP dodané nie je — až príde, prepíše sa súbor data/vstup/starobni_podla_veku.csv."
+      "badgeNote": "Modelové čísla kalibrované na zverejnené súčty SP. Rozdelenie po vekoch, pohlaviach a kategóriách zo SP dodané nie je — až príde, prepíše sa súbor data/vstup/starobni_podla_veku.csv. Najmenej isté sú kombinované kategórie: model ich berie ako nezávislé, len pri výsluhových a II. pilieri predpokladá, že sa vyskytujú spolu zriedkavejšie."
     },
     "doba_poberania": {
       "file": "data/vstup/doba_poberania.csv",
@@ -524,7 +524,7 @@
     {
       "id": "veky_pohlavie",
       "label": "Podľa veku a pohlavia",
-      "description": "Starobní dôchodcovia po vekoch a podľa pohlavia. Filtre vyberajú rok a kategóriu — pyramída aj graf priemerov ukazujú vždy jednu kategóriu, aby sa dali čítať obe pohlavia naraz. Čísla sú syntetické, kým SP nedodá rozpad po vekoch.",
+      "description": "Starobní dôchodcovia po vekoch a podľa pohlavia. Filter vyberá vlastnosť dôchodcu — a berie ju marginálne: „sporiteľ v II. pilieri\" znamená všetkých sporiteľov, aj tých, ktorí majú navyše dôchodok z cudziny. Preto sa tieto skupiny nedajú sčítať do celku; celok je na stránke Podľa kategórie. Čísla sú syntetické, kým SP nedodá rozpad po vekoch.",
       "filters": [
         {
           "dataset": "starobni_veky",
@@ -540,15 +540,15 @@
         },
         {
           "dataset": "starobni_veky",
-          "column": "kategoria",
-          "label": "Kategória dôchodcu",
-          "default": "Iba SP",
+          "column": "znak",
+          "label": "Vlastnosť dôchodcu",
+          "default": "Iba z SP",
           "required": true,
           "values": [
-            "Iba SP",
-            "SP + II. pilier",
-            "SP + cudzina",
-            "SP + výsluhové"
+            "Iba z SP",
+            "Sporiteľ v II. pilieri",
+            "Dôchodok z cudziny",
+            "Výsluhový dôchodok"
           ]
         }
       ],
@@ -561,7 +561,7 @@
     {
       "id": "veky_kategorie",
       "label": "Podľa kategórie",
-      "description": "Tie isté dáta z druhej strany: ako sa štyri kategórie dôchodcov líšia počtom a priemerným dôchodkom pri rovnakom veku. Filter pohlavia je povinný — pri oboch naraz by graf spojil sériu cez dve pohlavia. Čísla sú syntetické, kým SP nedodá rozpad po vekoch.",
+      "description": "Ten istý súbor z druhej strany: nepretínajúci sa rozpad, ktorý sa sčíta na celok. Kto má dve vlastnosti naraz, je v kategórii „dve a viac naraz\" — je ich okolo 1 % dôchodcov. Filter pohlavia je povinný: pri oboch naraz by graf spojil sériu cez dve pohlavia.",
       "filters": [
         {
           "dataset": "starobni_veky",
@@ -588,6 +588,7 @@
         }
       ],
       "views": [
+        "veky_znaky_tiles",
         "veky_pocet_kategorie",
         "veky_priemer_kategorie",
         "veky_heatmapa"
@@ -1246,7 +1247,7 @@
     "veky_pyramida": {
       "type": "pyramid",
       "title": "Starobní dôchodcovia podľa veku a pohlavia",
-      "subtitle": "Počet dôchodcov vo vybranej kategórii. Vek je zoskupený do 5-ročných pásiem.",
+      "subtitle": "Počet dôchodcov s vybranou vlastnosťou, vrátane tých, ktorí majú aj ďalšiu. Vek je zoskupený do 5-ročných pásiem.",
       "dataset": "starobni_veky",
       "y": "vekova_skupina",
       "value": "pocet",
@@ -1256,6 +1257,46 @@
       "size": "xl",
       "span": "2",
       "transform": [
+        {
+          "kind": "expand",
+          "column": "kategoria",
+          "into": "znak",
+          "map": {
+            "Iba SP": [
+              "Iba z SP"
+            ],
+            "SP + II. pilier": [
+              "Sporiteľ v II. pilieri"
+            ],
+            "SP + cudzina": [
+              "Dôchodok z cudziny"
+            ],
+            "SP + výsluhové": [
+              "Výsluhový dôchodok"
+            ],
+            "SP + II. pilier + cudzina": [
+              "Sporiteľ v II. pilieri",
+              "Dôchodok z cudziny"
+            ],
+            "SP + II. pilier + výsluhové": [
+              "Sporiteľ v II. pilieri",
+              "Výsluhový dôchodok"
+            ],
+            "SP + cudzina + výsluhové": [
+              "Dôchodok z cudziny",
+              "Výsluhový dôchodok"
+            ],
+            "SP + všetky tri": [
+              "Sporiteľ v II. pilieri",
+              "Dôchodok z cudziny",
+              "Výsluhový dôchodok"
+            ]
+          },
+          "keepUnmapped": false
+        },
+        {
+          "kind": "pageFilter"
+        },
         {
           "kind": "bin",
           "column": "vek",
@@ -1288,7 +1329,7 @@
     "veky_priemer_pohlavie": {
       "type": "line",
       "title": "Priemerný dôchodok podľa veku",
-      "subtitle": "Vo vybranej kategórii, po jednotlivých rokoch veku.",
+      "subtitle": "Priemerný dôchodok z SP u dôchodcov s vybranou vlastnosťou, po jednotlivých rokoch veku. Priemer je vážený počtom, nie priemerom priemerov.",
       "dataset": "starobni_veky",
       "x": "vek",
       "y": "priemer_eur",
@@ -1302,12 +1343,83 @@
         "vek": "Vek",
         "pohlavie": "Pohlavie",
         "priemer_eur": "Priemer"
-      }
+      },
+      "transform": [
+        {
+          "kind": "derive",
+          "into": "objem",
+          "expr": "n * p",
+          "vars": {
+            "n": "pocet",
+            "p": "priemer_eur"
+          }
+        },
+        {
+          "kind": "expand",
+          "column": "kategoria",
+          "into": "znak",
+          "map": {
+            "Iba SP": [
+              "Iba z SP"
+            ],
+            "SP + II. pilier": [
+              "Sporiteľ v II. pilieri"
+            ],
+            "SP + cudzina": [
+              "Dôchodok z cudziny"
+            ],
+            "SP + výsluhové": [
+              "Výsluhový dôchodok"
+            ],
+            "SP + II. pilier + cudzina": [
+              "Sporiteľ v II. pilieri",
+              "Dôchodok z cudziny"
+            ],
+            "SP + II. pilier + výsluhové": [
+              "Sporiteľ v II. pilieri",
+              "Výsluhový dôchodok"
+            ],
+            "SP + cudzina + výsluhové": [
+              "Dôchodok z cudziny",
+              "Výsluhový dôchodok"
+            ],
+            "SP + všetky tri": [
+              "Sporiteľ v II. pilieri",
+              "Dôchodok z cudziny",
+              "Výsluhový dôchodok"
+            ]
+          },
+          "keepUnmapped": false
+        },
+        {
+          "kind": "pageFilter"
+        },
+        {
+          "kind": "aggregate",
+          "by": [
+            "vek",
+            "pohlavie"
+          ],
+          "values": {
+            "pocet": "sum",
+            "objem": "sum"
+          }
+        },
+        {
+          "kind": "derive",
+          "into": "priemer_eur",
+          "expr": "o / n",
+          "vars": {
+            "o": "objem",
+            "n": "pocet"
+          }
+        }
+      ]
     },
     "veky_pocet_kategorie": {
       "type": "line",
       "title": "Počet dôchodcov podľa veku a kategórie",
-      "subtitle": "Štyri kategórie pre vybrané pohlavie. Kategórie musia byť vzájomne výlučné, inak sa nedajú sčítať.",
+      "subtitle": "Kategórie sa neprekrývajú, takže sa dajú sčítať. Kombinované kategórie sú zlúčené do jednej série.",
       "dataset": "starobni_veky",
       "x": "vek",
       "y": "pocet",
@@ -1321,12 +1433,33 @@
         "vek": "Vek",
         "kategoria": "Kategória",
         "pocet": "Počet"
-      }
+      },
+      "transform": [
+        {
+          "kind": "rename",
+          "column": "kategoria",
+          "map": {
+            "SP + II. pilier + cudzina": "Dve a viac naraz",
+            "SP + II. pilier + výsluhové": "Dve a viac naraz",
+            "SP + cudzina + výsluhové": "Dve a viac naraz",
+            "SP + všetky tri": "Dve a viac naraz"
+          }
+        },
+        {
+          "kind": "aggregate",
+          "by": [
+            "vek",
+            "kategoria"
+          ],
+          "value": "pocet",
+          "as": "sum"
+        }
+      ]
     },
     "veky_priemer_kategorie": {
       "type": "line",
       "title": "Priemerný dôchodok podľa veku a kategórie",
-      "subtitle": "Rozdiel medzi kategóriami pri rovnakom veku je to, čo tento graf ukazuje.",
+      "subtitle": "Priemer vážený počtom dôchodcov v kategórii. Kombinované kategórie sú zlúčené do jednej série.",
       "dataset": "starobni_veky",
       "x": "vek",
       "y": "priemer_eur",
@@ -1341,12 +1474,53 @@
         "vek": "Vek",
         "kategoria": "Kategória",
         "priemer_eur": "Priemer"
-      }
+      },
+      "transform": [
+        {
+          "kind": "derive",
+          "into": "objem",
+          "expr": "n * p",
+          "vars": {
+            "n": "pocet",
+            "p": "priemer_eur"
+          }
+        },
+        {
+          "kind": "rename",
+          "column": "kategoria",
+          "map": {
+            "SP + II. pilier + cudzina": "Dve a viac naraz",
+            "SP + II. pilier + výsluhové": "Dve a viac naraz",
+            "SP + cudzina + výsluhové": "Dve a viac naraz",
+            "SP + všetky tri": "Dve a viac naraz"
+          }
+        },
+        {
+          "kind": "aggregate",
+          "by": [
+            "vek",
+            "kategoria"
+          ],
+          "values": {
+            "pocet": "sum",
+            "objem": "sum"
+          }
+        },
+        {
+          "kind": "derive",
+          "into": "priemer_eur",
+          "expr": "o / n",
+          "vars": {
+            "o": "objem",
+            "n": "pocet"
+          }
+        }
+      ]
     },
     "veky_heatmapa": {
       "type": "heatmap",
       "title": "Počet dôchodcov: vekové pásmo × kategória",
-      "subtitle": "Tá istá mriežka čitateľne — v každej ceste je presné číslo.",
+      "subtitle": "Bez kategórie „Iba SP\" — tá je o rád väčšia než ostatné a stlačila by celú škálu na jednu farbu.",
       "dataset": "starobni_veky",
       "x": "kategoria",
       "y": "vekova_skupina",
@@ -1358,6 +1532,24 @@
       "size": "xl",
       "span": "full",
       "transform": [
+        {
+          "kind": "filter",
+          "where": {
+            "kategoria": {
+              "ne": "Iba SP"
+            }
+          }
+        },
+        {
+          "kind": "rename",
+          "column": "kategoria",
+          "map": {
+            "SP + II. pilier + cudzina": "Dve a viac naraz",
+            "SP + II. pilier + výsluhové": "Dve a viac naraz",
+            "SP + cudzina + výsluhové": "Dve a viac naraz",
+            "SP + všetky tri": "Dve a viac naraz"
+          }
+        },
         {
           "kind": "bin",
           "column": "vek",
@@ -1398,27 +1590,97 @@
     },
     "veky_tabulka": {
       "type": "table",
-      "title": "Starobní dôchodcovia podľa veku",
+      "title": "Dôchodcovia s vybranou vlastnosťou podľa veku",
       "dataset": "starobni_veky",
       "tableColumns": [
-        "rok",
         "vek",
         "pohlavie",
-        "kategoria",
+        "znak",
         "pocet",
         "priemer_eur"
       ],
       "unit": "osôb",
       "sortKey": "vek",
       "labels": {
-        "rok": "Rok",
         "vek": "Vek",
         "pohlavie": "Pohlavie",
-        "kategoria": "Kategória",
+        "znak": "Vlastnosť",
         "pocet": "Počet",
         "priemer_eur": "Priemer (EUR)"
       },
-      "span": "full"
+      "span": "full",
+      "transform": [
+        {
+          "kind": "derive",
+          "into": "objem",
+          "expr": "n * p",
+          "vars": {
+            "n": "pocet",
+            "p": "priemer_eur"
+          }
+        },
+        {
+          "kind": "expand",
+          "column": "kategoria",
+          "into": "znak",
+          "map": {
+            "Iba SP": [
+              "Iba z SP"
+            ],
+            "SP + II. pilier": [
+              "Sporiteľ v II. pilieri"
+            ],
+            "SP + cudzina": [
+              "Dôchodok z cudziny"
+            ],
+            "SP + výsluhové": [
+              "Výsluhový dôchodok"
+            ],
+            "SP + II. pilier + cudzina": [
+              "Sporiteľ v II. pilieri",
+              "Dôchodok z cudziny"
+            ],
+            "SP + II. pilier + výsluhové": [
+              "Sporiteľ v II. pilieri",
+              "Výsluhový dôchodok"
+            ],
+            "SP + cudzina + výsluhové": [
+              "Dôchodok z cudziny",
+              "Výsluhový dôchodok"
+            ],
+            "SP + všetky tri": [
+              "Sporiteľ v II. pilieri",
+              "Dôchodok z cudziny",
+              "Výsluhový dôchodok"
+            ]
+          },
+          "keepUnmapped": false
+        },
+        {
+          "kind": "pageFilter"
+        },
+        {
+          "kind": "aggregate",
+          "by": [
+            "vek",
+            "pohlavie",
+            "znak"
+          ],
+          "values": {
+            "pocet": "sum",
+            "objem": "sum"
+          }
+        },
+        {
+          "kind": "derive",
+          "into": "priemer_eur",
+          "expr": "o / n",
+          "vars": {
+            "o": "objem",
+            "n": "pocet"
+          }
+        }
+      ]
     },
     "doba_poberania_trend": {
       "type": "line",
@@ -1968,6 +2230,227 @@
       "span": "full",
       "y": "vydavky_mes_eur",
       "decimals": 0
+    },
+    "veky_znaky_tiles": {
+      "type": "tiles",
+      "title": "Koľko dôchodcov má ktorú vlastnosť",
+      "subtitle": "Marginálne počty za vybrané pohlavie a rok: každý dôchodca je v tej skupine, ktorej vlastnosť má, aj keď má aj ďalšiu. Súčet týchto štyroch čísel je preto vyšší než počet dôchodcov — o kombinácie.",
+      "dataset": "starobni_veky",
+      "unit": "osôb",
+      "decimals": 0,
+      "tiles": [
+        {
+          "label": "Iba dôchodok z SP",
+          "value": "pocet",
+          "agg": "sum",
+          "transform": [
+            {
+              "kind": "expand",
+              "column": "kategoria",
+              "into": "znak",
+              "map": {
+                "Iba SP": [
+                  "Iba z SP"
+                ],
+                "SP + II. pilier": [
+                  "Sporiteľ v II. pilieri"
+                ],
+                "SP + cudzina": [
+                  "Dôchodok z cudziny"
+                ],
+                "SP + výsluhové": [
+                  "Výsluhový dôchodok"
+                ],
+                "SP + II. pilier + cudzina": [
+                  "Sporiteľ v II. pilieri",
+                  "Dôchodok z cudziny"
+                ],
+                "SP + II. pilier + výsluhové": [
+                  "Sporiteľ v II. pilieri",
+                  "Výsluhový dôchodok"
+                ],
+                "SP + cudzina + výsluhové": [
+                  "Dôchodok z cudziny",
+                  "Výsluhový dôchodok"
+                ],
+                "SP + všetky tri": [
+                  "Sporiteľ v II. pilieri",
+                  "Dôchodok z cudziny",
+                  "Výsluhový dôchodok"
+                ]
+              },
+              "keepUnmapped": false
+            },
+            {
+              "kind": "filter",
+              "where": {
+                "znak": "Iba z SP"
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false
+        },
+        {
+          "label": "Sporiteľ v II. pilieri",
+          "value": "pocet",
+          "agg": "sum",
+          "transform": [
+            {
+              "kind": "expand",
+              "column": "kategoria",
+              "into": "znak",
+              "map": {
+                "Iba SP": [
+                  "Iba z SP"
+                ],
+                "SP + II. pilier": [
+                  "Sporiteľ v II. pilieri"
+                ],
+                "SP + cudzina": [
+                  "Dôchodok z cudziny"
+                ],
+                "SP + výsluhové": [
+                  "Výsluhový dôchodok"
+                ],
+                "SP + II. pilier + cudzina": [
+                  "Sporiteľ v II. pilieri",
+                  "Dôchodok z cudziny"
+                ],
+                "SP + II. pilier + výsluhové": [
+                  "Sporiteľ v II. pilieri",
+                  "Výsluhový dôchodok"
+                ],
+                "SP + cudzina + výsluhové": [
+                  "Dôchodok z cudziny",
+                  "Výsluhový dôchodok"
+                ],
+                "SP + všetky tri": [
+                  "Sporiteľ v II. pilieri",
+                  "Dôchodok z cudziny",
+                  "Výsluhový dôchodok"
+                ]
+              },
+              "keepUnmapped": false
+            },
+            {
+              "kind": "filter",
+              "where": {
+                "znak": "Sporiteľ v II. pilieri"
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false,
+          "note": "vrátane tých s ďalšou vlastnosťou"
+        },
+        {
+          "label": "Dôchodok z cudziny",
+          "value": "pocet",
+          "agg": "sum",
+          "transform": [
+            {
+              "kind": "expand",
+              "column": "kategoria",
+              "into": "znak",
+              "map": {
+                "Iba SP": [
+                  "Iba z SP"
+                ],
+                "SP + II. pilier": [
+                  "Sporiteľ v II. pilieri"
+                ],
+                "SP + cudzina": [
+                  "Dôchodok z cudziny"
+                ],
+                "SP + výsluhové": [
+                  "Výsluhový dôchodok"
+                ],
+                "SP + II. pilier + cudzina": [
+                  "Sporiteľ v II. pilieri",
+                  "Dôchodok z cudziny"
+                ],
+                "SP + II. pilier + výsluhové": [
+                  "Sporiteľ v II. pilieri",
+                  "Výsluhový dôchodok"
+                ],
+                "SP + cudzina + výsluhové": [
+                  "Dôchodok z cudziny",
+                  "Výsluhový dôchodok"
+                ],
+                "SP + všetky tri": [
+                  "Sporiteľ v II. pilieri",
+                  "Dôchodok z cudziny",
+                  "Výsluhový dôchodok"
+                ]
+              },
+              "keepUnmapped": false
+            },
+            {
+              "kind": "filter",
+              "where": {
+                "znak": "Dôchodok z cudziny"
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false,
+          "note": "vrátane tých s ďalšou vlastnosťou"
+        },
+        {
+          "label": "Výsluhový dôchodok",
+          "value": "pocet",
+          "agg": "sum",
+          "transform": [
+            {
+              "kind": "expand",
+              "column": "kategoria",
+              "into": "znak",
+              "map": {
+                "Iba SP": [
+                  "Iba z SP"
+                ],
+                "SP + II. pilier": [
+                  "Sporiteľ v II. pilieri"
+                ],
+                "SP + cudzina": [
+                  "Dôchodok z cudziny"
+                ],
+                "SP + výsluhové": [
+                  "Výsluhový dôchodok"
+                ],
+                "SP + II. pilier + cudzina": [
+                  "Sporiteľ v II. pilieri",
+                  "Dôchodok z cudziny"
+                ],
+                "SP + II. pilier + výsluhové": [
+                  "Sporiteľ v II. pilieri",
+                  "Výsluhový dôchodok"
+                ],
+                "SP + cudzina + výsluhové": [
+                  "Dôchodok z cudziny",
+                  "Výsluhový dôchodok"
+                ],
+                "SP + všetky tri": [
+                  "Sporiteľ v II. pilieri",
+                  "Dôchodok z cudziny",
+                  "Výsluhový dôchodok"
+                ]
+              },
+              "keepUnmapped": false
+            },
+            {
+              "kind": "filter",
+              "where": {
+                "znak": "Výsluhový dôchodok"
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false,
+          "note": "vrátane tých s ďalšou vlastnosťou"
+        }
+      ]
     }
   }
 }

@@ -93,6 +93,7 @@ v manifeste zmazať `illustrative` a `badge`. Presný postup a kontrola:
 rok,vek,pohlavie,kategoria,pocet,priemer_eur
 2024,62,Muži,Iba SP,8431,712.40
 2024,62,Muži,SP + II. pilier,1204,689.10
+2024,62,Muži,SP + II. pilier + cudzina,37,604.55
 ```
 
 | Stĺpec | Typ | Význam |
@@ -100,15 +101,35 @@ rok,vek,pohlavie,kategoria,pocet,priemer_eur
 | `rok` | letopočet | rok, ku ktorému je stav |
 | `vek` | celé číslo | vek v celých rokoch (5-ročné pásma si web dopočíta sám) |
 | `pohlavie` | text | `Muži` / `Ženy` |
-| `kategoria` | text | `Iba SP` / `SP + II. pilier` / `SP + cudzina` / `SP + výsluhové` |
+| `kategoria` | text | nepretínajúca sa kombinácia, osem hodnôt (tabuľka nižšie) |
 | `pocet` | celé číslo | počet starobných dôchodcov |
 | `priemer_eur` | číslo | priemerný starobný dôchodok z SP, EUR/mesiac |
 
-**Otázka, ktorú treba rozhodnúť:** sú tie štyri kategórie vzájomne výlučné? Ak
-niekto má aj cudzí dôchodok aj II. pilier, patrí do jednej alebo do oboch? Web to
-teraz predpokladá ako **výlučné**, aby sa dali sčítať do celku, a syntetické dáta
-sú tak vygenerované. Ak sa prekrývajú, povedz — vypnem skladanie a súčty a nechám
-len porovnávacie grafy, inak by web ukazoval celok vyšší než realita.
+**Rozhodnuté (2026-08):** vlastnosti sa prekrývajú — dôchodca môže byť sporiteľ
+v II. pilieri a mať aj dôchodok z cudziny — a štyri pôvodné skupiny preto nedávajú
+100 %; chýbajú kombinácie, ktorých je úplné minimum. Súbor to rieši tak, že
+`kategoria` nesie **nepretínajúce sa kombinácie**:
+
+| kategória | čo znamená |
+|---|---|
+| `Iba SP` | žiadna ďalšia vlastnosť |
+| `SP + II. pilier` | sporiteľ, a nič ďalšie |
+| `SP + cudzina` | dôchodok z cudziny, a nič ďalšie |
+| `SP + výsluhové` | výsluhový dôchodok, a nič ďalšie |
+| `SP + II. pilier + cudzina` | oboje |
+| `SP + II. pilier + výsluhové` | oboje |
+| `SP + cudzina + výsluhové` | oboje |
+| `SP + všetky tri` | všetky tri |
+
+Osem kategórií sa sčíta presne na celok, takže sa dá počítať aj podiel aj súčet.
+Prekrývajúce sa čítanie, o ktoré bolo v zadaní („počet dôchodcov, ktorí sú
+sporiteľmi" = **všetci** sporitelia, aj tí s ďalšou vlastnosťou), si web dopočíta
+transformáciou `expand` — stránka *Podľa veku a pohlavia* ukazuje presne to a
+filter na nej vyberá vlastnosť, nie kategóriu. Stránka *Podľa kategórie* ukazuje
+nepretínajúci sa rozpad, ktorý sa sčíta.
+
+Ak kombinácie nebudú v dodaných dátach vôbec, stačí ich riadky vynechať — súčet
+potom bude o ten zlomok percenta nižší a nič sa nerozsype.
 
 Voliteľné, ak je to k dispozícii: `vek` môže ísť aj po 5-ročných pásmach —
 potom pošli namiesto `vek` stĺpec `vekova_skupina` a povedz mi to, upravím

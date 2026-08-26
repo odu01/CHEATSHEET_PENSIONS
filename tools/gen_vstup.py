@@ -459,21 +459,92 @@ def gen_dochodky_pasma() -> None:
 ROKY_VEKY = [2022, 2023, 2024]
 VEK_MIN, VEK_MAX = 60, 95
 
-# Štyri skupiny starobných dôchodcov. Podiel a relatívna výška dôchodku sú
-# modelové; dôvod pri každej skupine je uvedený, aby sa dalo posúdiť, či je
-# odhad rozumný, kým prídu reálne čísla.
-KATEGORIE = [
-    # (názov, podiel v r. 2024, relatívna výška dôchodku, sklon podielu s vekom)
-    ("Iba SP", 0.852, 1.030, 0.0),
-    # II. pilier beží od 2005, sporitelia odchádzajú do dôchodku až teraz →
-    # skupina je koncentrovaná v najmladších vekoch a rýchlo rastie.
-    ("SP + II. pilier", 0.070, 0.935, -0.055),
+# Vlastnosti starobného dôchodcu, ktoré sa môžu kombinovať. Podiel je
+# **marginálny**: koľko % dôchodcov danú vlastnosť má, bez ohľadu na ostatné.
+# Relatívna výška je dôchodok z SP (nie spolu s cudzím či výsluhovým).
+ZNAKY = [
+    # (názov, marginálny podiel v r. 2024, relatívna výška dôchodku z SP,
+    #  tvar podľa veku, násobok pre mužov a ženy)
+    #
+    # Tvar je len relatívny — hladina sa dopočíta tak, aby vážený podiel za celú
+    # populáciu dôchodcov sedel na uvedený marginálny podiel. Preto sa dá tvar
+    # meniť bez toho, aby sa rozsypala kotva.
+    #
+    # II. pilier beží od 2005: kto v tom čase ešte pracoval, mohol vstúpiť, takže
+    # podiel sporiteľov s vekom klesá exponenciálne — nie lineárne do nuly.
+    # Sporitelia nad 85 rokov existujú, len ich je málo.
+    ("II. pilier", 0.070, 0.935, lambda vek: math.exp(-0.155 * (vek - 62)), (1.05, 0.95)),
     # Kto pracoval pred rokom 1993 v českej časti federácie, má český dôchodok.
     # Skupina je preto silnejšia vo vyšších vekoch a má menej rokov v SP.
-    ("SP + cudzina", 0.058, 0.760, 0.012),
+    ("cudzina", 0.058, 0.760, lambda vek: max(1.0 + 0.015 * (vek - 68), 0.3), (1.15, 0.87)),
     # Výsluhové roky sa v SP nezhodnocujú → veľmi nízky starobný dôchodok z SP.
-    ("SP + výsluhové", 0.020, 0.545, 0.004),
+    # Vojaci a policajti sú prevažne muži, tu je rozdiel medzi pohlaviami najväčší.
+    ("výsluhové", 0.020, 0.545, lambda vek: max(1.0 + 0.006 * (vek - 68), 0.3), (2.60, 0.35)),
 ]
+
+# Vlastnosti sa prekrývajú, ale kombinácie sú zriedke. Model ich berie ako
+# nezávislé — s jednou výnimkou: kto má výsluhový dôchodok, bol väčšinu kariéry
+# v osobitnom systéme, takže sporiteľom v II. pilieri je podstatne zriedkavejšie.
+# Asociačný faktor < 1 znamená „menej častá kombinácia, než by dala nezávislosť".
+ASOCIACIA = {("II. pilier", "výsluhové"): 0.40}
+
+# Osem kategórií, ktoré sa NEPREKRÝVAJÚ a spolu dávajú 100 %. Vstupný súbor
+# musí byť takto rozdelený — inak sa počty nedajú sčítať do celku. Marginálne
+# skupiny („všetci sporitelia") si web dopočíta transformáciou `expand`.
+KATEGORIE_NAZVY = {
+    (): "Iba SP",
+    ("II. pilier",): "SP + II. pilier",
+    ("cudzina",): "SP + cudzina",
+    ("výsluhové",): "SP + výsluhové",
+    ("II. pilier", "cudzina"): "SP + II. pilier + cudzina",
+    ("II. pilier", "výsluhové"): "SP + II. pilier + výsluhové",
+    ("cudzina", "výsluhové"): "SP + cudzina + výsluhové",
+    ("II. pilier", "cudzina", "výsluhové"): "SP + všetky tri",
+}
+
+
+def znak_shares(pocty: dict, rok: int) -> dict:
+    """Marginálny podiel každej vlastnosti pre každé (vek, pohlavie).
+
+    Tvar podľa veku a rozdiel medzi pohlaviami je modelový; hladina je
+    kalibrovaná — vážený priemer podielov cez celú populáciu dôchodcov dá presne
+    marginálnu kotvu. Bez tejto normalizácie by zmena tvaru ticho posunula aj
+    celkový podiel sporiteľov.
+    """
+    total = sum(pocty.values())
+    out: dict[tuple[int, str], dict[str, float]] = {k: {} for k in pocty}
+    for nazov, podiel, _rel, shape, (fm, ff) in ZNAKY:
+        anchor = podiel
+        if nazov == "II. pilier":
+            # pred rokom 2024 boli sporitelia medzi dôchodcami vzácnejší
+            anchor *= 1.0 - 0.12 * (2024 - rok)
+        raw = {k: shape(k[0]) * (fm if k[1] == "Muži" else ff) for k in pocty}
+        weighted = sum(raw[k] * pocty[k] for k in pocty) / total
+        scale = anchor / weighted if weighted > 0 else 0.0
+        for k in pocty:
+            out[k][nazov] = min(max(raw[k] * scale, 0.0), 0.60)
+    return out
+
+
+def kombinacie(marginal: dict) -> dict:
+    """Z marginálnych podielov urobí podiely ôsmich nepretínajúcich sa kategórií.
+
+    Nezávislosť plus asociačné faktory na vybraných pároch. Výsledok sa
+    normalizuje na 1, takže súčet kategórií je vždy presne 100 % — aj keď
+    asociácia posunie jednotlivé kombinácie.
+    """
+    names = [z[0] for z in ZNAKY]
+    raw = {}
+    for combo in KATEGORIE_NAZVY:
+        pr = 1.0
+        for n in names:
+            pr *= marginal[n] if n in combo else (1.0 - marginal[n])
+        for (a, b), f in ASOCIACIA.items():
+            if a in combo and b in combo:
+                pr *= f
+        raw[combo] = pr
+    total = sum(raw.values())
+    return {c: v / total for c, v in raw.items()}
 
 
 def gen_starobni_podla_veku() -> None:
@@ -484,6 +555,13 @@ def gen_starobni_podla_veku() -> None:
     dôchodku okolo dôchodkového veku. Výsledok sa preváži tak, aby súčet
     sedel na zverejnený počet starobných dôchodkov (1 134 690 k 31. 12. 2024)
     a vážený priemer na 683,10 EUR.
+
+    Kategórie sú **nepretínajúce sa kombinácie** vlastností (iba SP, SP +
+    jedna vlastnosť, SP + dve, SP + všetky tri), takže sa sčítajú presne na
+    celok. Vlastnosti sa v skutočnosti prekrývajú a kombinácie sú zriedke —
+    dohromady necelé percento dôchodcov. Marginálne skupiny („všetci
+    sporitelia", teda aj tí, čo majú aj dôchodok z cudziny) si web dopočíta
+    transformáciou `expand`, aby sa nikde nesčítalo dvakrát.
     """
     rows = []
     for rok in ROKY_VEKY:
@@ -504,6 +582,8 @@ def gen_starobni_podla_veku() -> None:
                 takeup = 0.0 if t <= 0 else (0.97 if t >= 1 else 0.97 * t * t * (3 - 2 * t))
                 raw[(vek, sex)] = births * surv * takeup
         scale = total_target / sum(raw.values())
+        pocty = {k: v * scale for k, v in raw.items() if v * scale >= 1}
+        shares = znak_shares(pocty, rok)
 
         # priemerný dôchodok podľa veku: staršie ročníky majú nižší dôchodok
         # (valorizácie zaostávajú za rastom novopriznaných), muži vyšší než ženy
@@ -518,24 +598,18 @@ def gen_starobni_podla_veku() -> None:
             vek_faktor = (1.0 - 0.025 * (66 - vek)) if vek < 66 else (1.0 - 0.010 * (vek - 66))
             sex_faktor = 1.115 if sex == "Muži" else 0.905
             base = PRIEMER_SD_2024 * vek_faktor * sex_faktor
-            # Podiely troch osobitných skupín sa menia s vekom; „Iba SP" je
-            # zvyšok, aby súčet za vek dal presne 100 % — inak by sa počty
-            # dôchodcov po vekoch nesčítali na zverejnený stav.
-            shares = {}
-            for nazov, podiel, _rel, sklon in KATEGORIE[1:]:
-                p = podiel + sklon * (vek - 68)
-                if nazov == "SP + II. pilier":
-                    # pred rokom 2024 boli sporitelia medzi dôchodcami vzácnejší
-                    p *= 1.0 - 0.12 * (2024 - rok)
-                    p = min(p, 0.40)
-                shares[nazov] = min(max(p, 0.0), 1.0)
-            shares[KATEGORIE[0][0]] = max(1.0 - sum(shares.values()), 0.0)
 
-            for nazov, _podiel, rel, _sklon in KATEGORIE:
-                pocet = int(round(pocet_vek * shares[nazov]))
+            rel = {z[0]: z[2] for z in ZNAKY}
+            for combo, share in kombinacie(shares[(vek, sex)]).items():
+                pocet = int(round(pocet_vek * share))
                 if pocet <= 0:
                     continue
-                rows.append([rok, vek, sex, nazov, pocet, r2(base * rel)])
+                # výška dôchodku z SP: každá vlastnosť ju zníži svojím faktorom,
+                # kombinácia teda znižuje viac než ktorákoľvek z nich samotná
+                faktor = 1.030
+                for n in combo:
+                    faktor *= rel[n]
+                rows.append([rok, vek, sex, KATEGORIE_NAZVY[combo], pocet, r2(base * faktor)])
 
     # Kalibrácia výšky dôchodku: relatívne rozdiely medzi vekmi, pohlaviami a
     # kategóriami určuje model, ale hladinu určuje kotva — vážený priemer za rok
@@ -548,13 +622,28 @@ def gen_starobni_podla_veku() -> None:
         for r in sub:
             r[5] = r2(r[5] * k)
 
+    # Zaokrúhľovanie ôsmich kategórií × 35 vekov × 2 pohlavia stratí niekoľko
+    # jednotiek; zvyšok dostane najväčší riadok, aby súčet sedel na kotvu presne.
+    for rok in ROKY_VEKY:
+        sub = [r for r in rows if r[0] == rok]
+        target = int(round(POCET_SD_2024 * (1.0 - 0.008 * (2024 - rok))))
+        biggest = max(sub, key=lambda r: r[4])
+        biggest[4] += target - sum(r[4] for r in sub)
+
     total = sum(r[4] for r in rows if r[0] == 2024)
-    assert abs(total - POCET_SD_2024) / POCET_SD_2024 < 0.03, \
+    assert total == POCET_SD_2024, \
         f"počet starobných dôchodcov 2024 = {total}, kotva {POCET_SD_2024}"
     avg = (sum(r[4] * r[5] for r in rows if r[0] == 2024)
            / sum(r[4] for r in rows if r[0] == 2024))
     assert abs(avg - PRIEMER_SD_2024) < 0.5, \
         f"priemerný dôchodok 2024 = {avg:.2f}, kotva {PRIEMER_SD_2024}"
+
+    # Kombinácie musia byť to, čo hovoríme, že sú: zriedkavé.
+    kombi = sum(r[4] for r in rows if r[0] == 2024 and r[3].count("+") > 1)
+    assert kombi / total < 0.02, f"kombinácie sú {kombi / total:.1%} z celku, to už nie je minimum"
+    print(f"starobní dôchodcovia 2024: {total} spolu, z toho {kombi} "
+          f"({kombi / total * 100:.2f} %) v kombinovaných kategóriách")
+
     write_csv("starobni_podla_veku.csv",
               ["rok", "vek", "pohlavie", "kategoria", "pocet", "priemer_eur"], rows)
 

@@ -48,10 +48,20 @@ Presné stĺpce, typy a významy sú v manifeste (`data/manifest.json`, kľúč
 `columns`) a vypíše ich `npm run vstup`. Tu sú len tie veci, ktoré sa z hlavičky
 nevyčítajú:
 
-**`starobni_podla_veku.csv`** — kategórie musia byť **vzájomne výlučné**, inak sa
-počty za vek nedajú sčítať. Ak sa v skutočnosti prelínajú (napr. sporiteľ, ktorý
-má aj dôchodok z Česka), treba to povedať a graf sa prestaví na podiely namiesto
-súčtov. `priemer_eur` je vždy len dôchodok z SP, nie spolu s cudzím či výsluhovým.
+**`starobni_podla_veku.csv`** — vlastnosti dôchodcu sa prekrývajú (sporiteľ môže
+mať aj dôchodok z Česka), preto `kategoria` nesie **nepretínajúce sa kombinácie**:
+
+```
+Iba SP · SP + II. pilier · SP + cudzina · SP + výsluhové
+SP + II. pilier + cudzina · SP + II. pilier + výsluhové
+SP + cudzina + výsluhové · SP + všetky tri
+```
+
+Každý dôchodca je teda v súbore presne raz a súčet za vek dáva celok. Skupiny ako
+„všetci sporitelia" (aj tí s ďalšou vlastnosťou) si web dopočíta sám — v súbore
+nemajú vlastné riadky, inak by sa niekto počítal dvakrát. Kombinovaných kategórií
+je zlomok percenta; ak ich v dodaných dátach nebudete mať, vynechajte ich riadky.
+`priemer_eur` je vždy len dôchodok z SP, nie spolu s cudzím či výsluhovým.
 
 **`doba_poberania.csv`** — `pocet_zomretych` je váha priemeru. Bez neho sa roky
 nedajú správne spriemerovať, preto je v kontrakte.

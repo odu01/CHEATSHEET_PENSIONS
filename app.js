@@ -181,18 +181,25 @@ async function drawViews(grid, specs, bundles) {
       cards.push(card);
       continue;
     }
-    // The shared filter row is applied before the view's own transforms.
+    // The shared filter row is applied before the view's own transforms —
+    // except for a filter over a column that a transform produces, which lands
+    // at the view's own `pageFilter` marker instead.
     const scoped = scopeRows(bundle, spec);
-    const card = await renderView(spec, scoped, { bundles, shownNotes });
+    const card = await renderView(withPageFilter(spec, bundle), scoped, { bundles, shownNotes });
     cards.push(card);
   }
   grid.replaceChildren(...cards);
   state.cards = cards;
 }
 
+/** Page filters that are set and not "all". */
+function activeFilters() {
+  return Object.entries(state.filters).filter(([, v]) => v != null && v !== '');
+}
+
 /** Apply the page-level filters to a dataset bundle for one view. */
 function scopeRows(bundle, spec) {
-  const active = Object.entries(state.filters).filter(([, v]) => v != null && v !== '');
+  const active = activeFilters();
   if (!active.length) return bundle;
   const where = {};
   for (const [key, value] of active) {
@@ -201,6 +208,25 @@ function scopeRows(bundle, spec) {
   }
   if (!Object.keys(where).length) return bundle;
   return { ...bundle, rows: applyTransforms(bundle.rows, [{ kind: 'filter', where }]) };
+}
+
+/**
+ * Substitute the view's `pageFilter` marker with the filters that scopeRows
+ * could not apply, because their column does not exist in the CSV — it is made
+ * by a transform. Filtering overlapping properties is the case that needs this:
+ * `expand` invents the property column, the filter picks one property, and only
+ * then may the rows be aggregated. Filtering before the expand is impossible and
+ * filtering after the aggregate is too late — the column is gone by then.
+ */
+function withPageFilter(spec, bundle) {
+  if (!spec.transform?.some(t => t.kind === 'pageFilter')) return spec;
+  const where = {};
+  for (const [key, value] of activeFilters()) {
+    if (!Object.hasOwn(bundle.columns, key)) where[key] = value;
+  }
+  const transform = spec.transform.map(t => t.kind !== 'pageFilter' ? t
+    : (Object.keys(where).length ? { kind: 'filter', where } : { kind: 'pageFilter' }));
+  return { ...spec, transform };
 }
 
 // ─── filter row (one row, above everything it scopes) ────────────────────────

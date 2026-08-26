@@ -162,9 +162,12 @@ strane view, takže jedno CSV môže živiť viacero grafov.
 |---|---|---|
 | `filter` | vyberie riadky | `{"kind":"filter","where":{"rok":{"gte":2020}}}` |
 | `aggregate` | zoskupí a spočíta | `{"kind":"aggregate","by":["rok"],"value":"podiel_hdp","as":"sum"}` |
+| `aggregate` (viac mier) | zoskupí a spočíta niekoľko stĺpcov | `{"kind":"aggregate","by":["vek"],"values":{"pocet":"sum","objem":"sum"}}` |
 | `unpivot` | široký → dlhý | `{"kind":"unpivot","keep":["rok"],"into":"druh","value":"hodnota"}` |
 | `pivot` | dlhý → široký | `{"kind":"pivot","key":"druh","value":"hodnota","by":["rok"]}` |
 | `rename` | premenuje HODNOTY v stĺpci | `{"kind":"rename","column":"druh","map":{"Vdovský":"Pozostalostné"}}` |
+| `expand` | jeden riadok → riadok za každú vlastnosť | `{"kind":"expand","column":"kategoria","into":"znak","map":{"SP + II. pilier + cudzina":["Sporiteľ","Cudzina"]}}` |
+| `pageFilter` | miesto, kde zaberie filter stránky | `{"kind":"pageFilter"}` |
 | `derive` | vypočíta nový stĺpec | `{"kind":"derive","into":"pomer","expr":"a / b * 100","vars":{"a":"dochodok","b":"mzda"}}` |
 | `index` | prepočíta na základ = 100 | `{"kind":"index","value":"hodnota","by":["druh"],"on":"rok","at":2020}` |
 | `sort` | zoradí (`dir` môže byť pole podľa `by`) | `{"kind":"sort","by":["rok","mesiac"],"dir":["desc","asc"]}` |
@@ -197,6 +200,49 @@ pásma. Celá krivka „koľko % výdavkov ide na koľko % dôchodcov" je potom:
 
 Posledné dva kroky pridajú do grafu diagonálu rovnomerného rozdelenia — bez nej
 sa krivka nedá s ničím porovnať.
+
+### Vážený priemer
+
+Priemer priemerov nie je priemer. Priemerný dôchodok za vekovú skupinu sa nedá
+spočítať ako `aggregate … "as": "mean"` nad priemermi kategórií — kategória s
+tromi ľuďmi by mala tú istú váhu ako kategória s dvadsiatimi tisícmi. Správne to
+sú tri kroky: objem, dva súčty, podiel.
+
+```json
+[{ "kind": "derive", "into": "objem", "expr": "n * p", "vars": { "n": "pocet", "p": "priemer_eur" } },
+ { "kind": "aggregate", "by": ["vek"], "values": { "pocet": "sum", "objem": "sum" } },
+ { "kind": "derive", "into": "priemer_eur", "expr": "o / n", "vars": { "o": "objem", "n": "pocet" } }]
+```
+
+### Skupiny, ktoré sa prekrývajú
+
+Niektoré skupiny nie sú rozdelenie celku: dôchodca môže byť sporiteľ v II.
+pilieri **a** mať dôchodok z cudziny. Také dáta sa nesmú uložiť ako
+prekrývajúce sa kategórie — nič by sa nedalo sčítať a celok by vyšiel vyšší než
+realita. Vstupný súbor preto nesie **nepretínajúce sa kombinácie** (`Iba SP`,
+`SP + II. pilier`, …, `SP + všetky tri`), ktoré sa sčítajú presne na 100 %, a
+prekrývajúce sa čítanie („všetci sporitelia") si vyrobí `expand`:
+
+```json
+[{ "kind": "expand", "column": "kategoria", "into": "znak", "keepUnmapped": false,
+   "map": { "SP + II. pilier": ["Sporiteľ"],
+            "SP + II. pilier + cudzina": ["Sporiteľ", "Cudzina"] } },
+ { "kind": "pageFilter" },
+ { "kind": "aggregate", "by": ["vek", "pohlavie"], "value": "pocet", "as": "sum" }]
+```
+
+Kto má dve vlastnosti, je v súbore raz a po `expand` sa objaví v oboch
+skupinách. Súčty za jednu vlastnosť sú tým správne — ale súčet **cez** vlastnosti
+je vyšší než celok, o prekryv. Takú sériu preto nikdy neskladaj (`*-stacked`) a
+nesčítaj do totálu.
+
+`pageFilter` je značka, kde do reťazca vstúpi filter stránky. Filter nad stĺpcom,
+ktorý v CSV je, sa aplikuje na dataset ešte pred transformáciami; filter nad
+stĺpcom, ktorý až **vyrobí** transformácia (`znak` vyššie), musí zabrať v strede
+— po `expand`, ktorý stĺpec vytvorí, a pred `aggregate`, ktorý ho zahodí. Taký
+filter musí mať v definícii `values` (v dátach ten stĺpec nie je, takže hodnoty
+sa nedajú prečítať) a validácia vypíše chybu, ak na stránke nie je view so
+značkou `pageFilter`.
 
 Rozdiel, ktorý mätie: **`labels` premenúva NÁZVY STĹPCOV** (pre tabuľku a export),
 **`rename` premenúva HODNOTY** v stĺpci (pre legendu a tooltip). Po `unpivot`
@@ -323,6 +369,8 @@ npm run shots               # vykreslí všetky stránky do screenshots/ a nájd
 | os počtov opakuje `1,7 mil.` | rozsah je úzky — už sa rieši automaticky podľa rozpätia osi |
 | v legende je `nazov_stlpca` | po `unpivot` chýba `rename` |
 | filter je prázdny a nedá sa klikať | dataset je `planned` — dopíš do filtra `values` |
+| filter nič nefiltruje | filtruje sa podľa vyrobeného stĺpca a view nemá krok `pageFilter` |
+| priemer za skupinu je čudný | priemer priemerov; použi vážený priemer (vyššie) |
 | na osi je 55 rokov natlačených na sebe a v grafe je ⚠ | stĺpec rokov nemá `"type": "year"`, tak z neho je text a os je ordinálna |
 | počet osôb sa vypíše ako „23 281,0" | stĺpec nemá `"type": "int"` |
 | graf ukazuje len jedno pohlavie a filter na stránke nie je | starý stav filtra z inej stránky; `openPage` ho pri zmene stránky maže |
