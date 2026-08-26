@@ -173,6 +173,29 @@ try {
       for (const f of frameCheck)
         problems.push(`[${mode}] ${id}: nekonzistentné ovládanie času — ${f}`);
 
+      // A flow diagram must have flows, and each one must carry its own text
+      // label for a screen reader — colour and width alone say nothing.
+      const flowCheck = await page.evaluate(() => {
+        const out = [];
+        for (const svg of document.querySelectorAll('.viz-stage svg')) {
+          const flows = svg.querySelectorAll('.viz-flow');
+          if (!flows.length) continue;
+          const title = svg.closest('.viz-card')?.querySelector('.viz-card-title')?.textContent || '?';
+          const unlabelled = [...flows].filter(f => !f.getAttribute('aria-label')).length;
+          if (unlabelled) out.push(`${title}: ${unlabelled} prúdov bez aria-label`);
+          // Every label must stay inside the card — a clipped node name is a bug
+          // the palette validator cannot see.
+          const box = svg.closest('.viz-card').getBoundingClientRect();
+          const clipped = [...svg.querySelectorAll('text')].filter(tx => {
+            const r = tx.getBoundingClientRect();
+            return r.width > 0 && (r.left < box.left - 1 || r.right > box.right + 1);
+          }).length;
+          if (clipped) out.push(`${title}: ${clipped} štítkov preteká kartu`);
+        }
+        return out;
+      });
+      for (const f of flowCheck) problems.push(`[${mode}] ${id}: ${f}`);
+
       // a chart wider than its card means the layout overflows
       const overflow = await page.evaluate(() => {
         const out = [];

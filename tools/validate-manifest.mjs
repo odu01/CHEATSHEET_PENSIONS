@@ -44,6 +44,7 @@ const REQUIRED = {
   bubbles:         ['dataset', 'x', 'y'],
   barrank:         ['dataset', 'x', 'y', 'frame'],
   mountain:        ['dataset', 'x', 'y'],
+  sankey:          ['dataset', 'source', 'target', 'value', 'layers'],
   waterfall:       ['dataset', 'x', 'y'],
   surface3d:       ['dataset', 'x', 'y', 'z'],
   scatter3d:       ['dataset', 'x', 'y', 'z'],
@@ -51,11 +52,14 @@ const REQUIRED = {
   table:           ['dataset'],
 };
 
+// Keys holding an ARRAY of column names (sankey's two layer columns).
+const COLUMN_LIST_KEYS = ['layers'];
+
 // Keys whose value must name a real column in the view's dataset.
 // `size` is deliberately NOT here: in this manifest `size` is the card height
 // ("s"/"m"/"l"/"xl"). The bubble radius column is `radius`.
 const COLUMN_KEYS = ['x', 'y', 'z', 'value', 'series', 'label', 'totalFlag',
-                     'radius', 'frame'];
+                     'radius', 'frame', 'source', 'target'];
 
 /**
  * Columns a transform pipeline creates. They are legal targets even though they
@@ -183,6 +187,12 @@ for (const [id, v] of Object.entries(views)) {
     const c = v[key];
     if (typeof c === 'string' && !known(c))
       err(`view "${id}": ${key}="${c}" nie je stĺpec datasetu "${v.dataset}" (má: ${[...cols].join(', ')})`);
+  }
+  for (const key of COLUMN_LIST_KEYS) {
+    for (const c of (Array.isArray(v[key]) ? v[key] : [])) {
+      if (!known(c))
+        err(`view "${id}": ${key} obsahuje "${c}", ktorý v datasete "${v.dataset}" nie je`);
+    }
   }
   for (const c of v.tableColumns || []) {
     if (!known(c)) err(`view "${id}": tableColumns obsahuje "${c}", ktorý v datasete "${v.dataset}" nie je`);

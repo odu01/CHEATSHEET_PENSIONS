@@ -467,6 +467,41 @@
           "decimals": 0
         }
       }
+    },
+    "prechody": {
+      "file": "data/vstup/prechody_stavov.csv",
+      "label": "Prechody medzi stavmi, 2024 → 2025",
+      "unit": "osôb",
+      "source": "Syntetické dáta (tools/gen_vstup.py) — okraje matice sú reálne: riadkové súčty dávajú stav dôchodkov k 12/2024 a stĺpcové stav k 12/2025 podľa mesačnej rady Sociálnej poisťovne (starobný 1 134 690 → 1 144 849, predčasný 39 055 → 30 619, invalidný 217 975 → 218 372, vdovský a vdovecký 343 352 → 343 512), sólo verzus kombinácia z ročnej štatistiky 2024; vnútro matice je model dofitovaný na tieto okraje (IPF)",
+      "vintage": "2024 → 2025 (okraje reálne, prúdy modelované)",
+      "illustrative": true,
+      "badge": "Syntetické dáta",
+      "badgeNote": "Individuálne prechody medzi stavmi SP nezverejňuje — dali by sa spočítať len z osobných účtov. Model preto dofituje pravdepodobnosti prechodu tak, aby okraje matice sedeli na skutočné stavy oboch rokov.",
+      "note": "Jeden riadok = jeden prúd: zo stavu v roku 2024 do stavu v roku 2025. Populácia: všetci poberatelia dôchodku zo SP a osoby 55+ bez dôchodku. „Nový vstup\" sú tí, ktorí dovŕšili 55 alebo dostali dôchodok skôr — bez neho by matica nebola vyrovnaná. „Zomretí\" je absorpčný stav, preto je len v cieľovom roku.",
+      "columns": {
+        "rok_od": {
+          "type": "year",
+          "label": "Rok, z ktorého sa prechádza"
+        },
+        "stav_od": {
+          "type": "string",
+          "label": "Stav v roku rok_od"
+        },
+        "rok_do": {
+          "type": "year",
+          "label": "Rok, do ktorého sa prechádza"
+        },
+        "stav_do": {
+          "type": "string",
+          "label": "Stav v roku rok_do (vrátane „Zomretí\")"
+        },
+        "pocet": {
+          "type": "int",
+          "label": "Počet osôb, ktoré tento prechod urobili",
+          "unit": "osôb",
+          "measure": true
+        }
+      }
     }
   },
   "pages": [
@@ -549,8 +584,9 @@
     {
       "id": "pohyb",
       "label": "Pohyb v čase",
-      "description": "Tri grafy, ktoré nemajú statickú verziu: čas je v nich osou, ktorú si posúvaš. Škály sú pevné pre celý rad — keď sa niečo v grafe zväčší, zväčšilo sa to v dátach, nie na osi. Nič sa nespustí samo.",
+      "description": "Štyri grafy, ktoré nemajú statickú verziu: čas je v nich osou, ktorú si posúvaš, alebo prúdom, ktorý sa dá sledovať. Škály sú pevné pre celý rad — keď sa niečo v grafe zväčší, zväčšilo sa to v dátach, nie na osi. Nič sa nespustí samo.",
       "views": [
+        "prechody_sankey",
         "bublina_druhy",
         "poradie_novo",
         "hora_dochodky"
@@ -2712,6 +2748,81 @@
         "priemer_eur": "Priemer v pásme (EUR)"
       },
       "note": "Zobrazené je pásmo 300–2 500 €, teda rovnomerne delená časť rozdelenia; krajné pásma majú inú šírku a na hore by ich výška klamala."
+    },
+    "prechody_sankey": {
+      "type": "sankey",
+      "title": "Kto sa kam presunul medzi rokmi 2024 a 2025",
+      "subtitle": "Šírka prúdu je počet osôb. Vidno to, čo zo stavov vidieť nie je: 88 % ľudí zostalo tam, kde bolo, a zvyšok sa presunul po cestách, ktoré určuje zákon — predčasný sa v dôchodkovom veku preklopí na starobný, invalidný tiež, a vdovský sólo je najčastejšie len prechodná stanica.",
+      "dataset": "prechody",
+      "source": "stav_od",
+      "target": "stav_do",
+      "value": "pocet",
+      "layers": [
+        "rok_od",
+        "rok_do"
+      ],
+      "layerLabels": [
+        "Stav v roku 2024",
+        "Stav v roku 2025"
+      ],
+      "nodeOrder": [
+        "Pracujúci",
+        "PN (nemocenské)",
+        "Neaktívny",
+        "Nový vstup",
+        "Predčasný sólo",
+        "Predčasný + vdovský",
+        "Starobný sólo",
+        "Starobný + vdovský",
+        "Invalidný sólo",
+        "Invalidný + vdovský",
+        "Vdovský sólo",
+        "Zomretí"
+      ],
+      "groups": {
+        "Pracujúci": "Bez dôchodku",
+        "PN (nemocenské)": "Bez dôchodku",
+        "Neaktívny": "Bez dôchodku",
+        "Nový vstup": "Bez dôchodku",
+        "Predčasný sólo": "Starobné dôchodky",
+        "Predčasný + vdovský": "Starobné dôchodky",
+        "Starobný sólo": "Starobné dôchodky",
+        "Starobný + vdovský": "Starobné dôchodky",
+        "Invalidný sólo": "Invalidné dôchodky",
+        "Invalidný + vdovský": "Invalidné dôchodky",
+        "Vdovský sólo": "Pozostalostné",
+        "Zomretí": "Úmrtia"
+      },
+      "groupOrder": [
+        "Bez dôchodku",
+        "Starobné dôchodky",
+        "Invalidné dôchodky",
+        "Pozostalostné",
+        "Úmrtia"
+      ],
+      "mutedGroups": [
+        "Úmrtia"
+      ],
+      "nodePad": 18,
+      "unit": "osôb",
+      "decimals": 0,
+      "size": "xxl",
+      "span": "full",
+      "tableColumns": [
+        "stav_od",
+        "stav_do",
+        "pocet"
+      ],
+      "sortKey": "pocet",
+      "sortDir": "desc",
+      "labels": {
+        "rok_od": "Z roku",
+        "stav_od": "Zo stavu",
+        "rok_do": "Do roku",
+        "stav_do": "Do stavu",
+        "pocet": "Osôb"
+      },
+      "note": "Prechody, ktoré v diagrame nie sú, tam nie sú zámerne: zo starobného dôchodku sa nedá prejsť na invalidný (po dôchodkovom veku sa nepriznáva) ani na predčasný. Najmenší stav je proti najväčšiemu v pomere 1 : 270, takže má v diagrame minimálnu viditeľnú výšku — to je jediné miesto, kde nedrží presnú proporciu."
     }
   }
 }

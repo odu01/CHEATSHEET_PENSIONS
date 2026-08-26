@@ -237,6 +237,25 @@ body {
 .viz-overlay { position: absolute; inset: 0; }
 .viz-overlay:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 
+.viz-overlay-through { pointer-events: none; }
+
+/* ── prúdový diagram ─────────────────────────────────────────────────────── */
+
+.viz-flow {
+  cursor: pointer;
+  transition: fill-opacity 100ms;
+}
+.viz-flow:hover, .viz-flow.viz-hit-active { fill-opacity: 0.78 !important; }
+.viz-flow:focus-visible, .viz-flow-node:focus-visible {
+  outline: none;
+  stroke: var(--ink-primary) !important;
+  stroke-width: 1.5 !important;
+}
+.viz-flow-node { cursor: pointer; }
+.viz-flow-node:hover, .viz-flow-node.viz-hit-active {
+  stroke: var(--ink-primary); stroke-width: 1.5;
+}
+
 .viz-crosshair {
   position: absolute; top: 0; bottom: 0; width: 1px;
   background: var(--axis); pointer-events: none;

@@ -1,0 +1,59 @@
+rok_od,stav_od,rok_do,stav_do,pocet
+2024,Pracujúci,2025,Pracujúci,414219
+2024,Pracujúci,2025,PN (nemocenské),16491
+2024,Pracujúci,2025,Neaktívny,19218
+2024,Pracujúci,2025,Predčasný sólo,2613
+2024,Pracujúci,2025,Starobný sólo,12634
+2024,Pracujúci,2025,Vdovský sólo,3285
+2024,Pracujúci,2025,Zomretí,1539
+2024,PN (nemocenské),2025,Pracujúci,12433
+2024,PN (nemocenské),2025,PN (nemocenské),5805
+2024,PN (nemocenské),2025,Neaktívny,2706
+2024,PN (nemocenské),2025,Predčasný sólo,164
+2024,PN (nemocenské),2025,Starobný sólo,692
+2024,PN (nemocenské),2025,Invalidný sólo,1951
+2024,PN (nemocenské),2025,Vdovský sólo,96
+2024,PN (nemocenské),2025,Zomretí,155
+2024,Neaktívny,2025,Pracujúci,21826
+2024,Neaktívny,2025,Neaktívny,209015
+2024,Neaktívny,2025,Predčasný sólo,3947
+2024,Neaktívny,2025,Starobný sólo,8588
+2024,Neaktívny,2025,Invalidný sólo,3767
+2024,Neaktívny,2025,Vdovský sólo,1861
+2024,Neaktívny,2025,Zomretí,996
+2024,Nový vstup,2025,Pracujúci,27385
+2024,Nový vstup,2025,PN (nemocenské),1705
+2024,Nový vstup,2025,Neaktívny,14569
+2024,Nový vstup,2025,Predčasný sólo,180
+2024,Nový vstup,2025,Starobný sólo,218
+2024,Nový vstup,2025,Invalidný sólo,6015
+2024,Nový vstup,2025,Vdovský sólo,2123
+2024,Predčasný sólo,2025,Predčasný sólo,20540
+2024,Predčasný sólo,2025,Predčasný + vdovský,358
+2024,Predčasný sólo,2025,Starobný sólo,14017
+2024,Predčasný sólo,2025,Zomretí,1004
+2024,Predčasný + vdovský,2025,Predčasný sólo,38
+2024,Predčasný + vdovský,2025,Predčasný + vdovský,2048
+2024,Predčasný + vdovský,2025,Starobný + vdovský,978
+2024,Predčasný + vdovský,2025,Zomretí,72
+2024,Starobný sólo,2025,Starobný sólo,804887
+2024,Starobný sólo,2025,Starobný + vdovský,11309
+2024,Starobný sólo,2025,Zomretí,29922
+2024,Starobný + vdovský,2025,Starobný sólo,8375
+2024,Starobný + vdovský,2025,Starobný + vdovský,271453
+2024,Starobný + vdovský,2025,Zomretí,8745
+2024,Invalidný sólo,2025,Pracujúci,1186
+2024,Invalidný sólo,2025,Starobný sólo,6743
+2024,Invalidný sólo,2025,Invalidný sólo,184284
+2024,Invalidný sólo,2025,Invalidný + vdovský,1422
+2024,Invalidný sólo,2025,Zomretí,2383
+2024,Invalidný + vdovský,2025,Starobný + vdovský,962
+2024,Invalidný + vdovský,2025,Invalidný sólo,389
+2024,Invalidný + vdovský,2025,Invalidný + vdovský,20263
+2024,Invalidný + vdovský,2025,Zomretí,343
+2024,Vdovský sólo,2025,Neaktívny,1992
+2024,Vdovský sólo,2025,Predčasný + vdovský,732
+2024,Vdovský sólo,2025,Starobný + vdovský,3994
+2024,Vdovský sólo,2025,Invalidný + vdovský,281
+2024,Vdovský sólo,2025,Vdovský sólo,22347
+2024,Vdovský sólo,2025,Zomretí,342

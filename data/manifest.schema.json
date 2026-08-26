@@ -212,6 +212,7 @@
               "heatmap",
               "pyramid",
               "mountain",
+              "sankey",
               "barrank",
               "bubbles",
               "waterfall",
@@ -315,7 +316,8 @@
               "s",
               "m",
               "l",
-              "xl"
+              "xl",
+              "xxl"
             ],
             "default": "m",
             "description": "Výška grafu, nie veľkosť bodov."
@@ -516,6 +518,78 @@
               "log"
             ],
             "description": "bubbles: typ zvislej škály."
+          },
+          "source": {
+            "type": "string",
+            "description": "sankey: stĺpec so zdrojovým stavom prúdu."
+          },
+          "target": {
+            "type": "string",
+            "description": "sankey: stĺpec s cieľovým stavom prúdu."
+          },
+          "layers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 2,
+            "maxItems": 2,
+            "description": "sankey: dva stĺpce, ktoré hovoria, do ktorej vrstvy stav patrí (typicky rok_od a rok_do). Uzol je (vrstva, stav), takže „Starobný 2024\" a „Starobný 2025\" sú dva uzly a „zostal v tom istom stave\" je viditeľný prúd, nie skrytý zvyšok."
+          },
+          "layerLabels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "sankey: nadpisy stĺpcov (napr. roky)."
+          },
+          "nodeOrder": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "sankey: poradie stavov zhora dolu; čo tam nie je, ide na konec."
+          },
+          "groups": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "sankey: { stav: rodina }. Farba drží rodinu, nie jednotlivý stav — stavov je viac než farebných slotov a prekryté stužky sú na rozlišovanie ešte náchylnejšie než plochy. Identitu nesie štítok pri každom uzle."
+          },
+          "groupOrder": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "sankey: poradie rodín, teda priradenie farebných slotov."
+          },
+          "mutedGroups": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "sankey: rodiny, ktoré dostanú recesívnu sivú namiesto farebného slotu — absorpčný stav ako úmrtie nie je séria."
+          },
+          "nodePad": {
+            "type": "number",
+            "default": 9,
+            "description": "sankey: zvislá medzera medzi uzlami v px. Väčšia = viac miesta na štítky."
+          },
+          "nodeWidth": {
+            "type": "number",
+            "default": 13,
+            "description": "sankey: šírka uzla v px."
+          },
+          "curvature": {
+            "type": "number",
+            "default": 0.42,
+            "description": "sankey: ohyb stužky, 0–0,5."
+          },
+          "flowOpacity": {
+            "type": "number",
+            "default": 0.42,
+            "description": "sankey: krytie stužky."
           }
         }
       }

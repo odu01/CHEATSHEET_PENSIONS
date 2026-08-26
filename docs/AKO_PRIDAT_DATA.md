@@ -131,6 +131,7 @@ A pridaj id do niektorej stránky:
 | `bubbles` | štyri veličiny naraz (x, y, veľkosť, farba) | `x`, `y` |
 | `barrank` | poradie, ktoré sa v čase mení | `x`, `y`, `frame` |
 | `mountain` | rozdelenie ako plocha nad spojitou osou | `x`, `y` |
+| `sankey` | prechody medzi stavmi (prúdový diagram) | `source`, `target`, `value`, `layers` |
 | `waterfall` | rozklad zmeny na faktory | `x`, `y` (+ `totalFlag`) |
 | `surface3d` | odozva na dva parametre | `x`, `y`, `z` |
 | `scatter3d` | tri merané dimenzie | `x`, `y`, `z` |
@@ -251,7 +252,50 @@ Rozdiel, ktorý mätie: **`labels` premenúva NÁZVY STĹPCOV** (pre tabuľku a 
 **`rename` premenúva HODNOTY** v stĺpci (pre legendu a tooltip). Po `unpivot`
 budeš takmer vždy chcieť `rename`, inak sa v legende objaví `priemerna_mzda_eur`.
 
-## 6. Čas ako posuvník
+## 6. Prechody medzi stavmi
+
+Prúdový (alluviálny) diagram odpovedá na to, na čo stav neodpovie: nie koľko ich
+v ktorom stave bolo, ale **kto sa kam presunul**. Dva roky s rovnakým počtom
+starobných dôchodcov môžu vzniknúť tak, že nikto nikam nešiel, alebo tak, že
+desaťtisíce odišli a desaťtisíce prišli.
+
+```json
+"prechody_sankey": {
+  "type": "sankey", "dataset": "prechody",
+  "source": "stav_od", "target": "stav_do", "value": "pocet",
+  "layers": ["rok_od", "rok_do"],
+  "layerLabels": ["Stav v roku 2024", "Stav v roku 2025"],
+  "nodeOrder": ["Pracujúci", "PN (nemocenské)", "…"],
+  "groups": { "Pracujúci": "Bez dôchodku", "Starobný sólo": "Starobné dôchodky" },
+  "mutedGroups": ["Úmrtia"],
+  "size": "xxl", "span": "full"
+}
+```
+
+Uzol je **(vrstva, stav)**, nie stav: „Starobný 2024" a „Starobný 2025" sú dva
+uzly, takže „zostal v tom istom stave" je viditeľný prúd a nie skrytý zvyšok.
+Vrstvu určuje `layers` — dva stĺpce s časom. Reťazenie na tri a viac stĺpcov
+funguje samo: stačí do súboru pridať riadky za ďalší rok.
+
+Na čo si dať pozor v dátach:
+
+- **Matica musí byť vyrovnaná.** Súčet odchodov z uzla sa musí rovnať jeho
+  prítokom, inak diagram tvrdí, že ľudia niekde zmizli. Absorpčný stav (úmrtie)
+  patrí len do cieľovej vrstvy, vstup do populácie len do zdrojovej.
+- **Stavový priestor je rovnaký na oboch stranách** (plus absorpčné stavy). Keď
+  v cieľovom roku chýba „pracujúci", diagram hovorí, že každý, kto pracoval, je
+  o rok neskôr dôchodca.
+- **Prechody, ktoré neexistujú, do súboru nedávaj.** Prázdny riadok je lepší než
+  nula: čo v dátach nie je, to sa nenakreslí, a diagram tým hovorí aj to, čo
+  nie je možné.
+
+Farba drží **rodinu** stavu (`groups`), nie jednotlivý stav: stavov je zvyčajne
+viac než šesť farebných slotov a prekryté priesvitné stužky sú na rozlišovanie
+ešte náchylnejšie než plochy. Identitu nesie štítok pri každom uzle — v prúdovom
+diagrame je aj tak povinný. `mutedGroups` dá rodine recesívnu sivú namiesto
+farebného slotu; absorpčný stav nie je séria.
+
+## 7. Čas ako posuvník
 
 Graf, ktorý dostane `"frame": "mesiac"` (alebo `"rok"`), nekreslí celý rad naraz:
 kreslí jednu snímku a čas sa posúva posuvníkom, krokovaním alebo prehrávaním.
@@ -290,7 +334,7 @@ Pozor na `size`: to je výška karty (`"s"`, `"m"`, `"l"`, `"xl"`). Stĺpec pre
 veľkosť bubliny je `radius` — rovnaká pasca už raz zabila bodový graf, kde sa
 reťazec `"l"` poslal ako polomer a Plot nenakreslil nič.
 
-## 7. Filtre nad stránkou
+## 8. Filtre nad stránkou
 
 Jeden riadok filtrov nad všetkými kartami; filtruje všetky naraz, takže čísla si
 navzájom odpovedajú.
@@ -315,7 +359,7 @@ Dve veci, na ktoré si dať pozor:
   zredukuje na jednu sériu. Rozdeľ stránky; presne preto sú „Priemerné dôchodky"
   a „Novopriznané" dve.
 
-## 8. Ukazovateľ, ku ktorému ešte nemáme reálne čísla
+## 9. Ukazovateľ, ku ktorému ešte nemáme reálne čísla
 
 Prázdna karta s nápisom „čaká na dáta" nič nehovorí — nedá sa na nej posúdiť, či
 je zvolený tvar grafu ten správny. Preto taký ukazovateľ dostane **syntetické
@@ -379,7 +423,7 @@ hodnoty, tak sa vypíšu rovno:
 Prehľad toho, čo je zadané a na čo sa čaká, je v
 [POZADOVANE_UKAZOVATELE.md](POZADOVANE_UKAZOVATELE.md).
 
-## 9. Čo dostaneš zadarmo ku každému grafu
+## 10. Čo dostaneš zadarmo ku každému grafu
 
 - tabuľku pod grafom so radením podľa stĺpca a exportom do CSV (UTF-8 s BOM, takže
   Excel otvorí diakritiku správne)
@@ -390,7 +434,7 @@ Prehľad toho, čo je zadané a na čo sa čaká, je v
 - tlač: skryjú sa ovládacie prvky a rozbalia sa tabuľky
 - odznak „Ilustračné dáta", kým dataset nemá reálny zdroj
 
-## 10. Keď niečo nefunguje
+## 11. Keď niečo nefunguje
 
 ```bash
 npm run validate:manifest   # chýbajúci súbor, zlý stĺpec, neznámy typ, rozbitý odkaz

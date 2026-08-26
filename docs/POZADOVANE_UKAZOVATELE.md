@@ -81,6 +81,50 @@ dopočíta sám transformáciou v manifeste.
 
 ---
 
+## Dávka 3 (zadané 2026-08, prúdový diagram prechodov)
+
+Prechody medzi stavmi 2024 → 2025 ako prúdový (alluviálny) diagram — tvar zadaný
+obrázkom IHME/OWID (financovanie zdravotníctva), tu urobený za dôchodkové stavy.
+
+| Graf | Stav | Stránka | Súbor |
+|---|---|---|---|
+| Prechody medzi stavmi, 2024 → 2025 | syntetické (okraje reálne) | *Pohyb v čase* | `data/vstup/prechody_stavov.csv` |
+
+**Tri opravy zadaného stavového priestoru:**
+
+1. „invalid-sólo" a „invalidný dôchodca - sólo" je **ten istý stav** — v oboch
+   zoznamoch bol dvakrát. Ostal jeden. (Ak bol zámer rozlíšiť invaliditu do 70 %
+   a nad 70 %, je to iný rozpad a doplní sa dvoma riadkami.)
+2. V roku 2025 **chýbali pracujúci, PN a neaktívni**. Prechodová matica musí mať
+   na oboch stranách rovnaký stavový priestor, inak diagram tvrdí, že každý, kto
+   v roku 2024 pracoval, je o rok neskôr dôchodca. V skutočnosti tam zostáva
+   88 % ľudí, kde boli.
+3. „Zomretý" naopak správne patrí len do cieľového roku — je to absorpčný stav.
+   Pridaný je jeho protipól, **„Nový vstup"** (kto dovŕšil 55 alebo dostal
+   dôchodok pred 55. rokom), bez ktorého by matica nebola vyrovnaná.
+
+**Doplnené prechody, ktoré vyplývajú zo zákona** a bez nich by diagram nedával
+zmysel: predčasný → starobný pri dovŕšení dôchodkového veku (automaticky, a je to
+najväčší presun medzi dôchodkovými stavmi — 14 tis. osôb, čo vysvetľuje pokles
+stavu predčasných o 8 436); invalidný → starobný pri dovŕšení dôchodkového veku;
+vdovský sólo → starobný + vdovský; X + vdovský → X sólo, keď po roku bez podmienok
+nárok na vdovský zanikne; a PN → invalidný sólo, čo je hlavná cesta k invalidnému
+dôchodku.
+
+**Vynechané prechody, ktoré neexistujú:** starobný → invalidný (po dôchodkovom
+veku sa invalidný dôchodok nepriznáva) a starobný → predčasný.
+
+**Čo v tom ešte nie je a ak treba, doplní sa:** pracujúci dôchodca ako vlastný
+stav (dnes je v „starobný sólo" — pracujúcich dôchodcov je v SR rádovo 150 tis.),
+výsluhový dôchodok a sirotský dôchodok.
+
+Okraje matice sú reálne: riadkové súčty dávajú stav dôchodkov k 12/2024 a
+stĺpcové k 12/2025 podľa mesačnej rady SP. Vnútro dofituje iteratívne proporčné
+prispôsobenie (IPF), takže sa dá vymeniť za skutočné prechody z osobných účtov
+bez toho, aby sa čokoľvek na webe menilo.
+
+---
+
 ## Čo treba dodať
 
 Súbory už existujú a majú správnu hlavičku. Doplniť = prepísať v nich hodnoty a
@@ -169,7 +213,20 @@ rok,pasmo,od_eur,pocet,priemer_eur
 pásme; ak ho SP neuvádza, stred pásma stačí. Pásma môžu byť aj iné než po 100 € —
 web si poradí s akýmkoľvek delením, len musia ísť za sebou a nesmú sa prekrývať.
 
-### 5. a 6. `data/vstup/prezitie_kohort.csv`, `data/vstup/nadej_dozitia_vek.csv`
+### 5. `data/vstup/prechody_stavov.csv`
+
+```csv
+rok_od,stav_od,rok_do,stav_do,pocet
+2024,Predčasný sólo,2025,Starobný sólo,14017
+2024,Starobný sólo,2025,Zomretí,29922
+```
+
+Reálne prechody sa dajú spočítať len z osobných účtov: pre každú osobu stav k
+31. 12. 2024 a k 31. 12. 2025, potom krížová tabuľka. Musí byť vyrovnaná —
+súčet za `stav_od` dá stav roku 2024, súčet za `stav_do` stav roku 2025 plus
+úmrtia. Prechody, ktoré neexistujú, sa nevypisujú ani ako nula.
+
+### 6. a 7. `data/vstup/prezitie_kohort.csv`, `data/vstup/nadej_dozitia_vek.csv`
 
 Toto sú demografické tabuľky, nie dôchodková štatistika — zdrojom je ŠÚ SR
 (tabuľky života) alebo Human Mortality Database. `prezitie_kohort.csv` chce

@@ -30,7 +30,7 @@ Schéma pre editor: `data/manifest.schema.json`.
 
 2D (Observable Plot): `line` · `area` · `area-stacked` · `column` · `bar` ·
 `bar-stacked` · `bar-grouped` · `scatter` · `heatmap` · `pyramid` · `waterfall` ·
-`bubbles` · `barrank` · `mountain`
+`bubbles` · `barrank` · `mountain` · `sankey`
 
 Ktorýkoľvek z nich sa dá animovať: `"frame": "mesiac"` z časového stĺpca urobí
 posuvník s prehrávaním. Škály sa pritom počítajú zo všetkých snímok, takže
@@ -76,6 +76,7 @@ lib/charts2d.js            2D grafy nad Observable Plot
 lib/charts3d.js            3D grafy, Plotly sa načíta na požiadanie
 lib/hover.js               crosshair a tooltipy, hit targety ≥ 24 px
 lib/frame.js               čas ako posuvník: prehrávanie, krokovanie, pevné škály
+lib/sankey.js              rozloženie prúdového diagramu (jedna mierka pre všetky stĺpce)
 lib/table.js               tabuľka s radením, CSV export, stat karty
 lib/view.js                zloží jednu kartu: graf + legenda + tabuľka + provenancia
 

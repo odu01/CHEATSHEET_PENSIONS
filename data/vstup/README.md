@@ -43,6 +43,7 @@ Prázdnu hlavičku na začiatok vypíše `node tools/check-vstup.mjs --sablona <
 | `dochodky_pasma.csv` | `dochodky_pasma` | pásmo výšky dôchodku | Rozdelenie dôchodkov |
 | `prezitie_kohort.csv` | `prezitie_kohort` | generácia × vek | Demografia |
 | `nadej_dozitia_vek.csv` | `nadej_dozitia_vek` | rok × dosiahnutý vek | Demografia |
+| `prechody_stavov.csv` | `prechody` | prúd zo stavu do stavu | Pohyb v čase |
 
 Presné stĺpce, typy a významy sú v manifeste (`data/manifest.json`, kľúč
 `columns`) a vypíše ich `npm run vstup`. Tu sú len tie veci, ktoré sa z hlavičky
@@ -82,6 +83,23 @@ sa dožil daného veku (kohortná, nie periódová tabuľka). Vo veku 0 je vždy
 priemerne dožije**, teda dosiahnutý vek + nádej dožitia. Nie zvyšok života; ten
 tvar grafu (klesajúce krivky) by hovoril niečo iné.
 
+**`prechody_stavov.csv`** — jeden riadok je jeden prúd: zo stavu v roku `rok_od`
+do stavu v roku `rok_do`. Tri pravidlá, bez ktorých diagram klame:
+
+- **Stavový priestor je rovnaký na oboch stranách.** Kto v roku 2024 pracoval,
+  väčšinou pracuje aj v 2025 — „pracujúci" preto musí byť aj v cieľovom roku.
+- **Matica musí byť vyrovnaná:** čo odíde z uzla, musí niekde doraziť. Preto je
+  tu „Nový vstup" (kto dovŕšil 55 alebo dostal dôchodok skôr) a „Zomretí" ako
+  absorpčný stav len na cieľovej strane.
+- **Prechod, ktorý neexistuje, sa nezapisuje ani ako nula.** Zo starobného
+  dôchodku sa nedá prejsť na invalidný — po dôchodkovom veku sa nepriznáva.
+
+Stavy, ktoré súbor používa (a prečo sú také): pracujúci · PN (nemocenské) ·
+neaktívny · nový vstup · predčasný sólo · predčasný + vdovský · starobný sólo ·
+starobný + vdovský · invalidný sólo · invalidný + vdovský · vdovský sólo ·
+zomretí. „Vdovský sólo" je poberateľ vdovského alebo vdoveckého bez vlastného
+dôchodku — teda aj ten, kto pritom pracuje.
+
 ## Odkiaľ vzali čísla svoje rády
 
 Kotvy sú vypísané v `tools/gen_vstup.py` v sekcii 1, každá s prameňom. Zhrnutie:
@@ -101,6 +119,11 @@ Kotvy sú vypísané v `tools/gen_vstup.py` v sekcii 1, každá s prameňom. Zhr
   sporiteľov ku koncu 2024, 19,1 mld. € ku koncu 2025, 21,57 mld. € v 06/2026
 - rozdelenie dôchodkov je stlačené: OECD uvádza Gini starobných príjmov v SR
   tesne pod 0,200, najnižšie v OECD
+- prechody 2024 → 2025: okraje matice sú reálne stavy z mesačnej rady (starobný
+  1 134 690 → 1 144 849, predčasný 39 055 → 30 619, invalidný 217 975 → 218 372,
+  vdovský a vdovecký 343 352 → 343 512) a rozpad sólo verzus kombinácia je z
+  ročnej štatistiky 2024 (vdovský sólo 24 354 z 289 000, vdovecký sólo 5 333 z
+  54 352); vnútro matice dofituje IPF na tieto okraje
 
 Model dopočítava len to, čo medzi kotvami chýba, a pri každom datasete si
 kontroluje, že kotvy naozaj drží — inak generátor skončí chybou.

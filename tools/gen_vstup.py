@@ -86,6 +86,11 @@ NAD_2500_2024 = 50             # počet dôchodkov nad 2 500 EUR
 MIN_DOCHODOK_2024 = 389.90     # suma minimálneho dôchodku (10/2024)
 POCET_MIN_2024 = 84_693        # počet poberateľov minimálneho dôchodku
 
+# Zomretí dôchodcovia za rok. Kotva: v SR zomiera ~53 tis. osôb ročne (2024),
+# z toho drvivá väčšina vo veku nad 65 → odhad 45 500 zomretých dôchodcov.
+# Jedno číslo pre dobu poberania aj pre maticu prechodov, aby si neprotirečili.
+ZOMRETI_SD = 45_500
+
 # II. pilier — zverejnené koncoročné stavy. Čistá hodnota majetku v mil. EUR
 # a počet sporiteľov. Zdroj: ADSS, MPSVR, NBS (tlačové správy 2024–2026).
 PILIER2_AKTIVA = {  # mil. EUR, koniec obdobia
@@ -738,14 +743,203 @@ def gen_doba_poberania() -> None:
     # veku nad 65 → odhad 45 500 zomretých starobných dôchodcov za rok 2024.
     # Pomer mužov a žien a vývoj v čase dáva model; rast kopíruje rast počtu
     # dôchodcov (~0,9 % ročne), lebo modelové ročníky sú rovnako veľké.
-    ZOMRETI_2024 = 45_500
     base = sum(r[3] for r in raw if r[0] == 2024)
     rows = []
     for rok, sex, doba, deaths in raw:
-        pocet = ZOMRETI_2024 * (deaths / base) * (1.0 - 0.009 * (2024 - rok))
+        pocet = ZOMRETI_SD * (deaths / base) * (1.0 - 0.009 * (2024 - rok))
         rows.append([rok, sex, r2(doba), int(round(pocet))])
     write_csv("doba_poberania.csv",
               ["rok", "pohlavie", "priemer_rokov", "pocet_zomretych"], rows)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 5. Prechody medzi stavmi (rok → rok)
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Prúdový diagram odpovedá na to, na čo stav neodpovie: nie koľko ich v danom
+# stave bolo, ale KTO SA KAM presunul. Dva roky s rovnakým počtom starobných
+# dôchodcov môžu vzniknúť tak, že nikto nikam nešiel, alebo tak, že desaťtisíce
+# odišli a desaťtisíce prišli.
+#
+# Stavy, ktoré boli v zadaní, majú tri logické chyby a tie sú tu opravené:
+#
+#   1. „invalid-sólo" a „invalidný dôchodca - sólo" je ten istý stav. Ostal jeden.
+#      (Ak bol zámer rozlíšiť invaliditu do 70 % a nad 70 %, to je iný rozpad a
+#      dá sa doplniť — sú to dva riadky v tabuľke.)
+#   2. V roku 2025 chýbali pracujúci, PN a neaktívni. Prechodová matica musí mať
+#      na oboch stranách ROVNAKÝ stavový priestor, inak diagram tvrdí, že každý,
+#      kto v roku 2024 pracoval, je o rok neskôr dôchodca. Väčšina ľudí pritom
+#      zostane tam, kde bola.
+#   3. „Zomretý" naopak patrí len do cieľového roku — je to absorpčný stav, do
+#      ktorého sa vchádza a z ktorého sa nevychádza. Tak to v zadaní bolo a je to
+#      správne.
+#
+# Doplnené sú prechody, ktoré vyplývajú zo zákona a bez nich by diagram nedával
+# zmysel:
+#   • predčasný starobný → starobný pri dovŕšení dôchodkového veku (automaticky),
+#   • invalidný → starobný pri dovŕšení dôchodkového veku,
+#   • vdovský sólo → starobný + vdovský (poberateľke sa prizná vlastný dôchodok),
+#   • X + vdovský → X sólo, keď po roku bez podmienok nárok na vdovský zanikne,
+#   • PN → invalidný sólo, čo je hlavná cesta k invalidnému dôchodku.
+# A prechody, ktoré NEEXISTUJÚ, tu nie sú vôbec: starobný → invalidný (po
+# dôchodkovom veku sa invalidný dôchodok nepriznáva) ani starobný → predčasný.
+#
+# Populácia: všetci poberatelia dôchodku zo SP (bez ohľadu na vek) + osoby 55+
+# bez dôchodku. Preto je tu „Nový vstup" — kto dovŕšil 55 alebo dostal dôchodok
+# pred 55. rokom. Bez neho by matica nemohla byť vyrovnaná.
+
+STAV_PRAC = "Pracujúci"
+STAV_PN = "PN (nemocenské)"
+STAV_NEAKT = "Neaktívny"
+STAV_INV = "Invalidný sólo"
+STAV_PRED = "Predčasný sólo"
+STAV_STAR = "Starobný sólo"
+STAV_VDOV = "Vdovský sólo"
+STAV_STAR_V = "Starobný + vdovský"
+STAV_PRED_V = "Predčasný + vdovský"
+STAV_INV_V = "Invalidný + vdovský"
+STAV_VSTUP = "Nový vstup"
+STAV_ZOM = "Zomretí"
+
+# Podiel poberateľov vdovského/vdoveckého, ktorí ho majú SÓLO — zverejnené za
+# 2024: 24 354 z 289 000 vdovských a 5 333 z 54 352 vdoveckých.
+SOLO_VDOVSKY = 24_354 / 289_000
+SOLO_VDOVECKY = 5_333 / 54_352
+
+# Ako sa poberatelia vdovského v kombinácii delia podľa vlastného dôchodku.
+# Modelový odhad: vdovy a vdovci sú prevažne v starobnom veku.
+KOMBI_SPLIT = {STAV_STAR_V: 0.92, STAV_INV_V: 0.07, STAV_PRED_V: 0.01}
+
+# Osoby 55+ bez dôchodku — rádové odhady (ŠÚ SR: zamestnanosť 55–64 okolo 62 %,
+# populácia 55–64 okolo 700 tis.). Modelové, nie zverejnené.
+BEZ_DOCHODKU_2024 = {STAV_PRAC: 470_000, STAV_PN: 24_000, STAV_NEAKT: 250_000}
+BEZ_DOCHODKU_TREND = {STAV_PRAC: 1.015, STAV_PN: 1.0, STAV_NEAKT: 0.99}
+
+# Ročné pravdepodobnosti prechodu. Presné nie sú a byť nemôžu — slúžia ako
+# východiskový vzor, ktorý sa dofituje na reálne stavy oboch rokov (IPF nižšie).
+# Relatívne veľkosti sú to podstatné a každá je odôvodnená v komentári.
+PRECHODY = {
+    STAV_PRAC: {STAV_PRAC: 0.86, STAV_PN: 0.02, STAV_NEAKT: 0.03,
+                STAV_PRED: 0.015, STAV_STAR: 0.06, STAV_VDOV: 0.008, STAV_ZOM: 0.007},
+    # Dlhá PN je hlavná cesta k invalidnému dôchodku.
+    STAV_PN: {STAV_PRAC: 0.55, STAV_PN: 0.15, STAV_NEAKT: 0.09, STAV_INV: 0.10,
+              STAV_STAR: 0.07, STAV_PRED: 0.02, STAV_VDOV: 0.005, STAV_ZOM: 0.015},
+    STAV_NEAKT: {STAV_NEAKT: 0.72, STAV_PRAC: 0.10, STAV_PRED: 0.05, STAV_STAR: 0.09,
+                 STAV_INV: 0.02, STAV_VDOV: 0.01, STAV_ZOM: 0.01},
+    # Invalidný dôchodok sa pri dovŕšení dôchodkového veku mení na starobný.
+    STAV_INV: {STAV_INV: 0.90, STAV_STAR: 0.065, STAV_INV_V: 0.008,
+               STAV_PRAC: 0.005, STAV_ZOM: 0.022},
+    # Predčasný sa na starobný preklopí automaticky — preto stav predčasných
+    # medziročne padol o 8 436, hoci nových predčasných pribudlo.
+    STAV_PRED: {STAV_PRED: 0.62, STAV_STAR: 0.35, STAV_PRED_V: 0.006, STAV_ZOM: 0.024},
+    # Zo starobného sa už nikam neodchádza, len ovdovie alebo zomrie.
+    STAV_STAR: {STAV_STAR: 0.955, STAV_STAR_V: 0.011, STAV_ZOM: 0.034},
+    # Vdovský sólo je najčastejšie prechodný stav: buď sa prizná vlastný
+    # dôchodok, alebo po roku bez podmienok nárok zanikne.
+    STAV_VDOV: {STAV_VDOV: 0.70, STAV_STAR_V: 0.20, STAV_PRED_V: 0.03,
+                STAV_INV_V: 0.01, STAV_NEAKT: 0.04, STAV_ZOM: 0.02},
+    STAV_STAR_V: {STAV_STAR_V: 0.93, STAV_STAR: 0.035, STAV_ZOM: 0.035},
+    STAV_PRED_V: {STAV_PRED_V: 0.60, STAV_STAR_V: 0.35, STAV_PRED: 0.02, STAV_ZOM: 0.03},
+    STAV_INV_V: {STAV_INV_V: 0.90, STAV_STAR_V: 0.06, STAV_INV: 0.015, STAV_ZOM: 0.025},
+    # Kto dovŕšil 55 alebo dostal dôchodok pred 55. rokom.
+    STAV_VSTUP: {STAV_PRAC: 0.55, STAV_NEAKT: 0.22, STAV_PN: 0.02, STAV_INV: 0.14,
+                 STAV_VDOV: 0.05, STAV_STAR: 0.01, STAV_PRED: 0.01},
+}
+
+# Poradie stavov v diagrame — zhora dolu, bez dôchodku najvyššie.
+STAV_ORDER = [STAV_PRAC, STAV_PN, STAV_NEAKT, STAV_VSTUP,
+              STAV_PRED, STAV_PRED_V, STAV_STAR, STAV_STAR_V,
+              STAV_INV, STAV_INV_V, STAV_VDOV, STAV_ZOM]
+
+
+def _stavy_roku(rok: int) -> dict:
+    """Stavy dôchodkových skupín za daný rok z reálnych mesačných rád."""
+    star = real_december("sp_pocty_mesacne.csv", "Starobný", "pocet")[rok]
+    pred = real_december("sp_pocty_mesacne.csv", "Predčasný starobný", "pocet")[rok]
+    inv = real_december("sp_pocty_mesacne.csv", "Invalidný", "pocet")[rok]
+    vdov = real_december("sp_pocty_mesacne.csv", "Vdovský", "pocet")[rok]
+    vdovec = real_december("sp_pocty_mesacne.csv", "Vdovecký", "pocet")[rok]
+
+    solo_pozost = vdov * SOLO_VDOVSKY + vdovec * SOLO_VDOVECKY
+    kombi = (vdov + vdovec) - solo_pozost
+    out = {STAV_VDOV: solo_pozost}
+    for stav, share in KOMBI_SPLIT.items():
+        out[stav] = kombi * share
+    # Vlastný dôchodok mínus tí, ktorí k nemu majú aj vdovský.
+    out[STAV_STAR] = star - out[STAV_STAR_V]
+    out[STAV_PRED] = pred - out[STAV_PRED_V]
+    out[STAV_INV] = inv - out[STAV_INV_V]
+    return out
+
+
+def gen_prechody() -> None:
+    """Matica prechodov 2024 → 2025, dofitovaná na reálne stavy oboch rokov.
+
+    Riadkové súčty musia dať stav roku 2024, stĺpcové stav roku 2025 (aj s
+    úmrtiami). Také zadanie rieši **iteratívne proporčné prispôsobenie** (IPF):
+    začne sa modelovými pravdepodobnosťami a striedavo sa škálujú riadky a
+    stĺpce, kým nesedia oba okraje. Výsledok je matica, ktorej OKRAJE sú reálne
+    čísla Sociálnej poisťovne a len jej vnútro je model — presne tak, ako pri
+    ostatných syntetických súboroch tohto projektu.
+    """
+    ROK_OD, ROK_DO = 2024, 2025
+    stav_od = _stavy_roku(ROK_OD)
+    stav_do = _stavy_roku(ROK_DO)
+    for s, v in BEZ_DOCHODKU_2024.items():
+        stav_od[s] = float(v)
+        stav_do[s] = v * BEZ_DOCHODKU_TREND[s]
+    stav_do[STAV_ZOM] = float(ZOMRETI_SD)
+
+    # „Nový vstup" dorovnáva bilanciu: koľko muselo pribudnúť, aby sa stav 2024
+    # plus prírastok rovnal stavu 2025 plus úmrtia.
+    vstup = sum(stav_do.values()) - sum(stav_od.values())
+    if vstup <= 0:
+        raise SystemExit(f"gen_vstup: nový vstup vyšiel {vstup:.0f} — bilancia nesedí")
+    stav_od[STAV_VSTUP] = vstup
+
+    rows_keys = [s for s in STAV_ORDER if s in stav_od]
+    cols_keys = [s for s in STAV_ORDER if s in stav_do]
+    m = {r: {c: (PRECHODY.get(r, {}).get(c, 0.0) * stav_od[r]) for c in cols_keys}
+         for r in rows_keys}
+
+    for _ in range(200):
+        for r in rows_keys:                     # riadky na stav 2024
+            tot = sum(m[r].values())
+            if tot > 0:
+                k = stav_od[r] / tot
+                for c in cols_keys:
+                    m[r][c] *= k
+        for c in cols_keys:                     # stĺpce na stav 2025
+            tot = sum(m[r][c] for r in rows_keys)
+            if tot > 0:
+                k = stav_do[c] / tot
+                for r in rows_keys:
+                    m[r][c] *= k
+
+    rows = []
+    for r in rows_keys:
+        for c in cols_keys:
+            v = int(round(m[r][c]))
+            if v <= 0:
+                continue
+            rows.append([ROK_OD, r, ROK_DO, c, v])
+
+    # Kontrola okrajov: čo nesedí na reálny stav, je chyba modelu, nie dáta.
+    for r in rows_keys:
+        got = sum(x[4] for x in rows if x[1] == r)
+        if stav_od[r] > 100 and abs(got - stav_od[r]) / stav_od[r] > 0.02:
+            raise SystemExit(f"prechody: riadok {r} dáva {got}, stav 2024 je {stav_od[r]:.0f}")
+    for c in cols_keys:
+        got = sum(x[4] for x in rows if x[3] == c)
+        if stav_do[c] > 100 and abs(got - stav_do[c]) / stav_do[c] > 0.02:
+            raise SystemExit(f"prechody: stĺpec {c} dáva {got}, stav 2025 je {stav_do[c]:.0f}")
+
+    zostali = sum(x[4] for x in rows if x[1] == x[3])
+    print(f"prechody 2024→2025: {len(rows)} prúdov, {sum(x[4] for x in rows)} osôb, "
+          f"z toho {zostali} ({zostali / sum(x[4] for x in rows) * 100:.1f} %) zostalo "
+          f"v tom istom stave")
+    write_csv("prechody_stavov.csv",
+              ["rok_od", "stav_od", "rok_do", "stav_do", "pocet"], rows)
 
 
 def _months(first: str, last: str) -> list[str]:
@@ -812,6 +1006,7 @@ def main() -> int:
     gen_starobni_podla_veku()
     gen_doba_poberania()
     gen_pilier2()
+    gen_prechody()
 
     print("\nvstupné súbory:")
     for name, n in WRITTEN:
