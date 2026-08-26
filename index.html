@@ -12,8 +12,11 @@
        range: a floating "@0.6" would let an upstream release silently change the
        rendering of a published page, and a self-hosted copy also means the site
        makes no third-party requests and works offline. -->
-  <script src="vendor/d3-7.9.0.min.js"></script>
-  <script src="vendor/plot-0.6.17.umd.min.js"></script>
+  <!-- `defer` keeps them out of the render path. Order is preserved: deferred
+       classic scripts and the module below all execute after parsing, in document
+       order, so Plot still finds d3 and app.js still finds Plot. -->
+  <script defer src="vendor/d3-7.9.0.min.js"></script>
+  <script defer src="vendor/plot-0.6.17.umd.min.js"></script>
   <!-- The 3D bundle is NOT loaded here; charts3d.js fetches it on demand. -->
 </head>
 <body>

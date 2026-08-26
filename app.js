@@ -66,25 +66,82 @@ function fatal(msg) {
 
 // ─── navigation ──────────────────────────────────────────────────────────────
 
+/**
+ * Two-tier navigation: sections on the first row, the active section's pages on
+ * the second.
+ *
+ * Fourteen equal items in one strip wrapped to two lines and stopped being
+ * navigation — nothing told the reader which of them belong together, so the
+ * whole list had to be read every time. Sections come from the manifest
+ * (`group` on each page), so the structure is data, not markup. A section with a
+ * single page shows no second row: there would be nothing to choose.
+ */
+function groupsOf(pages) {
+  const groups = [];
+  for (const page of pages) {
+    const name = page.group || page.label;
+    let g = groups.find(x => x.name === name);
+    if (!g) { g = { name, pages: [] }; groups.push(g); }
+    g.pages.push(page);
+  }
+  return groups;
+}
+
 function buildNav() {
   const nav = $('nav');
   nav.replaceChildren();
-  for (const page of state.manifest.pages || []) {
+  const groups = groupsOf(state.manifest.pages || []);
+
+  const top = document.createElement('div');
+  top.className = 'nav-row nav-row-group';
+  for (const g of groups) {
     const a = document.createElement('a');
-    a.className = 'nav-item';
+    a.className = 'nav-item nav-group';
+    a.href = '#' + encodeURIComponent(g.pages[0].id);
+    a.textContent = g.name;
+    a.dataset.group = g.name;
+    nav.appendChild(a);
+    top.appendChild(a);
+  }
+  nav.replaceChildren(top);
+
+  const sub = document.createElement('div');
+  sub.className = 'nav-row nav-row-page';
+  nav.appendChild(sub);
+  state.navSub = sub;
+  state.navGroups = groups;
+}
+
+function markNav() {
+  const groups = state.navGroups || [];
+  const active = groups.find(g => g.pages.some(p => p.id === state.pageId));
+
+  for (const a of $('nav').querySelectorAll('.nav-group')) {
+    const on = a.dataset.group === active?.name;
+    a.classList.toggle('is-active', on);
+    if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+  }
+
+  // The second row is rebuilt per section rather than shown and hidden: a hidden
+  // strip of fourteen links is still fourteen links for a screen reader.
+  const sub = state.navSub;
+  if (!sub) return;
+  sub.replaceChildren();
+  const many = (active?.pages.length || 0) > 1;
+  sub.hidden = !many;
+  if (!many) return;
+  for (const page of active.pages) {
+    const a = document.createElement('a');
+    a.className = 'nav-item nav-page';
     a.href = '#' + encodeURIComponent(page.id);
     a.textContent = page.label;
     a.dataset.page = page.id;
     if (page.hint) a.title = page.hint;
-    nav.appendChild(a);
-  }
-}
-
-function markNav() {
-  for (const a of $('nav').children) {
-    const on = a.dataset.page === state.pageId;
-    a.classList.toggle('is-active', on);
-    if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    if (page.id === state.pageId) {
+      a.classList.add('is-active');
+      a.setAttribute('aria-current', 'page');
+    }
+    sub.appendChild(a);
   }
 }
 
@@ -140,7 +197,9 @@ async function openPage(pageId, resetFilters = true) {
     const def = state.manifest.datasets?.[ds];
     if (!def) { bundles[ds] = { error: `Dataset "${ds}" nie je v manifeste.` }; return; }
     try {
-      bundles[ds] = await loadDataset(def);
+      // The shared codelists travel with the definition so the loader can turn
+      // codes into labels without reaching back into global state.
+      bundles[ds] = await loadDataset({ ...def, __codelists: state.manifest.dimensions });
     } catch (err) {
       bundles[ds] = { error: err.message };
     }

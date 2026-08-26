@@ -75,6 +75,73 @@ const TYPE_OK = {
 
 const problems = [];
 const notes = [];
+const loaded = new Map();          // datasetId -> { want, body }
+
+/** Riadky ľubovoľného datasetu z manifestu — aj mimo data/vstup. */
+function readDataset(dsId) {
+  if (loaded.has(dsId)) return loaded.get(dsId);
+  const d = manifest.datasets?.[dsId];
+  if (!d?.file) return null;
+  const path = join(ROOT, d.file);
+  if (!existsSync(path)) return null;
+  const grid = parseCsv(readFileSync(path, 'utf8'));
+  const rec = { want: grid[0].map(h => h.trim()), body: grid.slice(1) };
+  loaded.set(dsId, rec);
+  return rec;
+}
+
+const asNumber = v => Number(String(v).replace(/[\s ]/g, '').replace(',', '.'));
+
+/** Súčet stĺpca cez riadky, ktoré sedia na `where`. Porovnáva sa ako text, aby
+ *  „2024" v manifeste sedelo na „2024" v CSV bez ohľadu na typ. */
+function sumWhere(rec, column, where = {}) {
+  const ci = rec.want.indexOf(column);
+  if (ci < 0) return null;
+  const conds = Object.entries(where).map(([k, v]) => [rec.want.indexOf(k), String(v)]);
+  if (conds.some(([i]) => i < 0)) return null;
+  let sum = 0;
+  for (const r of rec.body) {
+    if (!conds.every(([i, v]) => (r[i] ?? '').trim() === v)) continue;
+    const n = asNumber(r[ci]);
+    if (Number.isFinite(n)) sum += n;
+  }
+  return sum;
+}
+
+function describeCheck(chk) {
+  const w = Object.entries(chk.where || {}).map(([k, v]) => `${k}=${v}`).join(', ');
+  const target = chk.equalsDataset
+    ? `${chk.equalsDataset.dataset}.${chk.equalsDataset.column}` : chk.equals;
+  return `súčet ${chk.column}${w ? ` (${w})` : ''} = ${target}`;
+}
+
+/** Vráti text chyby, alebo null keď kontrola prešla. */
+function runCheck(id, chk, want, body) {
+  if (chk.kind !== 'sum') return `${id}: neznámy druh kontroly "${chk.kind}"`;
+  const got = sumWhere({ want, body }, chk.column, chk.where);
+  if (got == null) return `${id}: kontrola sa nedá spočítať — stĺpec "${chk.column}" ` +
+    `alebo filter ${JSON.stringify(chk.where)} v súbore nie je`;
+
+  let expect = chk.equals;
+  if (chk.equalsDataset) {
+    const other = readDataset(chk.equalsDataset.dataset);
+    if (!other) return `${id}: kontrola odkazuje na dataset "${chk.equalsDataset.dataset}", ` +
+      'ktorý sa nedá prečítať';
+    expect = sumWhere(other, chk.equalsDataset.column, chk.equalsDataset.where);
+    if (expect == null) return `${id}: v datasete "${chk.equalsDataset.dataset}" sa kontrola ` +
+      'nedá spočítať';
+  }
+  if (!Number.isFinite(expect)) return `${id}: kontrola nemá s čím porovnávať`;
+  const tol = chk.tolerance ?? 0.01;
+  const off = expect === 0 ? Math.abs(got) : Math.abs(got - expect) / Math.abs(expect);
+  if (off > tol) {
+    return `${id}: ${describeCheck(chk)} — v súbore je ${got.toLocaleString('sk-SK')}, ` +
+      `očakáva sa ${Number(expect).toLocaleString('sk-SK')} ` +
+      `(rozdiel ${(off * 100).toFixed(1)} %, povolené ${(tol * 100).toFixed(1)} %)` +
+      `${chk.note ? ' — ' + chk.note : ''}`;
+  }
+  return null;
+}
 
 console.log('Vstupné súbory (data/vstup/) — čo web číta a čo treba naplniť\n');
 
@@ -103,20 +170,48 @@ for (const [id, def] of inputs) {
     problems.push(`${id}: hlavička je "${header.join(',')}", kontrakt žiada "${want.join(',')}"`);
   }
 
+  // Uzavretý slovník: hodnota musí byť kód alebo jeho názov, nič iné. Bez toho
+  // preklep („Muzi" namiesto „Muži") ticho vyrobí trinástu kategóriu a graf
+  // stratí sériu — nič nespadne, len to bude nesprávne.
+  const allowed = new Map();
+  for (const [name, c] of cols) {
+    const codes = c.codes || (c.codelist && manifest.dimensions?.[c.codelist]);
+    if (!codes) continue;
+    if (c.codelist && !manifest.dimensions?.[c.codelist]) {
+      problems.push(`${id}: stĺpec "${name}" odkazuje na codelist "${c.codelist}", ktorý v manifeste nie je`);
+      continue;
+    }
+    allowed.set(name, new Set([...Object.keys(codes), ...Object.values(codes)]));
+  }
+
   // typy + prázdne hodnoty
   const bad = new Map();
   const empty = new Map();
+  const offVocab = new Map();
   for (const r of body) {
     for (let i = 0; i < want.length; i++) {
       const type = cols[i][1].type || 'string';
       const v = (r[i] ?? '').trim();
       if (v === '') { empty.set(want[i], (empty.get(want[i]) || 0) + 1); continue; }
       if (!(TYPE_OK[type] || TYPE_OK.string)(v)) bad.set(want[i], (bad.get(want[i]) || 0) + 1);
+      const ok = allowed.get(want[i]);
+      if (ok && !ok.has(v)) {
+        if (!offVocab.has(want[i])) offVocab.set(want[i], new Set());
+        offVocab.get(want[i]).add(v);
+      }
     }
   }
   for (const [c, n] of bad) problems.push(`${id}: stĺpec "${c}" má ${n} hodnôt, ktoré nie sú ${
     cols.find(x => x[0] === c)[1].type}`);
   for (const [c, n] of empty) notes.push(`${id}: stĺpec "${c}" má ${n} prázdnych hodnôt`);
+  for (const [c, vals] of offVocab) {
+    const codes = cols.find(x => x[0] === c)[1];
+    const list = codes.codes || manifest.dimensions[codes.codelist];
+    problems.push(`${id}: stĺpec "${c}" má hodnoty mimo slovníka: ` +
+      `${[...vals].slice(0, 4).map(v => `"${v}"`).join(', ')}` +
+      `${vals.size > 4 ? ` (+${vals.size - 4})` : ''} — povolené sú ` +
+      `${Object.keys(list).join(' / ')} alebo ich názvy`);
+  }
 
   // Rozmer vs. miera. Typ na to nestačí — počet osôb aj vek sú "int", ale vek
   // identifikuje riadok a počet je meraná hodnota. Preto to manifest hovorí
@@ -156,6 +251,17 @@ for (const [id, def] of inputs) {
       console.log(`   ${d}: ${sorted[0]} … ${sorted[sorted.length - 1]}  (${vals.length} hodnôt)`);
     }
   }
+  loaded.set(id, { want, body });
+
+  // Kontrolné súčty, ktoré musia platiť aj po tom, ako súbor prepíše človek.
+  // Toto je jediná vec, ktorá pri ručnej výmene dát zachytí, že súbor síce má
+  // správny tvar, ale nesprávne čísla — a že si dva súbory neprotirečia.
+  for (const chk of def.checks || []) {
+    const res = runCheck(id, chk, want, body);
+    if (res) problems.push(res);
+    else console.log(`   ✓ ${describeCheck(chk)}`);
+  }
+
   if (synthetic) {
     console.log('   → nahradiť reálnymi: prepíš hodnoty (hlavička zostáva), potom v manifeste');
     console.log('     zmaž "illustrative" a "badge" a doplň "source" a "vintage"');

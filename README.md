@@ -43,7 +43,8 @@ nad transformáciou `cumsum`. Zdroj dát zostáva tabuľka pásiem, akú zverej�
 
 Bez grafu: `tiles` (kľúčové čísla) · `table`
 
-Na weboch je 14 stránok a žiadna prázdna karta. Deväť beží na reálnych dátach
+Štrnásť stránok v šiestich sekciách (sekcie v prvom riadku navigácie, stránky
+vybranej sekcie v druhom) a žiadna prázdna karta. Deväť beží na reálnych dátach
 Sociálnej poisťovne (prehľad, výdavky, počty, priemerné dôchodky, novopriznané,
 sezónnosť s teplotnou mapou a 3D povrchom, pohyb v čase, demografia, dátový
 katalóg), päť na syntetických (rozdelenie dôchodkov, podľa veku a pohlavia, podľa
@@ -66,7 +67,7 @@ legende a svetlý aj tmavý režim.
 ```
 index.html                 shell — hlavička, navigácia, footer
 app.js                     controller: manifest → navigácia → načítanie → vykreslenie
-style.css                  RRZ téma, svetlý + tmavý režim, responzívne, tlač
+style.css                  RRZ téma, 12-stĺpcová mriežka, svetlý + tmavý režim, tlač
 
 lib/theme.js               dizajnové tokeny a paleta (zmerané hodnoty, nie od oka)
 lib/format.js              slovenské formátovanie čísel, percent, EUR, rokov
@@ -134,6 +135,11 @@ validáciou. Ilustračné datasety dostanú na každej karte výstražný odznak
 
 ## Kontroly
 
+Dáta: všetky CSV spolu majú 392 KB, knižnice 477 KB — na stránku sa teda ťahá
+viac kódu než dát, a to je vedomé rozhodnutie (Plot vyžaduje d3 ako externú
+závislosť a tree-shaking by potreboval build step). Rozbor v
+**[docs/DATOVA_ARCHITEKTURA.md](docs/DATOVA_ARCHITEKTURA.md)**.
+
 `npm run validate` beží aj v CI pred nasadením a overuje:
 
 - každý dataset, stĺpec, view, stránka, `<script src>`, `<link href>` a `import`
@@ -141,6 +147,9 @@ validáciou. Ilustračné datasety dostanú na každej karte výstražný odznak
 - každý dataset má zdroj, alebo je označený ako ilustračný
 - každý súbor v `data/vstup/` sedí na kontrakt: hlavička, typy, prázdne hodnoty,
   duplicitné kľúče, diery v radoch rokov a vekov
+- hodnoty v stĺpcoch s kódovníkom patria do uzavretého slovníka (preklep
+  „Muzi" namiesto „Muži" neprejde)
+- deklarované kontrolné súčty platia, vrátane krížových medzi dvoma súbormi
 - paleta prechádza limitmi pre farbosleposť a kontrast v oboch režimoch
 - CSV v `data/` sa zhodujú so zošitmi v `data/zdroj/` (pregenerovaním importu) a
   syntetické súbory v `data/vstup/` so svojím generátorom (kým sú syntetické)
@@ -182,6 +191,9 @@ na GitHub Pages. Žiadny build.
 
 - **[docs/AKO_PRIDAT_DATA.md](docs/AKO_PRIDAT_DATA.md)** — pridanie dát a grafu,
   typy grafov, transformácie, riešenie problémov
+- **[docs/DATOVA_ARCHITEKTURA.md](docs/DATOVA_ARCHITEKTURA.md)** — prečo sú dáta
+  rozdelené tak, ako sú: granularita, kódovníky, kontrolné súčty, a prepočet
+  „jedna veľká kocka verzus tabuľka na každý jav" na skutočných dátach
 - **[docs/POZADOVANE_UKAZOVATELE.md](docs/POZADOVANE_UKAZOVATELE.md)** — čo má web
   zobrazovať, čo je hotové, čo čaká na dáta a v akom tvare ich dodať
 - **[docs/ZDROJOVE_DATA.md](docs/ZDROJOVE_DATA.md)** — zdrojové zošity, čo z čoho

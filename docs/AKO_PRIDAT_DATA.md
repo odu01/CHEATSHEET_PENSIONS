@@ -3,6 +3,9 @@
 Pridanie grafu nevyžaduje zmenu kódu. Vložíš CSV do `data/` a jeden blok do
 `data/manifest.json`.
 
+Ako sú dáta rozdelené a prečo (granularita, kódovníky, kontrolné súčty):
+**[DATOVA_ARCHITEKTURA.md](DATOVA_ARCHITEKTURA.md)**.
+
 Dve miesta, kde CSV žijú, a nemiešajú sa:
 
 - **`data/*.csv`** — generované zo zošitov v `data/zdroj/` skriptom
@@ -59,6 +62,17 @@ Parser zvládne: `,` `;` aj tab; hodnoty v úvodzovkách; `1234.5` aj slovenské
 **chýbajúca** — v grafe vznikne medzera, nie pád na nulu.
 
 ## 2. Zápis datasetu
+
+Štyri kľúče, ktoré stoja za to poznať hneď (podrobne v
+[DATOVA_ARCHITEKTURA.md](DATOVA_ARCHITEKTURA.md)):
+
+| kľúč | na čo |
+|---|---|
+| `columns[].codelist` | odkaz do `dimensions` — dáta nesú kód, manifest názov; slovník je uzavretý |
+| `checks` | čo sa musí rovnať (aj krížom na iný súbor); beží v `npm run vstup` a v CI |
+| `shape` | súbor prichádza naširoko (roky v hlavičke), prevedie sa pri načítaní |
+| `columns[].measure` | odlíši meranú hodnotu od rozmeru (vek aj počet sú „int") |
+
 
 ```json
 "vydavky_2027": {

@@ -543,16 +543,22 @@ ASOCIACIA = {("II. pilier", "výsluhové"): 0.40}
 # Osem kategórií, ktoré sa NEPREKRÝVAJÚ a spolu dávajú 100 %. Vstupný súbor
 # musí byť takto rozdelený — inak sa počty nedajú sčítať do celku. Marginálne
 # skupiny („všetci sporitelia") si web dopočíta transformáciou `expand`.
+# Kódy, nie názvy. Názov „SP + II. pilier + výsluhové" má 28 znakov a v súbore
+# by sa zopakoval stotisíckrát; kód má dva. Slovník kódov je v manifeste
+# (`dimensions`), takže sa dá preformulovať bez toho, aby sa siahlo na dáta, a
+# preklep sa nedá prepašovať — validácia pozná uzavretý zoznam.
 KATEGORIE_NAZVY = {
-    (): "Iba SP",
-    ("II. pilier",): "SP + II. pilier",
-    ("cudzina",): "SP + cudzina",
-    ("výsluhové",): "SP + výsluhové",
-    ("II. pilier", "cudzina"): "SP + II. pilier + cudzina",
-    ("II. pilier", "výsluhové"): "SP + II. pilier + výsluhové",
-    ("cudzina", "výsluhové"): "SP + cudzina + výsluhové",
-    ("II. pilier", "cudzina", "výsluhové"): "SP + všetky tri",
+    (): "S",
+    ("II. pilier",): "P",
+    ("cudzina",): "C",
+    ("výsluhové",): "V",
+    ("II. pilier", "cudzina"): "PC",
+    ("II. pilier", "výsluhové"): "PV",
+    ("cudzina", "výsluhové"): "CV",
+    ("II. pilier", "cudzina", "výsluhové"): "PCV",
 }
+# Pohlavie tiež kódom — ten istý dôvod, tá istá dimenzia v manifeste.
+POHLAVIE_KOD = {"Muži": "M", "Ženy": "Z"}
 
 
 def znak_shares(pocty: dict, rok: int) -> dict:
@@ -661,7 +667,8 @@ def gen_starobni_podla_veku() -> None:
                 faktor = 1.030
                 for n in combo:
                     faktor *= rel[n]
-                rows.append([rok, vek, sex, KATEGORIE_NAZVY[combo], pocet, r2(base * faktor)])
+                rows.append([rok, vek, POHLAVIE_KOD[sex], KATEGORIE_NAZVY[combo],
+                             pocet, round(base * faktor, 1)])
 
     # Kalibrácia výšky dôchodku: relatívne rozdiely medzi vekmi, pohlaviami a
     # kategóriami určuje model, ale hladinu určuje kotva — vážený priemer za rok
@@ -691,7 +698,7 @@ def gen_starobni_podla_veku() -> None:
         f"priemerný dôchodok 2024 = {avg:.2f}, kotva {PRIEMER_SD_2024}"
 
     # Kombinácie musia byť to, čo hovoríme, že sú: zriedkavé.
-    kombi = sum(r[4] for r in rows if r[0] == 2024 and r[3].count("+") > 1)
+    kombi = sum(r[4] for r in rows if r[0] == 2024 and len(r[3]) > 1)
     assert kombi / total < 0.02, f"kombinácie sú {kombi / total:.1%} z celku, to už nie je minimum"
     print(f"starobní dôchodcovia 2024: {total} spolu, z toho {kombi} "
           f"({kombi / total * 100:.2f} %) v kombinovaných kategóriách")

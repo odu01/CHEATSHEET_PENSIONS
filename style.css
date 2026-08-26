@@ -142,23 +142,45 @@ body {
 
 /* ── nav ─────────────────────────────────────────────────────────────────── */
 
+/* Dva riadky: sekcie a stránky vybranej sekcie. Štrnásť rovnocenných položiek
+   v jednom pruhu sa lámalo do dvoch liniek a prestalo byť navigáciou — nič
+   nehovorilo, čo k čomu patrí. Lipne pri hornom okraji, lebo stránky sú dlhé. */
 .app-nav {
-  display: flex; gap: 2px; flex-wrap: wrap;
-  padding: 0 clamp(12px, 3vw, 32px);
+  position: sticky; top: 0; z-index: 20;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  overflow-x: auto;
+  box-shadow: 0 1px 0 var(--border);
 }
+.nav-row {
+  display: flex; gap: 2px;
+  padding: 0 clamp(12px, 3vw, 32px);
+  overflow-x: auto; scrollbar-width: thin;
+}
+.nav-row-page {
+  background: var(--plane);
+  border-top: 1px solid var(--border);
+  padding-top: 2px; padding-bottom: 2px;
+}
+.nav-row-page[hidden] { display: none; }
 
 .nav-item {
-  padding: 10px 14px;
+  padding: 11px 14px;
   font-size: 0.85rem; font-weight: 600;
   color: var(--ink-muted); text-decoration: none;
   border-bottom: 2px solid transparent;
   white-space: nowrap;
 }
-.nav-item:hover { color: var(--ink-primary); background: color-mix(in oklab, var(--brand) 6%, transparent); }
-.nav-item.is-active { color: var(--ink-primary); border-bottom-color: var(--brand); }
+.nav-item:hover { color: var(--ink-primary); background: color-mix(in oklab, var(--brand) 7%, transparent); }
+.nav-item:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+.nav-group.is-active { color: var(--ink-primary); border-bottom-color: var(--brand); }
+.nav-page {
+  padding: 7px 12px; font-size: 0.82rem; font-weight: 500;
+  border-bottom: 2px solid transparent;
+}
+.nav-page.is-active {
+  color: var(--ink-primary); font-weight: 700;
+  border-bottom-color: var(--brand);
+}
 
 /* ── content ─────────────────────────────────────────────────────────────── */
 
@@ -196,17 +218,32 @@ body {
 }
 .filter-reset { align-self: flex-end; }
 
+/* Dvanásťstĺpcová mriežka. Karta deklaruje, koľko stĺpcov zaberie, a každý
+   riadok stránky dá presne dvanásť — žiadna diera vedľa karty, žiadny roztrhaný
+   riadok. Predtým sa počet stĺpcov odvodzoval z minimálnej šírky (auto-fit) a
+   karta so šírkou „2 z 3" nechávala tretí stĺpec prázdny. */
 .viz-grid {
   display: grid; gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
-  align-items: start;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: stretch;
 }
 .viz-grid.is-refetching { opacity: 0.6; transition: opacity 100ms; }
-.viz-card.span-2 { grid-column: span 2; }
-.viz-card.span-full { grid-column: 1 / -1; }
-@media (max-width: 900px) {
-  .viz-card.span-2 { grid-column: 1 / -1; }
+
+/* Pod 1180 px je každá karta na celý riadok: dva grafy vedľa seba sa na tablete
+   nedajú prečítať, a stohovanie je správna odpoveď, nie zmenšovanie. */
+.viz-card { grid-column: 1 / -1; }
+@media (min-width: 1180px) {
+  .viz-card.span-3  { grid-column: span 3; }
+  .viz-card.span-4  { grid-column: span 4; }
+  .viz-card.span-5  { grid-column: span 5; }
+  .viz-card.span-6  { grid-column: span 6; }
+  .viz-card.span-7  { grid-column: span 7; }
+  .viz-card.span-8  { grid-column: span 8; }
+  .viz-card.span-9  { grid-column: span 9; }
+  .viz-card.span-10 { grid-column: span 10; }
+  .viz-card.span-11 { grid-column: span 11; }
 }
+.viz-card.span-12, .viz-card.span-full { grid-column: 1 / -1; }
 
 /* ── card ────────────────────────────────────────────────────────────────── */
 
@@ -503,6 +540,27 @@ body {
 .viz-legend-item.is-emph { background: color-mix(in oklab, var(--brand) 10%, var(--surface)); }
 
 /* ── provenance & errors ─────────────────────────────────────────────────── */
+
+/* Karta je stĺpec a v riadku sú karty rovnako vysoké (align-items: stretch na
+   mriežke), takže podklady nekončia roztrhane. Zdroj sa NEtlačí na spodok:
+   pribitý na dno vyrábal dieru v strede nižšej karty. Prebytok padne pod obsah a
+   číta sa ako odsadenie. */
+.viz-card { display: flex; flex-direction: column; }
+.viz-card-compact { align-self: start; }
+
+/* Dlhá metodická poznámka sa zbalí. Odznak a zdroj zostávajú viditeľné —
+   provenancia nie je vec na rozkliknutie. */
+/* Vlastný riadok, nie pokračovanie zdrojovej vety: .viz-source je flex a
+   rozbaľovač sa inak prilepil za text na tú istú linku. */
+.viz-source-more { margin-top: 2px; flex-basis: 100%; }
+.viz-source-more-sum {
+  cursor: pointer; width: fit-content;
+  font-size: 0.76rem; font-weight: 600; color: var(--ink-muted);
+  padding: 1px 0;
+}
+.viz-source-more-sum:hover { color: var(--ink-primary); }
+.viz-source-more[open] .viz-source-more-sum { margin-bottom: 3px; }
+.viz-source-more-sum:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 
 .viz-source {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;

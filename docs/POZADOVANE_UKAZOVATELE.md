@@ -249,6 +249,9 @@ reálne), generátor sa toho súboru už nedotkne.
 ## Ďalšie dávky
 
 Píš ďalšie ukazovatele; zapracujem ich rovnako — stránka, graf, syntetické dáta
-kalibrované na to, čo je zverejnené, a vstupný súbor na prepísanie. Až budeme
-mať pohromade, urobíme jeden prechod na usporiadanie navigácie (dnes je v nej 13
-položiek a láme sa do dvoch riadkov) a zlúčime, čo patrí spolu.
+kalibrované na to, čo je zverejnené, a vstupný súbor na prepísanie.
+
+Navigácia je odvtedy usporiadaná: štrnásť stránok je v šiestich sekciách
+(`group` pri stránke v manifeste), sekcie sú v prvom riadku a stránky vybranej
+sekcie v druhom. Nová stránka teda nepredlžuje jeden pruh — pridá sa do sekcie,
+kam patrí.

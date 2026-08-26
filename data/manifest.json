@@ -2,6 +2,36 @@
   "$schema": "./manifest.schema.json",
   "title": "Prehľad dôchodkového systému",
   "subtitle": "Dáta Sociálnej poisťovne — výdavky, počty a priemerné dôchodky",
+  "dimensions": {
+    "pohlavie": {
+      "M": "Muži",
+      "Z": "Ženy"
+    },
+    "kategoria_dochodcu": {
+      "S": "Iba SP",
+      "P": "SP + II. pilier",
+      "C": "SP + cudzina",
+      "V": "SP + výsluhové",
+      "PC": "SP + II. pilier + cudzina",
+      "PV": "SP + II. pilier + výsluhové",
+      "CV": "SP + cudzina + výsluhové",
+      "PCV": "SP + všetky tri"
+    },
+    "stav_dochodkovy": {
+      "Pracujúci": "Pracujúci",
+      "PN (nemocenské)": "PN (nemocenské)",
+      "Neaktívny": "Neaktívny",
+      "Nový vstup": "Nový vstup",
+      "Predčasný sólo": "Predčasný sólo",
+      "Predčasný + vdovský": "Predčasný + vdovský",
+      "Starobný sólo": "Starobný sólo",
+      "Starobný + vdovský": "Starobný + vdovský",
+      "Invalidný sólo": "Invalidný sólo",
+      "Invalidný + vdovský": "Invalidný + vdovský",
+      "Vdovský sólo": "Vdovský sólo",
+      "Zomretí": "Zomretí"
+    }
+  },
   "datasets": {
     "vydavky_mesacne": {
       "file": "data/sp_vydavky_mesacne.csv",
@@ -253,11 +283,13 @@
         },
         "pohlavie": {
           "type": "string",
-          "label": "Muži / Ženy"
+          "label": "Pohlavie (kód M/Z alebo slovom)",
+          "codelist": "pohlavie"
         },
         "kategoria": {
           "type": "string",
-          "label": "Nepretínajúca sa kombinácia: Iba SP / SP + II. pilier / SP + cudzina / SP + výsluhové / SP + II. pilier + cudzina / SP + II. pilier + výsluhové / SP + cudzina + výsluhové / SP + všetky tri"
+          "label": "Nepretínajúca sa kombinácia vlastností, kód: S / P / C / V / PC / PV / CV / PCV (význam kódov je v manifeste v „dimensions\")",
+          "codelist": "kategoria_dochodcu"
         },
         "pocet": {
           "type": "int",
@@ -276,7 +308,26 @@
       "vintage": "2015–2024 (úroveň reálna, rozdelenie modelované)",
       "illustrative": true,
       "badge": "Syntetické dáta",
-      "badgeNote": "Modelové čísla kalibrované na zverejnené súčty SP. Rozdelenie po vekoch, pohlaviach a kategóriách zo SP dodané nie je — až príde, prepíše sa súbor data/vstup/starobni_podla_veku.csv. Najmenej isté sú kombinované kategórie: model ich berie ako nezávislé, len pri výsluhových a II. pilieri predpokladá, že sa vyskytujú spolu zriedkavejšie."
+      "badgeNote": "Modelové čísla kalibrované na zverejnené súčty SP. Rozdelenie po vekoch, pohlaviach a kategóriách zo SP dodané nie je — až príde, prepíše sa súbor data/vstup/starobni_podla_veku.csv. Najmenej isté sú kombinované kategórie: model ich berie ako nezávislé, len pri výsluhových a II. pilieri predpokladá, že sa vyskytujú spolu zriedkavejšie.",
+      "checks": [
+        {
+          "kind": "sum",
+          "column": "pocet",
+          "where": {
+            "rok": 2024
+          },
+          "equalsDataset": {
+            "dataset": "pocty_mesacne",
+            "column": "pocet",
+            "where": {
+              "mesiac": "2024-12",
+              "druh": "Starobný"
+            }
+          },
+          "tolerance": 0.01,
+          "note": "Súčet za rok 2024 musí dať zverejnený stav starobných dôchodkov."
+        }
+      ]
     },
     "doba_poberania": {
       "file": "data/vstup/doba_poberania.csv",
@@ -290,7 +341,8 @@
         },
         "pohlavie": {
           "type": "string",
-          "label": "Muži / Ženy"
+          "label": "Muži / Ženy",
+          "codelist": "pohlavie"
         },
         "priemer_rokov": {
           "type": "number",
@@ -309,7 +361,19 @@
       "vintage": "2000–2024 (modelované)",
       "illustrative": true,
       "badge": "Syntetické dáta",
-      "badgeNote": "Doba poberania je dopočítaná z modelu úmrtnosti a z dôchodkového veku, nie zo štatistiky zomretých dôchodcov. Reálne čísla vedie SP."
+      "badgeNote": "Doba poberania je dopočítaná z modelu úmrtnosti a z dôchodkového veku, nie zo štatistiky zomretých dôchodcov. Reálne čísla vedie SP.",
+      "checks": [
+        {
+          "kind": "sum",
+          "column": "pocet_zomretych",
+          "where": {
+            "rok": 2024
+          },
+          "equals": 45500,
+          "tolerance": 0.03,
+          "note": "Musí sedieť s počtom úmrtí v matici prechodov — dva súbory, jedno číslo."
+        }
+      ]
     },
     "pilier2": {
       "file": "data/vstup/pilier2.csv",
@@ -338,7 +402,19 @@
       "vintage": "2013-12 až 2026-06 (medziročne kotvené, mesačne modelované)",
       "illustrative": true,
       "badge": "Syntetické dáta",
-      "badgeNote": "Koncoročné body sú zverejnené čísla, mesiace medzi nimi sú hladká interpolácia — mesačná volatilita trhu tu chýba, lebo by bola vymyslená."
+      "badgeNote": "Koncoročné body sú zverejnené čísla, mesiace medzi nimi sú hladká interpolácia — mesačná volatilita trhu tu chýba, lebo by bola vymyslená.",
+      "checks": [
+        {
+          "kind": "sum",
+          "column": "pocet_sporitelov",
+          "where": {
+            "mesiac": "2024-12"
+          },
+          "equals": 1949000,
+          "tolerance": 0.005,
+          "note": "Zverejnený stav sporiteľov ku koncu roka 2024 (ADSS)."
+        }
+      ]
     },
     "prezitie_kohort": {
       "file": "data/vstup/prezitie_kohort.csv",
@@ -430,7 +506,26 @@
           "unit": "EUR",
           "decimals": 2
         }
-      }
+      },
+      "checks": [
+        {
+          "kind": "sum",
+          "column": "pocet",
+          "where": {
+            "rok": 2024
+          },
+          "equalsDataset": {
+            "dataset": "pocty_mesacne",
+            "column": "pocet",
+            "where": {
+              "mesiac": "2024-12",
+              "druh": "Starobný"
+            }
+          },
+          "tolerance": 0.005,
+          "note": "Pásma musia spolu dať ten istý stav ako rada počtov."
+        }
+      ]
     },
     "druhy_mesacne": {
       "file": "data/sp_druhy_mesacne.csv",
@@ -485,7 +580,8 @@
         },
         "stav_od": {
           "type": "string",
-          "label": "Stav v roku rok_od"
+          "label": "Stav v roku rok_od",
+          "codelist": "stav_dochodkovy"
         },
         "rok_do": {
           "type": "year",
@@ -493,7 +589,8 @@
         },
         "stav_do": {
           "type": "string",
-          "label": "Stav v roku rok_do (vrátane „Zomretí\")"
+          "label": "Stav v roku rok_do (vrátane „Zomretí\")",
+          "codelist": "stav_dochodkovy"
         },
         "pocet": {
           "type": "int",
@@ -501,7 +598,19 @@
           "unit": "osôb",
           "measure": true
         }
-      }
+      },
+      "checks": [
+        {
+          "kind": "sum",
+          "column": "pocet",
+          "where": {
+            "stav_do": "Zomretí"
+          },
+          "equals": 45500,
+          "tolerance": 0.03,
+          "note": "Úmrtia v matici sa musia rovnať úmrtiam v dobe poberania."
+        }
+      ]
     }
   },
   "pages": [
@@ -513,7 +622,8 @@
         "kpi_prehlad",
         "vydavky_celkom_trend",
         "pocty_celkom_trend"
-      ]
+      ],
+      "group": "Prehľad"
     },
     {
       "id": "vydavky",
@@ -523,7 +633,8 @@
         "vydavky_skladba_mesacne",
         "vydavky_skladba_rocne",
         "vydavky_zmena_wf"
-      ]
+      ],
+      "group": "Výdavky a počty"
     },
     {
       "id": "pocty",
@@ -532,7 +643,8 @@
       "views": [
         "pocty_druhy_trend",
         "dochodky_vs_dochodcovia_trend"
-      ]
+      ],
+      "group": "Výdavky a počty"
     },
     {
       "id": "priemerne",
@@ -541,7 +653,8 @@
       "views": [
         "priemer_druhy_trend",
         "priemer_definicie_tab"
-      ]
+      ],
+      "group": "Výdavky a počty"
     },
     {
       "id": "rozdelenie",
@@ -552,7 +665,8 @@
         "dochodky_kumulativ",
         "dochodky_histogram",
         "dochodky_tabulka"
-      ]
+      ],
+      "group": "Rozdelenie"
     },
     {
       "id": "novopriznane",
@@ -570,7 +684,8 @@
       "views": [
         "priemer_novo_vs_stav_trend",
         "novopriznane_trend"
-      ]
+      ],
+      "group": "Výdavky a počty"
     },
     {
       "id": "sezonnost",
@@ -579,7 +694,8 @@
       "views": [
         "sezonnost_heatmap",
         "sezonnost_3d"
-      ]
+      ],
+      "group": "Výdavky a počty"
     },
     {
       "id": "pohyb",
@@ -590,7 +706,8 @@
         "bublina_druhy",
         "poradie_novo",
         "hora_dochodky"
-      ]
+      ],
+      "group": "Dynamika"
     },
     {
       "id": "demografia",
@@ -601,7 +718,8 @@
         "pyramida_2024",
         "prezitie_krivky",
         "nadej_dozitia_krivky"
-      ]
+      ],
+      "group": "Dynamika"
     },
     {
       "id": "veky_pohlavie",
@@ -626,7 +744,8 @@
         "veky_pyramida",
         "veky_priemer_pohlavie",
         "veky_tabulka"
-      ]
+      ],
+      "group": "Rozdelenie"
     },
     {
       "id": "veky_kategorie",
@@ -662,7 +781,8 @@
         "veky_pocet_kategorie",
         "veky_priemer_kategorie",
         "veky_heatmapa"
-      ]
+      ],
+      "group": "Rozdelenie"
     },
     {
       "id": "doba_poberania",
@@ -671,7 +791,8 @@
       "views": [
         "doba_poberania_trend",
         "doba_poberania_tabulka"
-      ]
+      ],
+      "group": "Dynamika"
     },
     {
       "id": "pilier2",
@@ -680,7 +801,8 @@
       "views": [
         "pilier2_aktiva",
         "pilier2_sporitelia"
-      ]
+      ],
+      "group": "II. pilier"
     },
     {
       "id": "katalog",
@@ -691,7 +813,8 @@
         "tab_pocty",
         "tab_priemer_solo",
         "tab_dochodcovia"
-      ]
+      ],
+      "group": "Dáta"
     }
   ],
   "views": {
@@ -700,7 +823,7 @@
       "title": "Systém v číslach",
       "subtitle": "Posledné dostupné hodnoty. Zmena je proti predchádzajúcemu mesiacu, u ročných hodnôt proti predchádzajúcemu roku.",
       "dataset": "vydavky_rocne",
-      "span": "full",
+      "span": 12,
       "tiles": [
         {
           "label": "Výdavky na dôchodky 2024 (mld. €)",
@@ -843,7 +966,8 @@
       "labels": {
         "mesiac": "Mesiac",
         "mil_eur": "Výdavky (mil. €)"
-      }
+      },
+      "span": 6
     },
     "pocty_celkom_trend": {
       "type": "line",
@@ -877,7 +1001,8 @@
       "labels": {
         "mesiac": "Mesiac",
         "pocet": "Počet dôchodkov"
-      }
+      },
+      "span": 6
     },
     "vydavky_skladba_mesacne": {
       "type": "area-stacked",
@@ -892,7 +1017,7 @@
       "xTickFormat": "month",
       "yLabel": "mil. EUR za mesiac",
       "size": "l",
-      "span": "full",
+      "span": 12,
       "transform": [
         {
           "kind": "rename",
@@ -986,7 +1111,7 @@
         "druh": "Druh dôchodku",
         "mil_eur": "Výdavky (mil. €)"
       },
-      "span": "2"
+      "span": 6
     },
     "vydavky_zmena_wf": {
       "type": "waterfall",
@@ -1000,7 +1125,7 @@
       "decimals": 0,
       "yLabel": "mil. EUR za rok",
       "size": "l",
-      "span": "full",
+      "span": 6,
       "transform": [
         {
           "kind": "derive",
@@ -1032,7 +1157,7 @@
       "xTickFormat": "month",
       "yLabel": "počet dôchodkov",
       "size": "l",
-      "span": "full",
+      "span": 12,
       "labels": {
         "mesiac": "Mesiac",
         "druh": "Druh dôchodku",
@@ -1056,7 +1181,7 @@
         "ukazovatel": "Ukazovateľ",
         "pocet": "Počet"
       },
-      "span": "2"
+      "span": 12
     },
     "novopriznane_trend": {
       "type": "line",
@@ -1074,7 +1199,8 @@
         "mesiac": "Mesiac",
         "druh": "Druh dôchodku",
         "pocet": "Počet"
-      }
+      },
+      "span": 6
     },
     "priemer_druhy_trend": {
       "type": "line",
@@ -1089,7 +1215,7 @@
       "xTickFormat": "month",
       "yLabel": "EUR za mesiac",
       "size": "l",
-      "span": "full",
+      "span": 12,
       "labels": {
         "mesiac": "Mesiac",
         "druh": "Druh dôchodku",
@@ -1120,7 +1246,8 @@
         "druh",
         "kategoria",
         "priemer_eur"
-      ]
+      ],
+      "span": 6
     },
     "priemer_definicie_tab": {
       "type": "table",
@@ -1138,7 +1265,8 @@
         "mesiac": "Mesiac",
         "druh": "Druh dôchodku",
         "priemer_eur": "Priemer"
-      }
+      },
+      "span": 12
     },
     "sezonnost_heatmap": {
       "type": "heatmap",
@@ -1154,7 +1282,7 @@
       "xLabel": "Mesiac",
       "yLabel": "Rok",
       "size": "xl",
-      "span": "full",
+      "span": 12,
       "transform": [
         {
           "kind": "derive",
@@ -1202,7 +1330,7 @@
       "yLabel": "Rok",
       "zLabel": "mil. EUR",
       "size": "xl",
-      "span": "full",
+      "span": 12,
       "transform": [
         {
           "kind": "derive",
@@ -1236,7 +1364,7 @@
       "unit": "tis. osôb",
       "xLabel": "tis. osôb",
       "size": "xl",
-      "span": "2",
+      "span": 6,
       "tableColumns": [
         "vekova_skupina",
         "pohlavie",
@@ -1263,7 +1391,8 @@
         "rok": "Rok",
         "druh": "Druh dôchodku",
         "vydavky_tis_eur": "Výdavky"
-      }
+      },
+      "span": 6
     },
     "tab_pocty": {
       "type": "table",
@@ -1279,7 +1408,8 @@
         "mesiac": "Mesiac",
         "druh": "Druh dôchodku",
         "pocet": "Počet"
-      }
+      },
+      "span": 6
     },
     "tab_priemer_solo": {
       "type": "table",
@@ -1296,7 +1426,8 @@
         "mesiac": "Mesiac",
         "druh": "Druh dôchodku",
         "priemer_eur": "Priemer"
-      }
+      },
+      "span": 6
     },
     "tab_dochodcovia": {
       "type": "table",
@@ -1312,7 +1443,8 @@
         "mesiac": "Mesiac",
         "kategoria": "Kategória",
         "pocet": "Počet"
-      }
+      },
+      "span": 6
     },
     "veky_pyramida": {
       "type": "pyramid",
@@ -1325,7 +1457,7 @@
       "unit": "osôb",
       "xLabel": "osôb",
       "size": "xl",
-      "span": "2",
+      "span": 7,
       "transform": [
         {
           "kind": "expand",
@@ -1488,7 +1620,8 @@
         }
       ],
       "frame": "rok",
-      "frameLabel": "Rok"
+      "frameLabel": "Rok",
+      "span": 5
     },
     "veky_pocet_kategorie": {
       "type": "line",
@@ -1502,7 +1635,7 @@
       "xLabel": "Vek",
       "yLabel": "počet dôchodcov",
       "size": "l",
-      "span": "2",
+      "span": 6,
       "labels": {
         "vek": "Vek",
         "kategoria": "Kategória",
@@ -1545,7 +1678,7 @@
       "xLabel": "Vek",
       "yLabel": "EUR za mesiac",
       "size": "l",
-      "span": "2",
+      "span": 6,
       "labels": {
         "vek": "Vek",
         "kategoria": "Kategória",
@@ -1608,7 +1741,7 @@
       "xLabel": "Kategória",
       "yLabel": "Vek",
       "size": "xl",
-      "span": "full",
+      "span": 12,
       "transform": [
         {
           "kind": "filter",
@@ -1694,7 +1827,7 @@
         "priemer_eur": "Priemer (EUR)",
         "rok": "Rok"
       },
-      "span": "full",
+      "span": 12,
       "transform": [
         {
           "kind": "derive",
@@ -1783,7 +1916,7 @@
       "xTickFormat": "year",
       "yLabel": "rokov",
       "size": "m",
-      "span": "2",
+      "span": 12,
       "labels": {
         "rok": "Rok",
         "pohlavie": "Pohlavie",
@@ -1809,7 +1942,7 @@
         "priemer_rokov": "Doba poberania (rokov)",
         "pocet_zomretych": "Zomretých"
       },
-      "span": "full"
+      "span": 12
     },
     "pilier2_aktiva": {
       "type": "area",
@@ -1830,7 +1963,8 @@
       "labels": {
         "mesiac": "Mesiac",
         "aktiva_mil_eur": "Aktíva (mil. €)"
-      }
+      },
+      "span": 6
     },
     "pilier2_sporitelia": {
       "type": "line",
@@ -1850,7 +1984,8 @@
       "labels": {
         "mesiac": "Mesiac",
         "pocet_sporitelov": "Sporitelia"
-      }
+      },
+      "span": 6
     },
     "prezitie_tiles": {
       "type": "tiles",
@@ -1920,7 +2055,8 @@
           "delta": false,
           "spark": false
         }
-      ]
+      ],
+      "span": 12
     },
     "prezitie_krivky": {
       "type": "line",
@@ -1935,7 +2071,7 @@
       "xLabel": "Vek",
       "yLabel": "% generácie",
       "size": "xl",
-      "span": "2",
+      "span": 6,
       "labels": {
         "vek": "Vek",
         "kohorta": "Generácia",
@@ -1956,7 +2092,7 @@
       "xLabel": "Rok",
       "yLabel": "dožije sa veku",
       "size": "l",
-      "span": "2",
+      "span": 12,
       "transform": [
         {
           "kind": "rename",
@@ -2196,7 +2332,8 @@
           "delta": false,
           "spark": false
         }
-      ]
+      ],
+      "span": 4
     },
     "dochodky_kumulativ": {
       "type": "line",
@@ -2211,7 +2348,7 @@
       "xLabel": "% dôchodcov (zoradených od najnižšieho dôchodku)",
       "yLabel": "% výdavkov",
       "size": "l",
-      "span": "2",
+      "span": 8,
       "transform": [
         {
           "kind": "sort",
@@ -2293,7 +2430,7 @@
       "yLabel": "dôchodkov",
       "xLabel": "Pásmo výšky dôchodku (EUR/mesiac)",
       "size": "xl",
-      "span": "2",
+      "span": 12,
       "transform": [
         {
           "kind": "sort",
@@ -2345,7 +2482,7 @@
         "vydavky_mes_eur": "Výdavky za mesiac (EUR)",
         "rok": "Rok"
       },
-      "span": "full",
+      "span": 12,
       "y": "vydavky_mes_eur",
       "decimals": 0,
       "sortDir": "desc"
@@ -2593,7 +2730,8 @@
           "spark": false,
           "note": "vrátane tých s ďalšou vlastnosťou"
         }
-      ]
+      ],
+      "span": 12
     },
     "bublina_druhy": {
       "type": "bubbles",
@@ -2614,7 +2752,7 @@
       "yLabel": "počet vyplácaných dôchodkov",
       "radiusLabel": "mesačné výdavky (tis. EUR)",
       "size": "xl",
-      "span": "full",
+      "span": 12,
       "transform": [
         {
           "kind": "derive",
@@ -2687,7 +2825,7 @@
       "decimals": 0,
       "xLabel": "novopriznaných dôchodkov za mesiac",
       "size": "l",
-      "span": "2",
+      "span": 6,
       "tableColumns": [
         "mesiac",
         "druh",
@@ -2714,7 +2852,7 @@
       "xLabel": "výška dôchodku (EUR/mesiac)",
       "yLabel": "dôchodkov v pásme",
       "size": "l",
-      "span": "2",
+      "span": 6,
       "frameCorner": "left",
       "transform": [
         {
@@ -2807,7 +2945,7 @@
       "unit": "osôb",
       "decimals": 0,
       "size": "xxl",
-      "span": "full",
+      "span": 12,
       "tableColumns": [
         "stav_od",
         "stav_do",

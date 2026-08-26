@@ -95,6 +95,17 @@
                 "measure": {
                   "type": "boolean",
                   "description": "true = stĺpec je meraná hodnota, nie rozmer. Typ na to nestačí: vek aj počet osôb sú „int\", ale vek riadok identifikuje a počet je hodnota. Používa to `npm run vstup` na kontrolu duplicitných kľúčov a na výpis pokrytia rozmerov."
+                },
+                "codelist": {
+                  "type": "string",
+                  "description": "Odkaz do `dimensions`. Dáta môžu nesť kód alebo názov."
+                },
+                "codes": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "Kódovník len pre tento stĺpec (keď sa nikde inde nepoužíva)."
                 }
               }
             }
@@ -111,6 +122,93 @@
           "badgeNote": {
             "type": "string",
             "description": "Vysvetlenie odznaku (tooltip): čo presne je modelované a čo merané."
+          },
+          "checks": {
+            "type": "array",
+            "description": "Čo musí platiť aj po tom, ako súbor prepíše človek. Beží v `npm run vstup` a v CI. Kontrola mieriaca na neexistujúci stĺpec je chyba validácie — kontrola, ktorá nikdy nebeží, je horšia než žiadna.",
+            "items": {
+              "type": "object",
+              "required": [
+                "kind",
+                "column"
+              ],
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "sum"
+                  ],
+                  "description": "Dnes len súčet stĺpca."
+                },
+                "column": {
+                  "type": "string"
+                },
+                "where": {
+                  "type": "object",
+                  "description": "Filter riadkov, porovnáva sa ako text."
+                },
+                "equals": {
+                  "type": "number",
+                  "description": "Očakávaná hodnota."
+                },
+                "equalsDataset": {
+                  "type": "object",
+                  "description": "Očakávaná hodnota z iného datasetu — krížová kontrola.",
+                  "properties": {
+                    "dataset": {
+                      "type": "string"
+                    },
+                    "column": {
+                      "type": "string"
+                    },
+                    "where": {
+                      "type": "object"
+                    }
+                  }
+                },
+                "tolerance": {
+                  "type": "number",
+                  "default": 0.01,
+                  "description": "Povolená relatívna odchýlka."
+                },
+                "note": {
+                  "type": "string",
+                  "description": "Prečo to musí platiť."
+                }
+              }
+            }
+          },
+          "shape": {
+            "type": "object",
+            "description": "Súbor prichádza naširoko (roky v hlavičke) a prevedie sa na dlhý formát pri NAČÍTANÍ, takže grafy ani transformácie o tom nevedia a ten, kto dáta dodáva, nemusí nič pivotovať.",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "wide"
+                ]
+              },
+              "keep": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Stĺpce, ktoré zostávajú stĺpcami."
+              },
+              "only": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Ak je uvedené, prevedú sa len tieto stĺpce."
+              },
+              "into": {
+                "type": "string",
+                "description": "Názov nového stĺpca s hlavičkou."
+              },
+              "value": {
+                "type": "string",
+                "description": "Názov nového stĺpca s hodnotou."
+              }
+            }
           }
         }
       }
@@ -185,6 +283,10 @@
                 }
               }
             }
+          },
+          "group": {
+            "type": "string",
+            "description": "Sekcia v navigácii. Stránky s tou istou skupinou tvoria jednu sekciu; sekcia s jednou stránkou nemá druhý riadok navigácie."
           }
         }
       }
@@ -327,11 +429,20 @@
             "description": "Polomer bodu v scatter grafe."
           },
           "span": {
-            "enum": [
-              "2",
-              "full"
-            ],
-            "description": "Šírka karty v mriežke."
+            "description": "Koľko z dvanástich stĺpcov mriežky karta zaberie (3–12). Súčet za riadok stránky má dať 12, inak vznikne diera. Staré hodnoty platia: \"full\" = 12, \"2\" = 8. Pod 1180 px je každá karta na celý riadok.",
+            "oneOf": [
+              {
+                "type": "integer",
+                "minimum": 3,
+                "maximum": 12
+              },
+              {
+                "enum": [
+                  "2",
+                  "full"
+                ]
+              }
+            ]
           },
           "curve": {
             "type": "string",
@@ -591,6 +702,16 @@
             "default": 0.42,
             "description": "sankey: krytie stužky."
           }
+        }
+      }
+    },
+    "dimensions": {
+      "type": "object",
+      "description": "Spoločné kódovníky. Dimenzia je definovaná RAZ a stĺpce sa na ňu odvolávajú cez `codelist`. Dáta môžu nesť kód alebo názov; loader kód rozbalí na názov a validácia odmietne čokoľvek iné. Prečo: menej bajtov v súbore, uzavretý slovník (preklep nevyrobí novú kategóriu) a preformulovanie bez dotknutia dát.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
         }
       }
     }

@@ -160,10 +160,48 @@ for (const [id, def] of Object.entries(manifest.datasets || {})) {
     if (!headers[id].has(name))
       err(`dataset "${id}": manifest deklaruje stĺpec "${name}", v ${def.file} nie je (má: ${[...headers[id]].join(', ')})`);
   }
+  // A codelist reference that does not resolve means the column silently keeps
+  // its raw codes on screen — "PCV" in a legend instead of a category name.
+  for (const [name, c] of Object.entries(def.columns || {})) {
+    if (c.codelist && !manifest.dimensions?.[c.codelist])
+      err(`dataset "${id}": stĺpec "${name}" odkazuje na codelist "${c.codelist}", ` +
+          `ktorý v manifeste v "dimensions" nie je`);
+  }
   // provenance is not optional for a public statistics page
   if (!def.source && def.illustrative !== true && def.planned !== true)
     err(`dataset "${id}": chýba "source" — alebo ho označ "illustrative": true`);
   if (!def.unit) warn(`dataset "${id}": chýba "unit", formátovanie čísel padne na predvolené`);
+}
+
+// ── 2b. integrity checks (second pass: every header is known by now) ────────
+// A check that points at a missing dataset or column never runs, and a check
+// that never runs is worse than no check at all: it makes the data look verified.
+// This has to be a separate pass — in the loop above `headers` is only half
+// filled, so a check aimed at a dataset declared further down would skip.
+for (const [id, def] of Object.entries(manifest.datasets || {})) {
+  for (const chk of def.checks || []) {
+    if (chk.kind !== 'sum') { err(`dataset "${id}": neznámy druh kontroly "${chk.kind}"`); continue; }
+    if (!headers[id]) continue;                     // súbor sám už bol nahlásený
+    if (chk.column && !headers[id].has(chk.column))
+      err(`dataset "${id}": kontrola počíta stĺpec "${chk.column}", ktorý v súbore nie je`);
+    for (const k of Object.keys(chk.where || {}))
+      if (!headers[id].has(k))
+        err(`dataset "${id}": kontrola filtruje podľa "${k}", ktorý v súbore nie je`);
+    const ed = chk.equalsDataset;
+    if (ed) {
+      if (!manifest.datasets?.[ed.dataset])
+        err(`dataset "${id}": kontrola odkazuje na neexistujúci dataset "${ed.dataset}"`);
+      else if (!headers[ed.dataset])
+        err(`dataset "${id}": kontrola číta z "${ed.dataset}", ktorý sa nedá prečítať`);
+      else if (!headers[ed.dataset].has(ed.column))
+        err(`dataset "${id}": kontrola číta "${ed.column}" z "${ed.dataset}", tam taký stĺpec nie je`);
+      for (const k of Object.keys(ed.where || {}))
+        if (headers[ed.dataset] && !headers[ed.dataset].has(k))
+          err(`dataset "${id}": kontrola filtruje "${ed.dataset}" podľa "${k}", ktorý tam nie je`);
+    }
+    if (chk.equals == null && !ed)
+      err(`dataset "${id}": kontrola nemá "equals" ani "equalsDataset" — nie je s čím porovnávať`);
+  }
 }
 
 // ── 3. views: required keys, real dataset, real columns ─────────────────────
