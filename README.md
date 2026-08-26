@@ -44,7 +44,8 @@ nad transformáciou `cumsum`. Zdroj dát zostáva tabuľka pásiem, akú zverej�
 Bez grafu: `tiles` (kľúčové čísla) · `table`
 
 Štrnásť stránok v šiestich sekciách (sekcie v prvom riadku navigácie, stránky
-vybranej sekcie v druhom) a žiadna prázdna karta. Deväť beží na reálnych dátach
+vybranej sekcie v druhom; na telefóne namiesto pruhov jedna rozbaľovacia ponuka
+s celou mapou) a žiadna prázdna karta. Deväť beží na reálnych dátach
 Sociálnej poisťovne (prehľad, výdavky, počty, priemerné dôchodky, novopriznané,
 sezónnosť s teplotnou mapou a 3D povrchom, pohyb v čase, demografia, dátový
 katalóg), päť na syntetických (rozdelenie dôchodkov, podľa veku a pohlavia, podľa

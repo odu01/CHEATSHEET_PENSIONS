@@ -348,6 +348,33 @@ Pozor na `size`: to je výška karty (`"s"`, `"m"`, `"l"`, `"xl"`). Stĺpec pre
 veľkosť bubliny je `radius` — rovnaká pasca už raz zabila bodový graf, kde sa
 reťazec `"l"` poslal ako polomer a Plot nenakreslil nič.
 
+### `minWidth`: graf, ktorý sa pod nejakou šírkou už nedá nakresliť
+
+Väčšina grafov sa prispôsobí akejkoľvek šírke. Niektorý nie: prúdový diagram
+dvanástich stavov nesie názvy po oboch stranách a na telefóne (366 px vnútri
+karty) sa nezmestia ani pri najlepšej vôli — pri zmenšovaní by sa buď odrezali,
+alebo by z diagramu zostal pás bez identity.
+
+```json
+{ "type": "sankey", "minWidth": 660, … }
+```
+
+Čo to urobí: karta graf nakreslí v tejto šírke a **plocha grafu sa posúva nabok
+v rámci karty** (vlastný posuvník, s vetou pod grafom — posúvanie musí byť
+povedané, nie objavené). Stránka sa nabok neposúva, čo `npm run shots` overuje.
+Nad `minWidth` sa nedeje nič, takže na monitore je to bez účinku.
+
+Kedy áno a kedy nie:
+
+- **áno** — diagram, ktorého šírku určujú štítky (prúdový diagram, poradie s
+  dlhými názvami kategórií);
+- **nie** — čiarový, plošný či stĺpcový graf. Tie sa zmenšujú bez straty; posun
+  nabok by len sťažil čítanie niečoho, čo sa prečítať dalo.
+
+Poistka, ktorá platí vždy: keď sa štítok do žľabu nezmestí, skráti sa výpustkou
+(`Predčasný + vdo…`) a celý názov drží bublina aj `aria-label`. Odrezaný text za
+okrajom karty je chyba, ktorú `npm run shots` zastaví.
+
 ## 8. Filtre nad stránkou
 
 Jeden riadok filtrov nad všetkými kartami; filtruje všetky naraz, takže čísla si

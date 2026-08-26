@@ -11,6 +11,9 @@ import { resetTokens, activeMode } from './lib/theme.js';
 import { applyTransforms } from './lib/transform.js';
 
 const MANIFEST_URL = 'data/manifest.json';
+// Rovnaká hranica je v style.css (--nav-wide / media query). Nad ňou sú dva
+// pruhy, pod ňou rozbaľovacia ponuka.
+const NAV_WIDE = 780;
 
 const state = {
   manifest: null,
@@ -89,8 +92,8 @@ function groupsOf(pages) {
 
 function buildNav() {
   const nav = $('nav');
-  nav.replaceChildren();
   const groups = groupsOf(state.manifest.pages || []);
+  state.navGroups = groups;
 
   const top = document.createElement('div');
   top.className = 'nav-row nav-row-group';
@@ -100,21 +103,140 @@ function buildNav() {
     a.href = '#' + encodeURIComponent(g.pages[0].id);
     a.textContent = g.name;
     a.dataset.group = g.name;
-    nav.appendChild(a);
     top.appendChild(a);
   }
-  nav.replaceChildren(top);
 
   const sub = document.createElement('div');
   sub.className = 'nav-row nav-row-page';
-  nav.appendChild(sub);
+
+  nav.replaceChildren(buildNavToggle(), top, sub, buildNavMenu(groups));
   state.navSub = sub;
-  state.navGroups = groups;
+  wireNavMenu();
+}
+
+/**
+ * Phone navigation: one button that says where you are, one panel with the whole
+ * map.
+ *
+ * The two desktop strips do not survive a 390 px viewport — the sections row
+ * needed 645 px and the pages row 513 px, so they scrolled sideways with no
+ * affordance and "II. pilier" and "Dáta" were simply not there for a phone
+ * reader. Widening or shrinking them does not help: fourteen labels in Slovak do
+ * not fit a phone at a readable size. So on small screens the strips are replaced
+ * outright by a disclosure panel that shows all six sections with their pages at
+ * once — one tap to see the whole site, one to go.
+ *
+ * Only one of the two navigations is ever displayed (`display: none` on the
+ * other), so a screen reader is never offered the same fourteen links twice.
+ */
+function buildNavToggle() {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'nav-toggle';
+  btn.setAttribute('aria-expanded', 'false');
+  btn.setAttribute('aria-controls', 'navMenu');
+  btn.setAttribute('aria-label', 'Otvoriť ponuku stránok');
+
+  const icon = document.createElement('span');
+  icon.className = 'nav-toggle-icon';
+  icon.setAttribute('aria-hidden', 'true');
+  icon.textContent = '\u2630';                 // ☰
+
+  const text = document.createElement('span');
+  text.className = 'nav-toggle-text';
+  const g = document.createElement('span');
+  g.className = 'nav-toggle-group';
+  const p = document.createElement('span');
+  p.className = 'nav-toggle-page';
+  text.append(g, p);
+
+  const caret = document.createElement('span');
+  caret.className = 'nav-toggle-caret';
+  caret.setAttribute('aria-hidden', 'true');
+  caret.textContent = '\u25be';                // ▾
+
+  btn.append(icon, text, caret);
+  state.navToggle = btn;
+  return btn;
+}
+
+function buildNavMenu(groups) {
+  const menu = document.createElement('div');
+  menu.className = 'nav-menu';
+  menu.id = 'navMenu';
+  menu.hidden = true;
+  for (const g of groups) {
+    const sec = document.createElement('section');
+    sec.className = 'nav-menu-group';
+    const h = document.createElement('p');
+    h.className = 'nav-menu-title';
+    h.textContent = g.name;
+    const list = document.createElement('div');
+    list.className = 'nav-menu-list';
+    for (const page of g.pages) {
+      const a = document.createElement('a');
+      a.className = 'nav-menu-page';
+      a.href = '#' + encodeURIComponent(page.id);
+      a.textContent = page.label;
+      a.dataset.menuPage = page.id;
+      if (page.hint) {
+        const hint = document.createElement('span');
+        hint.className = 'nav-menu-hint';
+        hint.textContent = page.hint;
+        a.appendChild(hint);
+      }
+      list.appendChild(a);
+    }
+    sec.append(h, list);
+    menu.appendChild(sec);
+  }
+  state.navMenu = menu;
+  return menu;
+}
+
+/** Open/close the phone panel. One place, so every closing path agrees. */
+function setNavMenu(open) {
+  const menu = state.navMenu, btn = state.navToggle;
+  if (!menu || !btn) return;
+  menu.hidden = !open;
+  btn.setAttribute('aria-expanded', String(open));
+  btn.setAttribute('aria-label', open ? 'Zavrieť ponuku stránok' : 'Otvoriť ponuku stránok');
+  btn.classList.toggle('is-open', open);
+}
+
+function wireNavMenu() {
+  const nav = $('nav');
+  state.navToggle.addEventListener('click', () =>
+    setNavMenu(state.navToggle.getAttribute('aria-expanded') !== 'true'));
+
+  // Tapping the page you are already on does not change the hash, so nothing
+  // would close the panel — close it here rather than relying on the router.
+  state.navMenu.addEventListener('click', e => {
+    if (e.target.closest('a')) setNavMenu(false);
+  });
+
+  nav.addEventListener('keydown', e => {
+    if (e.key !== 'Escape' || state.navMenu.hidden) return;
+    setNavMenu(false);
+    state.navToggle.focus();
+  });
+
+  // A tap outside the panel is a dismissal, not navigation.
+  document.addEventListener('pointerdown', e => {
+    if (!state.navMenu.hidden && !nav.contains(e.target)) setNavMenu(false);
+  });
+
+  // Rotating to landscape swaps to the desktop strips; the panel is then hidden
+  // by CSS, and aria-expanded must not keep claiming it is open.
+  window.matchMedia?.(`(min-width: ${NAV_WIDE}px)`).addEventListener('change', ev => {
+    if (ev.matches) setNavMenu(false);
+  });
 }
 
 function markNav() {
   const groups = state.navGroups || [];
   const active = groups.find(g => g.pages.some(p => p.id === state.pageId));
+  markNavMenu(active);
 
   for (const a of $('nav').querySelectorAll('.nav-group')) {
     const on = a.dataset.group === active?.name;
@@ -142,6 +264,25 @@ function markNav() {
       a.setAttribute('aria-current', 'page');
     }
     sub.appendChild(a);
+  }
+}
+
+/** The phone button has to say where you are; the panel has to show it too. */
+function markNavMenu(active) {
+  setNavMenu(false);                     // navigating away closes the panel
+  const btn = state.navToggle;
+  if (btn) {
+    const page = active?.pages.find(p => p.id === state.pageId);
+    btn.querySelector('.nav-toggle-group').textContent = active?.name || '';
+    // A section with a single page names it the same as itself; printing the
+    // label twice would just look like a bug.
+    btn.querySelector('.nav-toggle-page').textContent =
+      page && page.label !== active.name ? page.label : '';
+  }
+  for (const a of state.navMenu?.querySelectorAll('.nav-menu-page') || []) {
+    const on = a.dataset.menuPage === state.pageId;
+    a.classList.toggle('is-active', on);
+    if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   }
 }
 
@@ -370,9 +511,10 @@ function initTheme() {
   if (saved === 'light' || saved === 'dark') document.documentElement.dataset.theme = saved;
   const btn = $('themeToggle');
   const sync = () => {
-    const mode = activeMode();
-    btn.textContent = mode === 'dark' ? '☀ Svetlý režim' : '☾ Tmavý režim';
-    btn.setAttribute('aria-label', mode === 'dark' ? 'Prepnúť na svetlý režim' : 'Prepnúť na tmavý režim');
+    const dark = activeMode() === 'dark';
+    $('themeIcon').textContent = dark ? '☀' : '☾';
+    $('themeText').textContent = dark ? 'Svetlý režim' : 'Tmavý režim';
+    btn.setAttribute('aria-label', dark ? 'Prepnúť na svetlý režim' : 'Prepnúť na tmavý režim');
   };
   sync();
   btn.addEventListener('click', async () => {

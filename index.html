@@ -38,9 +38,17 @@
     </div>
   </div>
 
+  <!-- Ikona a slovo sú oddelené, aby sa na telefóne dalo skryť slovo a nie
+       tlačidlo: prístupné meno drží aria-label, takže z čítačky nezmizne nič. -->
   <div class="header-tools">
-    <button type="button" id="reloadBtn" class="viz-btn ghost" title="Znova načítať dátové súbory bez obnovenia stránky">↻ Načítať dáta</button>
-    <button type="button" id="themeToggle" class="viz-btn ghost">☾ Tmavý režim</button>
+    <button type="button" id="reloadBtn" class="viz-btn ghost icon-btn"
+            title="Znova načítať dátové súbory bez obnovenia stránky"
+            aria-label="Znova načítať dátové súbory">
+      <span class="btn-icon" aria-hidden="true">↻</span><span class="btn-text">Načítať dáta</span>
+    </button>
+    <button type="button" id="themeToggle" class="viz-btn ghost icon-btn">
+      <span class="btn-icon" id="themeIcon" aria-hidden="true">☾</span><span class="btn-text" id="themeText">Tmavý režim</span>
+    </button>
   </div>
 </header>
 

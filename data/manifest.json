@@ -2889,6 +2889,7 @@
     },
     "prechody_sankey": {
       "type": "sankey",
+      "minWidth": 660,
       "title": "Kto sa kam presunul medzi rokmi 2024 a 2025",
       "subtitle": "Šírka prúdu je počet osôb. Vidno to, čo zo stavov vidieť nie je: 88 % ľudí zostalo tam, kde bolo, a zvyšok sa presunul po cestách, ktoré určuje zákon — predčasný sa v dôchodkovom veku preklopí na starobný, invalidný tiež, a vdovský sólo je najčastejšie len prechodná stanica.",
       "dataset": "prechody",

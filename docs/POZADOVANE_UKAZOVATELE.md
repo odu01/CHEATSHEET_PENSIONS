@@ -254,4 +254,7 @@ kalibrované na to, čo je zverejnené, a vstupný súbor na prepísanie.
 Navigácia je odvtedy usporiadaná: štrnásť stránok je v šiestich sekciách
 (`group` pri stránke v manifeste), sekcie sú v prvom riadku a stránky vybranej
 sekcie v druhom. Nová stránka teda nepredlžuje jeden pruh — pridá sa do sekcie,
-kam patrí.
+kam patrí. Pod 780 px pruhy ustúpia rozbaľovacej ponuke, ktorá ukáže všetky
+sekcie aj ich stránky naraz: dva vodorovné pruhy sa na telefón nezmestili a
+posúvali sa nabok bez toho, aby to bolo vidieť — dve sekcie tak na telefóne
+neexistovali.

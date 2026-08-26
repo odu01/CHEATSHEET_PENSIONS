@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// screenshots.mjs — render every page in both modes; screenshot and/or assert.
+// screenshots.mjs — render every page in every target; screenshot and/or assert.
 //
 // Two jobs in one script:
 //   --check   fail the build on any console error, page error, failed request or
@@ -10,7 +10,11 @@
 //             eyeballed — the palette validator checks colour, not layout, so
 //             label collisions and overflow still need a human look.
 //
-// Usage: node tools/screenshots.mjs [--check] [--port 8123]
+// Every page is rendered three times: desktop light, desktop dark and a phone.
+// The phone is not a nicety — under 780 px the navigation and the grid behave
+// differently, so it is a different page and needs its own pass.
+//
+// Usage: node tools/screenshots.mjs [--check] [--port 8123] [--only mobile]
 
 import { spawn } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, existsSync } from 'node:fs';
@@ -23,6 +27,13 @@ const args = process.argv.slice(2);
 const CHECK_ONLY = args.includes('--check');
 const PORT = Number(args[args.indexOf('--port') + 1]) || 8137;
 const BASE = `http://127.0.0.1:${PORT}`;
+const ONLY = args.includes('--only') ? args[args.indexOf('--only') + 1] : null;
+
+const TARGETS = [
+  { name: 'light',  colorScheme: 'light', viewport: { width: 1440, height: 1000 } },
+  { name: 'dark',   colorScheme: 'dark',  viewport: { width: 1440, height: 1000 } },
+  { name: 'mobile', colorScheme: 'light', viewport: { width: 390, height: 844 }, phone: true },
+].filter(t => !ONLY || t.name === ONLY);
 
 const { chromium } = await import('playwright').catch(() => {
   console.error('Chýba playwright. Nainštaluj: npm install playwright && npx playwright install chromium');
@@ -66,12 +77,15 @@ function chromiumPath() {
 const browser = await chromium.launch({ executablePath: chromiumPath() });
 
 try {
-  for (const mode of ['light', 'dark']) {
+  for (const target of TARGETS) {
+    const mode = target.name;
     const ctx = await browser.newContext({
-      viewport: { width: 1440, height: 1000 },
+      viewport: target.viewport,
       deviceScaleFactor: 2,
-      colorScheme: mode,
+      colorScheme: target.colorScheme,
       locale: 'sk-SK',
+      isMobile: !!target.phone,
+      hasTouch: !!target.phone,
     });
     // Stamp the theme BEFORE the first navigation. Setting it afterwards and
     // reloading cancels whatever was in flight — which showed up as a spurious
@@ -79,7 +93,7 @@ try {
     // Only localStorage here: an init script runs before the document exists, so
     // document.documentElement is still null. app.js stamps data-theme from this
     // value on boot, which is the same path a real visitor takes.
-    await ctx.addInitScript(m => localStorage.setItem('rrz-theme', m), mode);
+    await ctx.addInitScript(m => localStorage.setItem('rrz-theme', m), target.colorScheme);
 
     const page = await ctx.newPage();
 
@@ -183,18 +197,40 @@ try {
           const title = svg.closest('.viz-card')?.querySelector('.viz-card-title')?.textContent || '?';
           const unlabelled = [...flows].filter(f => !f.getAttribute('aria-label')).length;
           if (unlabelled) out.push(`${title}: ${unlabelled} prúdov bez aria-label`);
-          // Every label must stay inside the card — a clipped node name is a bug
-          // the palette validator cannot see.
-          const box = svg.closest('.viz-card').getBoundingClientRect();
+          // Every label must stay inside the DRAWING — a clipped node name is a
+          // bug the palette validator cannot see. The reference is the svg, not
+          // the card: an over-wide diagram may pan inside its own stage, and a
+          // label that is merely scrolled out of view is reachable, while one
+          // outside the svg box is cut off by it for good.
+          const box = svg.getBoundingClientRect();
           const clipped = [...svg.querySelectorAll('text')].filter(tx => {
             const r = tx.getBoundingClientRect();
             return r.width > 0 && (r.left < box.left - 1 || r.right > box.right + 1);
           }).length;
-          if (clipped) out.push(`${title}: ${clipped} štítkov preteká kartu`);
+          if (clipped) out.push(`${title}: ${clipped} štítkov preteká plochu grafu`);
         }
         return out;
       });
       for (const f of flowCheck) problems.push(`[${mode}] ${id}: ${f}`);
+
+      // A drawing wider than its stage is fine only if the stage scrolls. Without
+      // that it is the phone-navigation bug again: content that exists, cannot be
+      // reached, and says nothing about it.
+      const unreachable = await page.evaluate(() => {
+        const out = [];
+        for (const stage of document.querySelectorAll('.viz-stage')) {
+          if (stage.scrollWidth <= stage.clientWidth + 2) continue;
+          const ox = getComputedStyle(stage).overflowX;
+          const title = stage.closest('.viz-card')?.querySelector('.viz-card-title')?.textContent || '?';
+          if (ox !== 'auto' && ox !== 'scroll')
+            out.push(`${title} (${stage.scrollWidth} > ${stage.clientWidth}, overflow-x: ${ox})`);
+          else if (stage.closest('.viz-card').querySelector('.viz-pan-hint[hidden]'))
+            out.push(`${title}: posúva sa, ale bez upozornenia`);
+        }
+        return out;
+      });
+      for (const u of unreachable)
+        problems.push(`[${mode}] ${id}: graf je širší než plocha a nedá sa doscrollovať — ${u}`);
 
       // a chart wider than its card means the layout overflows
       const overflow = await page.evaluate(() => {
@@ -207,6 +243,8 @@ try {
         return out;
       });
       for (const o of overflow) problems.push(`[${mode}] ${id}: karta preteká — ${o}`);
+
+      if (target.phone) await checkPhone(page, id, problems, !CHECK_ONLY);
 
       if (!CHECK_ONLY) {
         await page.screenshot({ path: join(OUT, `${id}-${mode}.png`), fullPage: true });
@@ -222,9 +260,76 @@ try {
   server.kill();
 }
 
+/**
+ * What can only break on a phone.
+ *
+ * The horizontal strips were the actual bug: at 390 px the section row needed
+ * 645 px and scrolled sideways with nothing to say so, which silently hid two
+ * whole sections. A test for "does it overflow" would have caught it, so here it
+ * is — plus the panel that replaced it has to open, list every page, and close on
+ * Escape, because a navigation you cannot close is worse than none.
+ */
+async function checkPhone(page, id, problems, shoot) {
+  const m = await page.evaluate(() => {
+    const strips = [];
+    for (const row of document.querySelectorAll('.nav-row')) {
+      if (!row.getClientRects().length) continue;          // display:none = fine
+      if (row.scrollWidth > row.clientWidth + 2)
+        strips.push(`${row.className} (${row.scrollWidth} > ${row.clientWidth})`);
+    }
+    const t = document.querySelector('.nav-toggle');
+    return {
+      strips,
+      docWidth: document.documentElement.scrollWidth,
+      winWidth: window.innerWidth,
+      toggle: t && t.getClientRects().length ? (t.textContent || '').trim() : null,
+      headerH: Math.round(document.querySelector('.app-header').getBoundingClientRect().height),
+    };
+  });
+
+  for (const st of m.strips)
+    problems.push(`[mobile] ${id}: navigačný pruh preteká bez ovládania — ${st}`);
+  if (m.docWidth > m.winWidth + 2)
+    problems.push(`[mobile] ${id}: stránka sa posúva nabok (${m.docWidth} > ${m.winWidth})`);
+  if (!m.toggle)
+    problems.push(`[mobile] ${id}: chýba tlačidlo ponuky stránok`);
+  // A quarter of a 844 px screen spent on a header nobody reads twice.
+  if (m.headerH > 120)
+    problems.push(`[mobile] ${id}: hlavička je vysoká ${m.headerH} px`);
+
+  await page.locator('.nav-toggle').click();
+  const open = await page.evaluate(() => ({
+    expanded: document.querySelector('.nav-toggle')?.getAttribute('aria-expanded'),
+    hidden: document.querySelector('.nav-menu')?.hidden,
+    links: document.querySelectorAll('.nav-menu-page').length,
+    active: document.querySelectorAll('.nav-menu-page.is-active').length,
+    clipped: [...document.querySelectorAll('.nav-menu-page')]
+      .filter(a => a.scrollWidth > a.clientWidth + 2).length,
+  }));
+  if (open.expanded !== 'true' || open.hidden)
+    problems.push(`[mobile] ${id}: ponuka sa neotvorila (aria-expanded=${open.expanded})`);
+  if (open.links !== pages.length)
+    problems.push(`[mobile] ${id}: ponuka ukazuje ${open.links} z ${pages.length} stránok`);
+  if (open.active !== 1)
+    problems.push(`[mobile] ${id}: v ponuke je ${open.active} označených stránok, má byť práve jedna`);
+  if (open.clipped)
+    problems.push(`[mobile] ${id}: ${open.clipped} názvov v ponuke je odrezaných`);
+
+  // One picture of the open panel is worth having; fourteen identical ones are not.
+  if (shoot && id === pages[0]) {
+    await page.screenshot({ path: join(OUT, 'nav-menu-mobile.png') });
+    console.log('  screenshots/nav-menu-mobile.png');
+  }
+
+  await page.keyboard.press('Escape');
+  const stillOpen = await page.evaluate(() => !document.querySelector('.nav-menu')?.hidden);
+  if (stillOpen) problems.push(`[mobile] ${id}: ponuka sa nezavrela klávesom Escape`);
+}
+
 if (problems.length) {
   console.error(`\n${problems.length} problémov:`);
   for (const p of problems) console.error('  ' + p);
   process.exit(1);
 }
-console.log('\nVšetky stránky sa vykreslili v oboch režimoch bez chýb.');
+console.log(`\nVšetky stránky sa vykreslili bez chýb v ${TARGETS.length} prostrediach: ` +
+  `${TARGETS.map(t => t.name).join(', ')}.`);

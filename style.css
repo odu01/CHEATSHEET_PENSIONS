@@ -140,6 +140,36 @@ body {
 
 .header-tools { display: flex; gap: 8px; flex-wrap: wrap; }
 
+/* Na telefóne hlavička brala 270 z 844 px: názov sa lámal na dva riadky a obe
+   tlačidlá padali do vlastného radu. Zostane jeden rad — z tlačidiel len ikona
+   (prístupné meno drží aria-label), podtitul ustúpi, lebo to isté hovorí úvod
+   každej stránky.
+
+   Prvá hranica je 900 px, nie 780: značka s podtitulom má 483 px, tlačidlá so
+   slovami 274, a to sa do 790 px nezmestí — tlačidlá padli do druhého radu a
+   hlavička narástla na 119 px práve tam, kde na to bolo najmenej miesta. */
+@media (max-width: 899px) {
+  .app-header { flex-wrap: nowrap; gap: 12px; }
+  .header-tools { flex: none; flex-wrap: nowrap; gap: 6px; }
+  .icon-btn .btn-text { display: none; }
+  .icon-btn { padding: 8px 10px; }
+  .icon-btn .btn-icon { font-size: 1rem; }
+}
+
+@media (max-width: 779px) {
+  .app-header { padding: 9px clamp(12px, 3vw, 32px); gap: 10px; }
+  .brand { gap: 10px; }
+  .brand-logo { height: 24px; }
+  .brand h1 { font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brand-sub { display: none; }
+}
+
+/* Na najužších obrazovkách sa názov radšej zlomí do dvoch riadkov, než aby z
+   neho výpustka zjedla posledné slovo — dva riadky sú 20 px, nie 270. */
+@media (max-width: 520px) {
+  .brand h1 { white-space: normal; font-size: 0.9rem; line-height: 1.2; }
+}
+
 /* ── nav ─────────────────────────────────────────────────────────────────── */
 
 /* Dva riadky: sekcie a stránky vybranej sekcie. Štrnásť rovnocenných položiek
@@ -180,6 +210,80 @@ body {
 .nav-page.is-active {
   color: var(--ink-primary); font-weight: 700;
   border-bottom-color: var(--brand);
+}
+
+/* ── nav na telefóne: pruhy ustúpia jednému tlačidlu a ponuke ────────────── */
+
+/* Dva vodorovné pruhy 390 px viewport neprežijú — pruh sekcií potreboval 645 px
+   a pruh stránok 513 px, takže sa posúvali nabok bez akéhokoľvek naznačenia a
+   „II. pilier" a „Dáta" na telefóne jednoducho neboli. Zmenšovať netreba:
+   štrnásť slovenských názvov sa do telefónu v čitateľnej veľkosti nezmestí.
+   Pod hranicou preto pruhy zmiznú úplne a nahradí ich rozbaľovacia ponuka s
+   celou mapou webu. Vždy je zobrazená len jedna z dvoch navigácií, takže
+   čítačka nedostane tie isté odkazy dvakrát. */
+.nav-toggle, .nav-menu { display: none; }
+
+@media (max-width: 779px) {
+  .nav-row-group, .nav-row-page { display: none; }
+
+  .nav-toggle {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 9px clamp(12px, 3vw, 32px);
+    font: inherit; text-align: left; cursor: pointer;
+    color: var(--ink-primary); background: var(--surface); border: 0;
+  }
+  .nav-toggle:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+  .nav-toggle-icon { flex: none; font-size: 1.05rem; color: var(--ink-muted); }
+  .nav-toggle-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+  .nav-toggle-group {
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--brand);
+  }
+  .nav-toggle-page {
+    font-size: 0.92rem; font-weight: 650; line-height: 1.3;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  /* sekcia s jedinou stránkou sa menuje rovnako ako ona — netreba to písať dvakrát */
+  .nav-toggle-page:empty { display: none; }
+  .nav-toggle-caret { flex: none; color: var(--ink-muted); transition: transform 120ms; }
+  .nav-toggle.is-open .nav-toggle-caret { transform: rotate(180deg); }
+
+  .nav-menu:not([hidden]) { display: block; }
+  .nav-menu {
+    padding: 2px clamp(12px, 3vw, 32px) 12px;
+    background: var(--plane);
+    border-top: 1px solid var(--border);
+    /* vyššia než obrazovka byť môže, len sa musí dať doscrollovať. dvh, nie vh:
+       na telefóne je vh výška BEZ panela prehliadača, takže s vh by spodok
+       ponuky skončil pod ním a posledná stránka by sa nedala vybrať. */
+    max-height: calc(100vh - 128px);
+    max-height: calc(100dvh - 128px);
+    overflow-y: auto;
+    box-shadow: 0 14px 22px -14px rgb(0 0 0 / 30%);
+  }
+  .nav-menu-title {
+    padding: 10px 2px 4px;
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--ink-muted);
+  }
+  .nav-menu-list { display: grid; gap: 2px; }
+  .nav-menu-page {
+    display: block; padding: 9px 12px; border-radius: 8px;
+    font-size: 0.9rem; font-weight: 600; line-height: 1.3;
+    color: var(--ink-secondary); text-decoration: none;
+    border-left: 3px solid transparent;
+  }
+  .nav-menu-page:hover { background: color-mix(in oklab, var(--brand) 8%, transparent); }
+  .nav-menu-page:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+  .nav-menu-page.is-active {
+    color: var(--ink-primary);
+    border-left-color: var(--brand);
+    background: color-mix(in oklab, var(--brand) 10%, transparent);
+  }
+  .nav-menu-hint {
+    display: block; margin-top: 1px;
+    font-size: 0.74rem; font-weight: 500; color: var(--ink-muted);
+  }
 }
 
 /* ── content ─────────────────────────────────────────────────────────────── */
@@ -267,6 +371,13 @@ body {
    the card never grows an inner scrollbar. */
 .viz-stage { position: relative; width: 100%; }
 .viz-stage svg { display: block; max-width: 100%; height: auto; }
+
+/* Graf so vlastnou dolnou hranicou šírky (prúdový diagram) sa posúva v rámci
+   karty, nie so stránkou: vodorovný posun celej stránky je chyba, posun jedného
+   grafu je funkcia. */
+.viz-stage-pan { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; }
+.viz-pan-hint { font-size: 0.72rem; color: var(--ink-muted); margin-top: 4px; }
+.viz-pan-hint[hidden] { display: none; }
 .viz-3d { width: 100%; }
 
 /* ── hover layer ─────────────────────────────────────────────────────────── */
@@ -464,6 +575,8 @@ body {
 .viz-btn:hover { background: color-mix(in oklab, var(--brand) 8%, var(--surface)); }
 .viz-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 .viz-btn.ghost { background: transparent; }
+.icon-btn { display: inline-flex; align-items: center; gap: 6px; }
+.icon-btn .btn-icon { font-size: 0.9rem; line-height: 1; }
 
 /* ── frame: time as a slider ─────────────────────────────────────────────── */
 /* Ovládanie času patrí ku karte, nie k stránke: je to os grafu, nie filtr. */

@@ -213,6 +213,10 @@ for (const [id, v] of Object.entries(views)) {
   for (const key of req) if (v[key] == null) err(`view "${id}" (${v.type}): chýba povinný kľúč "${key}"`);
 
   if (!v.title) warn(`view "${id}": chýba "title"`);
+  // Dolná hranica šírky prepína plochu do posúvateľného režimu, takže preklep
+  // („minWidth": "660") by graf ticho nechal na šírke okna.
+  if (v.minWidth != null && (typeof v.minWidth !== 'number' || v.minWidth < 280))
+    err(`view "${id}": "minWidth" má byť číslo aspoň 280 (je ${JSON.stringify(v.minWidth)})`);
   if (!v.dataset) continue;
   if (!manifest.datasets?.[v.dataset]) { err(`view "${id}": dataset "${v.dataset}" nie je v manifeste`); continue; }
   const cols = headers[v.dataset];
