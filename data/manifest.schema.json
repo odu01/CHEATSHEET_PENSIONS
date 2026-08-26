@@ -211,6 +211,9 @@
               "scatter",
               "heatmap",
               "pyramid",
+              "mountain",
+              "barrank",
+              "bubbles",
               "waterfall",
               "surface3d",
               "scatter3d",
@@ -462,6 +465,57 @@
                 }
               }
             }
+          },
+          "frame": {
+            "type": "string",
+            "description": "Stĺpec, ktorý sa stane posuvníkom času: graf kreslí jednu snímku a čas sa posúva ovládaním na karte. Škály sa počítajú zo VŠETKÝCH snímok, takže prehrávanie hýbe značkami, nikdy nie osami. Nič sa nespustí samo a pri prefers-reduced-motion sa prehrávanie ani neponúkne."
+          },
+          "frameLabel": {
+            "type": "string",
+            "description": "Názov ovládania času pre čítačky obrazovky."
+          },
+          "frameCorner": {
+            "enum": [
+              "left",
+              "right"
+            ],
+            "default": "right",
+            "description": "Kam sa umiestni veľký priesvitný nápis so snímkou."
+          },
+          "trail": {
+            "type": "boolean",
+            "description": "bubbles + frame: dokreslí cestu, po ktorej sa bublina dostala tam, kde je. Bez nej animácia zabúda, čo bolo, a práve cesta je to zaujímavé."
+          },
+          "ghost": {
+            "type": "boolean",
+            "description": "mountain + frame: predchádzajúce snímky ako bledé obrysy, takže na konci prehrávania je celá cesta na obrazovke naraz."
+          },
+          "radius": {
+            "type": "string",
+            "description": "bubbles: stĺpec, ktorý určuje veľkosť bubliny. NIE `size` — to je výška karty (\"s\"/\"m\"/\"l\"/\"xl\")."
+          },
+          "radiusLabel": {
+            "type": "string",
+            "description": "Čo veľkosť bubliny znamená (do poznámky)."
+          },
+          "maxRadius": {
+            "type": "number",
+            "default": 34,
+            "description": "Polomer najväčšej bubliny v px."
+          },
+          "xScale": {
+            "enum": [
+              "linear",
+              "log"
+            ],
+            "description": "bubbles: typ vodorovnej škály. Logaritmická vtedy, keď je jedna entita o rád väčšia než ostatné — inak sa menšie zlepia pri dne. Graf to sám napíše do poznámky."
+          },
+          "yScale": {
+            "enum": [
+              "linear",
+              "log"
+            ],
+            "description": "bubbles: typ zvislej škály."
           }
         }
       }

@@ -152,6 +152,27 @@ try {
       for (const g of glyphs)
         problems.push(`[${mode}] ${id}: Plot vykreslil výstražnú značku do grafu — "${g}"`);
 
+      // An animated card must actually have its control: a view that declares a
+      // frame but renders no slider is a silent loss of a whole dimension.
+      // Nothing is played here — the screenshot has to be reproducible, so every
+      // animated card is captured on its last frame, which is also what a
+      // visitor sees before touching anything.
+      const frameCheck = await page.evaluate(() => {
+        const out = [];
+        for (const card of document.querySelectorAll('.viz-card')) {
+          const host = card.querySelector('.viz-frame-host');
+          if (!host) continue;
+          const hasCtl = !!host.querySelector('.viz-frame-slider');
+          const hasMark = !!card.querySelector('.viz-frame-mark');
+          if (hasCtl !== hasMark)
+            out.push((card.querySelector('.viz-card-title')?.textContent || '?') +
+              ` (posuvník ${hasCtl}, nápis ${hasMark})`);
+        }
+        return out;
+      });
+      for (const f of frameCheck)
+        problems.push(`[${mode}] ${id}: nekonzistentné ovládanie času — ${f}`);
+
       // a chart wider than its card means the layout overflows
       const overflow = await page.evaluate(() => {
         const out = [];

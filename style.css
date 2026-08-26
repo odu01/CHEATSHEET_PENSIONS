@@ -409,6 +409,80 @@ body {
 .viz-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 .viz-btn.ghost { background: transparent; }
 
+/* ── frame: time as a slider ─────────────────────────────────────────────── */
+/* Ovládanie času patrí ku karte, nie k stránke: je to os grafu, nie filtr. */
+
+.viz-frame-host:empty { display: none; }
+.viz-frame {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 2px 2px;
+}
+.viz-frame-play, .viz-frame-step {
+  font: inherit; font-size: 0.8rem; line-height: 1;
+  width: 28px; height: 28px; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 6px; cursor: pointer;
+  color: var(--ink-primary);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+}
+.viz-frame-play { font-size: 0.72rem; }
+.viz-frame-play:hover, .viz-frame-step:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--brand) 10%, var(--surface));
+}
+.viz-frame-play:focus-visible, .viz-frame-step:focus-visible,
+.viz-frame-slider:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.viz-frame-step:disabled { opacity: 0.35; cursor: default; }
+
+.viz-frame-slider {
+  flex: 1 1 auto; min-width: 80px; height: 28px;
+  margin: 0; padding: 0;
+  background: transparent; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+}
+.viz-frame-slider::-webkit-slider-runnable-track {
+  height: 3px; border-radius: 2px; background: var(--axis);
+}
+.viz-frame-slider::-moz-range-track {
+  height: 3px; border-radius: 2px; background: var(--axis);
+}
+.viz-frame-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 15px; height: 15px; margin-top: -6px;
+  border-radius: 50%; background: var(--brand);
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--border-strong);
+}
+.viz-frame-slider::-moz-range-thumb {
+  width: 15px; height: 15px;
+  border-radius: 50%; background: var(--brand);
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--border-strong);
+}
+.viz-frame-value {
+  flex: 0 0 auto; min-width: 8ch; text-align: right;
+  font-size: 0.8rem; font-weight: 700; color: var(--ink-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Veľká priesvitná hodnota snímky v grafe — jediné, čo pri prehrávaní hovorí,
+   ktorý okamih je na obrazovke, a jediná stopa po čase na screenshote. */
+.viz-frame-mark {
+  position: absolute; bottom: 34px;
+  font-size: clamp(2.2rem, 7vw, 4.6rem);
+  font-weight: 800; line-height: 1;
+  letter-spacing: -0.02em;
+  color: color-mix(in oklab, var(--ink-primary) 12%, transparent);
+  pointer-events: none; user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+.viz-frame-mark-right { right: 18px; }
+.viz-frame-mark-left  { left: 62px; }
+
+/* Zdôraznenie série z legendy: podržanie alebo fokus vytiahne jednu sériu
+   dopredu a ostatné potlačí. Nič sa neskrýva — len sa ustúpi. */
+.viz-legend-item.is-emph { background: color-mix(in oklab, var(--brand) 10%, var(--surface)); }
+
 /* ── provenance & errors ─────────────────────────────────────────────────── */
 
 .viz-source {

@@ -272,8 +272,8 @@
           "decimals": 2
         }
       },
-      "source": "Syntetické dáta (tools/gen_vstup.py) — kalibrované na počet starobných dôchodkov 1 134 690 a priemerný starobný dôchodok 683,10 € k 31. 12. 2024 (Sociálna poisťovňa); profil po vekoch z modelu úmrtnosti, podiely vlastností a ich kombinácií sú odhad",
-      "vintage": "2022–2024 (modelované)",
+      "source": "Syntetické dáta (tools/gen_vstup.py) — počet dôchodkov a priemer za každý rok sú reálne decembrové hodnoty Sociálnej poisťovne (2024: 1 134 690 dôchodkov, 683,10 €); rozdelenie po vekoch je z modelu úmrtnosti, podiely vlastností a ich kombinácií sú odhad",
+      "vintage": "2015–2024 (úroveň reálna, rozdelenie modelované)",
       "illustrative": true,
       "badge": "Syntetické dáta",
       "badgeNote": "Modelové čísla kalibrované na zverejnené súčty SP. Rozdelenie po vekoch, pohlaviach a kategóriách zo SP dodané nie je — až príde, prepíše sa súbor data/vstup/starobni_podla_veku.csv. Najmenej isté sú kombinované kategórie: model ich berie ako nezávislé, len pri výsluhových a II. pilieri predpokladá, že sa vyskytujú spolu zriedkavejšie."
@@ -398,12 +398,12 @@
       "file": "data/vstup/dochodky_pasma.csv",
       "label": "Starobné dôchodky podľa výšky",
       "unit": "dôchodkov",
-      "source": "Syntetické dáta (tools/gen_vstup.py) — rozdelenie kalibrované na štyri zverejnené čísla SP k 31. 12. 2024: 1 134 690 starobných dôchodkov, priemer 683,10 €, 107 131 dôchodkov nad 1 000 €, 84 693 poberateľov minimálneho dôchodku; horný chvost na 469 dôchodkov nad 2 000 € a 50 nad 2 500 €",
-      "vintage": "2024 (modelované na zverejnené súčty)",
+      "source": "Syntetické dáta (tools/gen_vstup.py) — tvar rozdelenia kalibrovaný na štyri zverejnené čísla SP k 31. 12. 2024: 1 134 690 starobných dôchodkov, priemer 683,10 €, 107 131 dôchodkov nad 1 000 €, 84 693 poberateľov minimálneho dôchodku; horný chvost na 469 nad 2 000 € a 50 nad 2 500 €. Ostatné roky majú reálny decembrový počet a priemer, rozdelenie sa posúva s nimi",
+      "vintage": "2015–2024 (súčty reálne, tvar rozdelenia modelovaný)",
       "illustrative": true,
       "badge": "Syntetické dáta",
       "badgeNote": "Presné počty po pásmach SP v priložených zošitoch nezverejňuje. Model drží všetky zverejnené súčty a medzi nimi interpoluje — až príde reálna tabuľka pásiem, prepíše sa data/vstup/dochodky_pasma.csv.",
-      "note": "Jeden riadok = pásmo výšky dôchodku. Z počtu a priemeru za pásmo si web dopočíta kumulatívnu distribúciu výdavkov. Reálne dáta majú v pásme 390–600 € špičku — tam sa dorovnáva minimálny dôchodok.",
+      "note": "Jeden riadok = rok × pásmo výšky dôchodku. Z počtu a priemeru za pásmo si web dopočíta kumulatívnu distribúciu výdavkov. Medzi rokmi sa krivka len posúva podľa toho, ako rástol priemer — reálne rozdelenie sa aj mierne rozťahuje, to model nevie. Reálne dáta majú v pásme 390–600 € špičku: tam sa dorovnáva minimálny dôchodok.",
       "columns": {
         "rok": {
           "type": "year",
@@ -429,6 +429,42 @@
           "label": "Priemerný dôchodok v pásme, EUR/mes. (ak nie je, stred pásma)",
           "unit": "EUR",
           "decimals": 2
+        }
+      }
+    },
+    "druhy_mesacne": {
+      "file": "data/sp_druhy_mesacne.csv",
+      "label": "Druhy dôchodku mesačne: počet, priemer, výdavky",
+      "unit": "osôb, EUR, tis. EUR",
+      "source": "Sociálna poisťovňa — mesačná rada výdavkov, počtov a priemerných dôchodkov (hotovostná metodika), spojená do jedného riadku",
+      "vintage": "2012-01 až 2026-04",
+      "note": "Priemer je hotovostný (aritmetický priemer sólo a kráteného dôchodku), lebo pokrýva rovnaký rad ako počty. Sólo priemer je iná definícia a do jedného grafu s ním nepatrí. Počet × priemer nedá presne výdavky — výdavky obsahujú doplatky za spätne priznané dôchodky; import vypisuje odchýlku za každý druh.",
+      "columns": {
+        "mesiac": {
+          "type": "month",
+          "label": "Mesiac"
+        },
+        "druh": {
+          "type": "string",
+          "label": "Druh dôchodku"
+        },
+        "pocet": {
+          "type": "int",
+          "label": "Počet vyplácaných dôchodkov",
+          "unit": "dôchodkov",
+          "measure": true
+        },
+        "priemer_eur": {
+          "type": "number",
+          "label": "Priemerná výška, EUR/mesiac",
+          "unit": "EUR",
+          "decimals": 2
+        },
+        "vydavky_tis_eur": {
+          "type": "number",
+          "label": "Výdavky za mesiac, tis. EUR",
+          "unit": "tis. EUR",
+          "decimals": 0
         }
       }
     }
@@ -511,6 +547,16 @@
       ]
     },
     {
+      "id": "pohyb",
+      "label": "Pohyb v čase",
+      "description": "Tri grafy, ktoré nemajú statickú verziu: čas je v nich osou, ktorú si posúvaš. Škály sú pevné pre celý rad — keď sa niečo v grafe zväčší, zväčšilo sa to v dátach, nie na osi. Nič sa nespustí samo.",
+      "views": [
+        "bublina_druhy",
+        "poradie_novo",
+        "hora_dochodky"
+      ]
+    },
+    {
       "id": "demografia",
       "label": "Demografia",
       "description": "Demografia, z ktorej vyplýva všetko ostatné: koľko ľudí je v akom veku, aká časť generácie sa dožije dôchodku a ako dlho ho potom poberá.",
@@ -524,20 +570,8 @@
     {
       "id": "veky_pohlavie",
       "label": "Podľa veku a pohlavia",
-      "description": "Starobní dôchodcovia po vekoch a podľa pohlavia. Filter vyberá vlastnosť dôchodcu — a berie ju marginálne: „sporiteľ v II. pilieri\" znamená všetkých sporiteľov, aj tých, ktorí majú navyše dôchodok z cudziny. Preto sa tieto skupiny nedajú sčítať do celku; celok je na stránke Podľa kategórie. Čísla sú syntetické, kým SP nedodá rozpad po vekoch.",
+      "description": "Starobní dôchodcovia po vekoch a podľa pohlavia, rok po roku — posuvníkom alebo ▶. Filter vyberá vlastnosť dôchodcu a berie ju marginálne: „sporiteľ v II. pilieri\" znamená všetkých sporiteľov, aj tých, ktorí majú navyše dôchodok z cudziny. Preto sa tieto skupiny nedajú sčítať do celku; celok je na stránke Podľa kategórie. Čísla sú syntetické, kým SP nedodá rozpad po vekoch.",
       "filters": [
-        {
-          "dataset": "starobni_veky",
-          "column": "rok",
-          "label": "Rok",
-          "default": 2024,
-          "required": true,
-          "values": [
-            2022,
-            2023,
-            2024
-          ]
-        },
         {
           "dataset": "starobni_veky",
           "column": "znak",
@@ -1247,7 +1281,7 @@
     "veky_pyramida": {
       "type": "pyramid",
       "title": "Starobní dôchodcovia podľa veku a pohlavia",
-      "subtitle": "Počet dôchodcov s vybranou vlastnosťou, vrátane tých, ktorí majú aj ďalšiu. Vek je zoskupený do 5-ročných pásiem.",
+      "subtitle": "Počet dôchodcov s vybranou vlastnosťou, vrátane tých, ktorí majú aj ďalšiu. Vek je zoskupený do 5-ročných pásiem; roky sa prepínajú posuvníkom.",
       "dataset": "starobni_veky",
       "y": "vekova_skupina",
       "value": "pocet",
@@ -1324,7 +1358,9 @@
         "vekova_skupina": "Vek",
         "pohlavie": "Pohlavie",
         "pocet": "Počet"
-      }
+      },
+      "frame": "rok",
+      "frameLabel": "Rok"
     },
     "veky_priemer_pohlavie": {
       "type": "line",
@@ -1414,7 +1450,9 @@
             "n": "pocet"
           }
         }
-      ]
+      ],
+      "frame": "rok",
+      "frameLabel": "Rok"
     },
     "veky_pocet_kategorie": {
       "type": "line",
@@ -1454,7 +1492,9 @@
           "value": "pocet",
           "as": "sum"
         }
-      ]
+      ],
+      "frame": "rok",
+      "frameLabel": "Rok"
     },
     "veky_priemer_kategorie": {
       "type": "line",
@@ -1515,12 +1555,14 @@
             "n": "pocet"
           }
         }
-      ]
+      ],
+      "frame": "rok",
+      "frameLabel": "Rok"
     },
     "veky_heatmapa": {
       "type": "heatmap",
       "title": "Počet dôchodcov: vekové pásmo × kategória",
-      "subtitle": "Bez kategórie „Iba SP\" — tá je o rád väčšia než ostatné a stlačila by celú škálu na jednu farbu.",
+      "subtitle": "Stav k roku 2024, bez kategórie „Iba SP\" — tá je o rád väčšia než ostatné a stlačila by celú škálu na jednu farbu.",
       "dataset": "starobni_veky",
       "x": "kategoria",
       "y": "vekova_skupina",
@@ -1532,6 +1574,12 @@
       "size": "xl",
       "span": "full",
       "transform": [
+        {
+          "kind": "filter",
+          "where": {
+            "rok": 2024
+          }
+        },
         {
           "kind": "filter",
           "where": {
@@ -1590,9 +1638,10 @@
     },
     "veky_tabulka": {
       "type": "table",
-      "title": "Dôchodcovia s vybranou vlastnosťou podľa veku",
+      "title": "Dôchodcovia s vybranou vlastnosťou podľa roku a veku",
       "dataset": "starobni_veky",
       "tableColumns": [
+        "rok",
         "vek",
         "pohlavie",
         "znak",
@@ -1600,13 +1649,14 @@
         "priemer_eur"
       ],
       "unit": "osôb",
-      "sortKey": "vek",
+      "sortKey": "rok",
       "labels": {
         "vek": "Vek",
         "pohlavie": "Pohlavie",
         "znak": "Vlastnosť",
         "pocet": "Počet",
-        "priemer_eur": "Priemer (EUR)"
+        "priemer_eur": "Priemer (EUR)",
+        "rok": "Rok"
       },
       "span": "full",
       "transform": [
@@ -1662,6 +1712,7 @@
         {
           "kind": "aggregate",
           "by": [
+            "rok",
             "vek",
             "pohlavie",
             "znak"
@@ -1680,7 +1731,8 @@
             "n": "pocet"
           }
         }
-      ]
+      ],
+      "sortDir": "desc"
     },
     "doba_poberania_trend": {
       "type": "line",
@@ -1891,7 +1943,7 @@
     "dochodky_tiles": {
       "type": "tiles",
       "title": "Ako sú výdavky na dôchodky rozdelené",
-      "subtitle": "Hranice pásiem sú tie, ktoré zverejňuje Sociálna poisťovňa, takže podiely sedia presne na okraj pásma.",
+      "subtitle": "Stav k roku 2024. Hranice pásiem sú tie, ktoré zverejňuje Sociálna poisťovňa, takže podiely sedia presne na okraj pásma.",
       "dataset": "dochodky_pasma",
       "unit": "%",
       "decimals": 1,
@@ -1901,6 +1953,12 @@
           "value": "pocet_kum_pct",
           "agg": "max",
           "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "rok": 2024
+              }
+            },
             {
               "kind": "sort",
               "by": "od_eur",
@@ -1945,6 +2003,12 @@
           "agg": "max",
           "transform": [
             {
+              "kind": "filter",
+              "where": {
+                "rok": 2024
+              }
+            },
+            {
               "kind": "sort",
               "by": "od_eur",
               "dir": "asc"
@@ -1987,6 +2051,12 @@
           "value": "zvysok_osob",
           "agg": "min",
           "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "rok": 2024
+              }
+            },
             {
               "kind": "sort",
               "by": "od_eur",
@@ -2039,6 +2109,12 @@
           "agg": "min",
           "transform": [
             {
+              "kind": "filter",
+              "where": {
+                "rok": 2024
+              }
+            },
+            {
               "kind": "sort",
               "by": "od_eur",
               "dir": "asc"
@@ -2089,7 +2165,7 @@
     "dochodky_kumulativ": {
       "type": "line",
       "title": "Kumulatívna distribúcia výdavkov na starobné dôchodky",
-      "subtitle": "Dôchodcovia sú zoradení od najnižšieho dôchodku. Čím bližšie je krivka k priamke, tým rovnomernejšie sú výdavky rozdelené.",
+      "subtitle": "Dôchodcovia sú zoradení od najnižšieho dôchodku. Čím bližšie je krivka k priamke, tým rovnomernejšie sú výdavky rozdelené. Posuvníkom sa dá prejsť desať rokov.",
       "dataset": "dochodky_pasma",
       "x": "pocet_kum_pct",
       "y": "hodnota",
@@ -2165,12 +2241,14 @@
         "pocet_kum_pct": "% dôchodcov",
         "kategoria": "Séria",
         "hodnota": "% výdavkov"
-      }
+      },
+      "frame": "rok",
+      "frameLabel": "Rok"
     },
     "dochodky_histogram": {
       "type": "bar",
       "title": "Počet starobných dôchodkov podľa výšky",
-      "subtitle": "Rozdelenie je stlačené: väčšina dôchodkov leží v troch stovkách eur okolo priemeru, nad 2 000 € je ich niekoľko stoviek z 1,13 milióna.",
+      "subtitle": "Rozdelenie je stlačené: väčšina dôchodkov leží v troch stovkách eur okolo priemeru. Os je pevná pre všetky roky, takže pohyb pri prehrávaní je pohyb v dátach.",
       "dataset": "dochodky_pasma",
       "x": "pasmo",
       "y": "pocet",
@@ -2196,14 +2274,16 @@
         "pasmo": "Pásmo (EUR)",
         "pocet": "Počet dôchodkov",
         "priemer_eur": "Priemer v pásme (EUR)"
-      }
+      },
+      "frame": "rok",
+      "frameLabel": "Rok"
     },
     "dochodky_tabulka": {
       "type": "table",
       "title": "Starobné dôchodky podľa pásiem výšky",
       "dataset": "dochodky_pasma",
       "unit": "EUR",
-      "sortKey": "od_eur",
+      "sortKey": "rok",
       "transform": [
         {
           "kind": "derive",
@@ -2216,6 +2296,7 @@
         }
       ],
       "tableColumns": [
+        "rok",
         "pasmo",
         "pocet",
         "priemer_eur",
@@ -2225,16 +2306,18 @@
         "pasmo": "Pásmo (EUR)",
         "pocet": "Počet dôchodkov",
         "priemer_eur": "Priemer v pásme (EUR)",
-        "vydavky_mes_eur": "Výdavky za mesiac (EUR)"
+        "vydavky_mes_eur": "Výdavky za mesiac (EUR)",
+        "rok": "Rok"
       },
       "span": "full",
       "y": "vydavky_mes_eur",
-      "decimals": 0
+      "decimals": 0,
+      "sortDir": "desc"
     },
     "veky_znaky_tiles": {
       "type": "tiles",
       "title": "Koľko dôchodcov má ktorú vlastnosť",
-      "subtitle": "Marginálne počty za vybrané pohlavie a rok: každý dôchodca je v tej skupine, ktorej vlastnosť má, aj keď má aj ďalšiu. Súčet týchto štyroch čísel je preto vyšší než počet dôchodcov — o kombinácie.",
+      "subtitle": "Stav k roku 2024 za vybrané pohlavie: každý dôchodca je v tej skupine, ktorej vlastnosť má, aj keď má aj ďalšiu. Súčet týchto štyroch čísel je preto vyšší než počet dôchodcov — o kombinácie.",
       "dataset": "starobni_veky",
       "unit": "osôb",
       "decimals": 0,
@@ -2244,6 +2327,12 @@
           "value": "pocet",
           "agg": "sum",
           "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "rok": 2024
+              }
+            },
             {
               "kind": "expand",
               "column": "kategoria",
@@ -2296,6 +2385,12 @@
           "value": "pocet",
           "agg": "sum",
           "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "rok": 2024
+              }
+            },
             {
               "kind": "expand",
               "column": "kategoria",
@@ -2350,6 +2445,12 @@
           "agg": "sum",
           "transform": [
             {
+              "kind": "filter",
+              "where": {
+                "rok": 2024
+              }
+            },
+            {
               "kind": "expand",
               "column": "kategoria",
               "into": "znak",
@@ -2403,6 +2504,12 @@
           "agg": "sum",
           "transform": [
             {
+              "kind": "filter",
+              "where": {
+                "rok": 2024
+              }
+            },
+            {
               "kind": "expand",
               "column": "kategoria",
               "into": "znak",
@@ -2451,6 +2558,160 @@
           "note": "vrátane tých s ďalšou vlastnosťou"
         }
       ]
+    },
+    "bublina_druhy": {
+      "type": "bubbles",
+      "title": "Kam sa druhy dôchodku pohli za 14 rokov",
+      "subtitle": "Vodorovne priemerný dôchodok, zvisle počet vyplácaných dôchodkov (logaritmicky), veľkosť bubliny sú mesačné výdavky. Stlač ▶ a bublina si ťahá za sebou svoju cestu.",
+      "dataset": "druhy_mesacne",
+      "x": "priemer_eur",
+      "y": "pocet",
+      "radius": "vydavky_tis_eur",
+      "series": "druh",
+      "label": "druh",
+      "frame": "mesiac",
+      "trail": true,
+      "maxRadius": 40,
+      "unit": "dôchodkov",
+      "xUnit": "EUR",
+      "xLabel": "Priemerný dôchodok (EUR/mesiac)",
+      "yLabel": "počet vyplácaných dôchodkov",
+      "radiusLabel": "mesačné výdavky (tis. EUR)",
+      "size": "xl",
+      "span": "full",
+      "transform": [
+        {
+          "kind": "derive",
+          "into": "objem",
+          "expr": "n * p",
+          "vars": {
+            "n": "pocet",
+            "p": "priemer_eur"
+          }
+        },
+        {
+          "kind": "rename",
+          "column": "druh",
+          "map": {
+            "Starobný": "Starobné",
+            "Predčasný starobný": "Starobné",
+            "Invalidný": "Invalidné",
+            "Vdovský": "Pozostalostné",
+            "Vdovecký": "Pozostalostné"
+          }
+        },
+        {
+          "kind": "aggregate",
+          "by": [
+            "mesiac",
+            "druh"
+          ],
+          "values": {
+            "pocet": "sum",
+            "objem": "sum",
+            "vydavky_tis_eur": "sum"
+          }
+        },
+        {
+          "kind": "derive",
+          "into": "priemer_eur",
+          "expr": "o / n",
+          "vars": {
+            "o": "objem",
+            "n": "pocet"
+          }
+        }
+      ],
+      "tableColumns": [
+        "mesiac",
+        "druh",
+        "pocet",
+        "priemer_eur",
+        "vydavky_tis_eur"
+      ],
+      "labels": {
+        "mesiac": "Mesiac",
+        "druh": "Skupina",
+        "pocet": "Počet",
+        "priemer_eur": "Priemer (EUR)",
+        "vydavky_tis_eur": "Výdavky (tis. €)"
+      },
+      "note": "Päť druhov je zlúčených na tri skupiny: farba je pri bublinách all-pairs úloha a nad tri odtiene ich čitateľ nerozlíši. Priemer skupiny je vážený počtom.",
+      "yScale": "log"
+    },
+    "poradie_novo": {
+      "type": "barrank",
+      "title": "Ktorý dôchodok sa v danom mesiaci priznával najviac",
+      "subtitle": "Stĺpce si počas prehrávania menia poradie. Farba drží druh dôchodku, nie pozíciu — inak by sa pri každej výmene prebarvili a nedalo by sa nič sledovať.",
+      "dataset": "novopriznane",
+      "x": "druh",
+      "y": "pocet",
+      "frame": "mesiac",
+      "unit": "dôchodkov",
+      "decimals": 0,
+      "xLabel": "novopriznaných dôchodkov za mesiac",
+      "size": "l",
+      "span": "2",
+      "tableColumns": [
+        "mesiac",
+        "druh",
+        "pocet"
+      ],
+      "labels": {
+        "mesiac": "Mesiac",
+        "druh": "Druh dôchodku",
+        "pocet": "Novopriznané"
+      }
+    },
+    "hora_dochodky": {
+      "type": "mountain",
+      "title": "Ako sa rozdelenie dôchodkov posúvalo doprava",
+      "subtitle": "Rozdelenie starobných dôchodkov podľa výšky, rok po roku. Bledé obrysy sú predchádzajúce roky — na konci prehrávania je celá desaťročná cesta naraz.",
+      "dataset": "dochodky_pasma",
+      "x": "od_eur",
+      "y": "pocet",
+      "frame": "rok",
+      "ghost": true,
+      "unit": "dôchodkov",
+      "xUnit": "EUR",
+      "decimals": 0,
+      "xLabel": "výška dôchodku (EUR/mesiac)",
+      "yLabel": "dôchodkov v pásme",
+      "size": "l",
+      "span": "2",
+      "frameCorner": "left",
+      "transform": [
+        {
+          "kind": "filter",
+          "where": {
+            "od_eur": {
+              "gte": 300,
+              "lt": 2500
+            }
+          }
+        },
+        {
+          "kind": "sort",
+          "by": [
+            "rok",
+            "od_eur"
+          ]
+        }
+      ],
+      "tableColumns": [
+        "rok",
+        "pasmo",
+        "pocet",
+        "priemer_eur"
+      ],
+      "labels": {
+        "rok": "Rok",
+        "pasmo": "Pásmo (EUR)",
+        "od_eur": "Od (EUR)",
+        "pocet": "Počet dôchodkov",
+        "priemer_eur": "Priemer v pásme (EUR)"
+      },
+      "note": "Zobrazené je pásmo 300–2 500 €, teda rovnomerne delená časť rozdelenia; krajné pásma majú inú šírku a na hore by ich výška klamala."
     }
   }
 }

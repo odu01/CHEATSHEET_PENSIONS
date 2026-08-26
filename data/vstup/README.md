@@ -93,6 +93,10 @@ Kotvy sú vypísané v `tools/gen_vstup.py` v sekcii 1, každá s prameňom. Zhr
 - starobné dôchodky k 31. 12. 2024: 1 134 690 dôchodkov, priemer 683,10 €,
   107 131 nad 1 000 €, 469 nad 2 000 €, 50 nad 2 500 €, 84 693 poberateľov
   minimálneho dôchodku (389,90 €)
+- roky 2015–2023 nie sú odhad: počet dôchodkov a priemer za každý december
+  generátor **prečíta z reálnych radov** v `data/` (`sp_pocty_mesacne.csv`,
+  `sp_priemer_mesacne.csv`), takže úroveň každého roku je číslo SP a model dopĺňa
+  len tvar rozdelenia. Preto má animácia cez desať rokov čo ukázať.
 - II. pilier: 14,1 mld. € a 1 838 665 sporiteľov ku koncu 2023, 1 949 000
   sporiteľov ku koncu 2024, 19,1 mld. € ku koncu 2025, 21,57 mld. € v 06/2026
 - rozdelenie dôchodkov je stlačené: OECD uvádza Gini starobných príjmov v SR

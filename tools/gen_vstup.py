@@ -117,6 +117,43 @@ NARODENI = {1925: 105_000, 1930: 108_000, 1935: 102_000, 1940: 98_000,
             2005: 54_000, 2010: 61_000, 2015: 56_000, 2020: 57_000}
 
 
+def real_december(name: str, druh: str, column: str) -> dict:
+    """Decembrové hodnoty z reálnej mesačnej rady v data/.
+
+    Syntetické súbory sa tým prestávajú vznášať: úroveň každého roku je reálne
+    číslo Sociálnej poisťovne a model dopĺňa len tvar rozdelenia. Bez toho by
+    animácia cez desať rokov ukazovala pohyb, ktorý si vymyslel model.
+    """
+    out = {}
+    with (ROOT / "data" / name).open(encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            if row["druh"] != druh or not row["mesiac"].endswith("-12"):
+                continue
+            out[int(row["mesiac"][:4])] = float(row[column])
+    if not out:
+        raise SystemExit(f"gen_vstup: v {name} nie sú decembrové hodnoty pre {druh}")
+    return out
+
+
+# Reálne decembrové stavy starobných dôchodkov a hotovostný priemer za ne.
+# Priemer sa používa len ako POMER medzi rokmi — hladina roku 2024 zostáva
+# zverejnený sólo priemer 683,10 €. Pomer je definične neutrálny (tá istá
+# populácia, tá istá metodika), takže sa dá preniesť na inú definíciu hladiny.
+POCTY_SD = real_december("sp_pocty_mesacne.csv", "Starobný", "pocet")
+PRIEMER_CASH = real_december("sp_priemer_mesacne.csv", "Starobný", "priemer_eur")
+
+# Roky, za ktoré sa generujú vekové a pásmové rozdelenia — desať rokov stačí,
+# aby mala animácia čo ukázať, a všetky majú reálnu kotvu.
+ROKY = [r for r in range(2015, 2025) if r in POCTY_SD and r in PRIEMER_CASH]
+
+
+def rok_uroven(rok: int) -> tuple[int, float]:
+    """(počet dôchodkov, priemerný dôchodok) pre daný rok."""
+    pocet = int(round(POCTY_SD[rok]))
+    priemer = PRIEMER_SD_2024 * PRIEMER_CASH[rok] / PRIEMER_CASH[2024]
+    return pocet, priemer
+
+
 def interp(anchors: dict, x: float) -> float:
     """Lineárna interpolácia medzi kotvami, mimo rozsahu drží krajnú hodnotu."""
     keys = sorted(anchors)
@@ -420,23 +457,31 @@ def gen_dochodky_pasma() -> None:
             wsum += d
         return s / wsum if wsum > 0 else (lo + top) / 2.0
 
-    counts, means = [], []
-    for i in range(len(edges) - 1):
-        lo, hi = edges[i], edges[i + 1]
-        counts.append((cdf(hi) - cdf(lo)) * POCET_SD_2024)
-        means.append(mean_between(lo, hi))
-
-    # Zaokrúhlenie tak, aby súčet presne sedel na zverejnený stav.
-    scale = POCET_SD_2024 / sum(counts)
-    ints = [int(round(c * scale)) for c in counts]
-    ints[ints.index(max(ints))] += POCET_SD_2024 - sum(ints)
-
+    # Rovnaké rozdelenie pre desať rokov: pásma zostávajú, mení sa len úroveň.
+    # Dôchodok x € v roku 2024 zodpovedá x × (priemer roku / priemer 2024), takže
+    # celá krivka sa posúva doprava tak, ako rástol priemer — nič viac sa
+    # nepredpokladá. Reálne rozdelenie sa pritom aj mierne rozťahuje; to model
+    # nevie a nepredstiera. Počty za rok sú reálne decembrové stavy SP.
     rows = []
-    for i in range(len(edges) - 1):
-        lo, hi = edges[i], edges[i + 1]
-        label = (f"do {edges[1]:.0f}" if i == 0 else
-                 f"{lo:.0f} a viac" if hi > 1e8 else f"{lo:.0f}\u2013{hi:.0f}")
-        rows.append([2024, label, int(lo), ints[i], r2(means[i])])
+    for rok in ROKY:
+        total_rok, priemer_rok = rok_uroven(rok)
+        ratio = priemer_rok / PRIEMER_SD_2024
+        counts, means = [], []
+        for i in range(len(edges) - 1):
+            lo, hi = edges[i], edges[i + 1]
+            counts.append((cdf(hi / ratio) - cdf(lo / ratio)) * total_rok)
+            means.append(mean_between(lo / ratio, hi / ratio) * ratio)
+        scale = total_rok / sum(counts)
+        ints = [int(round(c * scale)) for c in counts]
+        ints[ints.index(max(ints))] += total_rok - sum(ints)
+        for i in range(len(edges) - 1):
+            lo, hi = edges[i], edges[i + 1]
+            label = (f"do {edges[1]:.0f}" if i == 0 else
+                     f"{lo:.0f} a viac" if hi > 1e8 else f"{lo:.0f}\u2013{hi:.0f}")
+            rows.append([rok, label, int(lo), ints[i], r2(means[i])])
+        if rok == 2024:
+            ints24, means24 = ints, means
+    ints, means = ints24, means24
 
     # Kontrolné súčty. Ak model prestane držať kotvy, skript spadne tu.
     assert sum(ints) == POCET_SD_2024, f"súčet pásiem {sum(ints)}"
@@ -456,7 +501,9 @@ def gen_dochodky_pasma() -> None:
 
 
 
-ROKY_VEKY = [2022, 2023, 2024]
+# Vekové rozdelenie za rovnakých desať rokov ako pásma — animácia
+# pyramídy potom má čo ukázať a každý rok má reálnu úroveň.
+ROKY_VEKY = ROKY
 VEK_MIN, VEK_MAX = 60, 95
 
 # Vlastnosti starobného dôchodcu, ktoré sa môžu kombinovať. Podiel je
@@ -567,7 +614,7 @@ def gen_starobni_podla_veku() -> None:
     for rok in ROKY_VEKY:
         # celkový počet dôchodkov v danom roku — 2024 je kotva, staršie roky
         # medziročne mierne nižšie (rada počtov na webe rastie ~0,8 % r/r)
-        total_target = POCET_SD_2024 * (1.0 - 0.008 * (2024 - rok))
+        total_target = float(rok_uroven(rok)[0])
         raw: dict[tuple[int, str], float] = {}
         for sex in ("Muži", "Ženy"):
             key = "muzi" if sex == "Muži" else "zeny"
@@ -617,7 +664,7 @@ def gen_starobni_podla_veku() -> None:
     for rok in ROKY_VEKY:
         sub = [r for r in rows if r[0] == rok]
         avg = sum(r[4] * r[5] for r in sub) / sum(r[4] for r in sub)
-        target = PRIEMER_SD_2024 * (1.0 - 0.035 * (2024 - rok))
+        target = rok_uroven(rok)[1]
         k = target / avg
         for r in sub:
             r[5] = r2(r[5] * k)
@@ -626,7 +673,7 @@ def gen_starobni_podla_veku() -> None:
     # jednotiek; zvyšok dostane najväčší riadok, aby súčet sedel na kotvu presne.
     for rok in ROKY_VEKY:
         sub = [r for r in rows if r[0] == rok]
-        target = int(round(POCET_SD_2024 * (1.0 - 0.008 * (2024 - rok))))
+        target = rok_uroven(rok)[0]
         biggest = max(sub, key=lambda r: r[4])
         biggest[4] += target - sum(r[4] for r in sub)
 

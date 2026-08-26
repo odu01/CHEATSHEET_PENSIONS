@@ -395,6 +395,46 @@ def main() -> None:
               "aritm. priemer sólo a kráteného")
     write_csv("sp_novopriznane_mesacne.csv", ["mesiac", "druh", "pocet"], novo)
 
+    # Tri miery na jednom riadku: počet, priemer a výdavky za mesiac × druh.
+    # Bublinový graf potrebuje x, y a veľkosť z jedného datasetu — spájať tri
+    # súbory na strane webu by znamenalo join, ktorý manifest zámerne nemá.
+    # Berie sa hotovostný priemer (`priemery`), lebo pokrýva rovnaký rad ako
+    # počty; sólo priemer je iná definícia a do jedného grafu s ním nepatrí.
+    pocty_i = {(m, d): v for m, d, v in pocty}
+    vyd_i = {(m, d): v for m, d, v in vydavky}
+    kombo = []
+    for m, d, pr in priemery:
+        n = pocty_i.get((m, d))
+        v = vyd_i.get((m, d))
+        if n is None or v is None or pr is None:
+            continue
+        kombo.append([m, d, n, pr, v])
+    kombo.sort(key=lambda r: (r[0], DRUH_ORDER.index(r[1]) if r[1] in DRUH_ORDER else 99))
+    write_csv("sp_druhy_mesacne.csv",
+              ["mesiac", "druh", "pocet", "priemer_eur", "vydavky_tis_eur"], kombo,
+              "počet + priemer + výdavky na jednom riadku")
+
+    # Kontrola párovania: počet × priemer musí rádovo dať výdavky. Presne
+    # nesedí a ani nemá — priemer je z iného listu, mesiac má rôzny počet
+    # výplatných dní a výdavky obsahujú doplatky za spätne priznané dôchodky.
+    # Preto sa systematická odchýlka len VYPÍŠE (medián za druh) a chybou je až
+    # faktor 2: to už nie je metodika, to je spárovanie dvoch cudzích riadkov.
+    per = {}
+    for m, d, n, pr, v in kombo:
+        if v > 0:
+            per.setdefault(d, []).append((n * pr / 1000 - v) / v * 100)
+    print("    kontrola párovania (počet × priemer vs výdavky, medián za druh):")
+    for d in DRUH_ORDER:
+        if d in per:
+            vals = sorted(per[d])
+            med = vals[len(vals) // 2]
+            print(f"      {d:22s} {med:+6.1f} %   rozsah {vals[0]:+6.1f} … {vals[-1]:+6.1f}")
+    bad = [(m, d) for m, d, n, pr, v in kombo
+           if v > 0 and abs(n * pr / 1000 - v) / v > 1.0]
+    if bad:
+        sys.exit(f"sp_druhy_mesacne: počet × priemer sa od výdavkov líši viac než "
+                 f"dvojnásobne v {len(bad)} riadkoch — zlé spárovanie: {bad[:3]}")
+
     # priemer vyplácaného vs novopriznaného v jednom dlhom CSV, aby sa dali
     # porovnať v jednom grafe na jednej osi (obe v EUR/mesiac)
     stav = {(m, d): v for m, d, v in priemery}

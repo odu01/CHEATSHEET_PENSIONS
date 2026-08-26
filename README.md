@@ -29,7 +29,12 @@ Schéma pre editor: `data/manifest.schema.json`.
 ## Typy grafov
 
 2D (Observable Plot): `line` · `area` · `area-stacked` · `column` · `bar` ·
-`bar-stacked` · `bar-grouped` · `scatter` · `heatmap` · `pyramid` · `waterfall`
+`bar-stacked` · `bar-grouped` · `scatter` · `heatmap` · `pyramid` · `waterfall` ·
+`bubbles` · `barrank` · `mountain`
+
+Ktorýkoľvek z nich sa dá animovať: `"frame": "mesiac"` z časového stĺpca urobí
+posuvník s prehrávaním. Škály sa pritom počítajú zo všetkých snímok, takže
+prehrávanie hýbe značkami a nikdy nie osami — a nič sa nespustí samo.
 
 Kumulatívne rozdelenie (Lorenzova krivka) nie je vlastný typ grafu — je to `line`
 nad transformáciou `cumsum`. Zdroj dát zostáva tabuľka pásiem, akú zverejňuje SP.
@@ -38,11 +43,11 @@ nad transformáciou `cumsum`. Zdroj dát zostáva tabuľka pásiem, akú zverej�
 
 Bez grafu: `tiles` (kľúčové čísla) · `table`
 
-Na weboch je 13 stránok a žiadna prázdna karta. Osem beží na reálnych dátach
+Na weboch je 14 stránok a žiadna prázdna karta. Deväť beží na reálnych dátach
 Sociálnej poisťovne (prehľad, výdavky, počty, priemerné dôchodky, novopriznané,
-sezónnosť s teplotnou mapou a 3D povrchom, demografia, dátový katalóg), päť na
-syntetických (rozdelenie dôchodkov, podľa veku a pohlavia, podľa kategórie, doba
-poberania, II. pilier).
+sezónnosť s teplotnou mapou a 3D povrchom, pohyb v čase, demografia, dátový
+katalóg), päť na syntetických (rozdelenie dôchodkov, podľa veku a pohlavia, podľa
+kategórie, doba poberania, II. pilier).
 
 Syntetické neznamená vymyslené naslepo: sú to rady z modelu, ktorý drží
 zverejnené čísla a dopočítava len to, čo medzi nimi chýba. Každá taká karta má
@@ -70,6 +75,7 @@ lib/transform.js           deklaratívne transformácie (filter, aggregate, inde
 lib/charts2d.js            2D grafy nad Observable Plot
 lib/charts3d.js            3D grafy, Plotly sa načíta na požiadanie
 lib/hover.js               crosshair a tooltipy, hit targety ≥ 24 px
+lib/frame.js               čas ako posuvník: prehrávanie, krokovanie, pevné škály
 lib/table.js               tabuľka s radením, CSV export, stat karty
 lib/view.js                zloží jednu kartu: graf + legenda + tabuľka + provenancia
 
@@ -138,7 +144,7 @@ validáciou. Ilustračné datasety dostanú na každej karte výstražný odznak
 - CSV v `data/` sa zhodujú so zošitmi v `data/zdroj/` (pregenerovaním importu) a
   syntetické súbory v `data/vstup/` so svojím generátorom (kým sú syntetické)
 
-Navyše `tools/screenshots.mjs --check` vykreslí všetkých 13 stránok v svetlom aj
+Navyše `tools/screenshots.mjs --check` vykreslí všetkých 14 stránok v svetlom aj
 tmavom režime a spadne na chybe v konzole, na neúspešnej požiadavke, na prázdnej
 ploche grafu, na pretekajúcej karte — a na varovaní Observable Plot. To posledné
 nie je prepis: Plot kreslí pri varovaní ⚠ priamo do grafu a jeho varovanie

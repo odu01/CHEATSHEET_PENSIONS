@@ -128,6 +128,9 @@ A pridaj id do niektorej stránky:
 | `scatter` | vzťah dvoch veličín | `x`, `y` |
 | `heatmap` | matica dvoch dimenzií | `x`, `y`, `value` |
 | `pyramid` | veková štruktúra podľa pohlavia | `y`, `value`, `series` |
+| `bubbles` | štyri veličiny naraz (x, y, veľkosť, farba) | `x`, `y` |
+| `barrank` | poradie, ktoré sa v čase mení | `x`, `y`, `frame` |
+| `mountain` | rozdelenie ako plocha nad spojitou osou | `x`, `y` |
 | `waterfall` | rozklad zmeny na faktory | `x`, `y` (+ `totalFlag`) |
 | `surface3d` | odozva na dva parametre | `x`, `y`, `z` |
 | `scatter3d` | tri merané dimenzie | `x`, `y`, `z` |
@@ -248,7 +251,46 @@ Rozdiel, ktorý mätie: **`labels` premenúva NÁZVY STĹPCOV** (pre tabuľku a 
 **`rename` premenúva HODNOTY** v stĺpci (pre legendu a tooltip). Po `unpivot`
 budeš takmer vždy chcieť `rename`, inak sa v legende objaví `priemerna_mzda_eur`.
 
-## 6. Filtre nad stránkou
+## 6. Čas ako posuvník
+
+Graf, ktorý dostane `"frame": "mesiac"` (alebo `"rok"`), nekreslí celý rad naraz:
+kreslí jednu snímku a čas sa posúva posuvníkom, krokovaním alebo prehrávaním.
+
+```json
+"bublina_druhy": {
+  "type": "bubbles", "dataset": "druhy_mesacne",
+  "x": "priemer_eur", "y": "pocet", "radius": "vydavky_tis_eur",
+  "series": "druh", "label": "druh",
+  "frame": "mesiac", "trail": true, "yScale": "log"
+}
+```
+
+Tri pravidlá, ktoré to drží poctivé — a sú v kóde, nie v dobrej vôli:
+
+- **Škály sú pevné pre celý rad.** Osi, veľkosť bubliny aj priradenie farieb sa
+  počítajú zo všetkých snímok (`opts.allRows`), nie z tej zobrazenej. Bez toho by
+  sa graf pri prehrávaní nafukoval a rast, ktorý čitateľ vidí, by bol rast osi.
+- **Nič sa nespustí samo** a pri `prefers-reduced-motion` sa prehrávanie ani
+  neponúkne — posuvník zostane, je to ovládanie, nie efekt. Karta bez interakcie
+  ukazuje najnovšiu snímku; to je aj to, čo skončí na screenshote a v tlači.
+- **Hodnota snímky je v grafe napísaná** veľkým priesvitným písmom. Pri
+  prehrávaní je to jediné, čo hovorí, ktorý okamih je na obrazovke.
+
+Doplnky: `trail` (bubbles) dokreslí cestu, po ktorej sa bublina dostala tam, kde
+je; `ghost` (mountain) nechá za sebou bledé obrysy predošlých snímok, takže na
+konci prehrávania je celá cesta naraz na obrazovke.
+
+Kedy `frame` a kedy filter stránky: filter je pre rozmer, ktorý si čitateľ
+**vyberá** (kategória, pohlavie) a platí pre celú stránku. `frame` je pre rozmer,
+ktorým **prechádza** — je to os toho jedného grafu, tak ovládanie patrí ku karte.
+Dva ovládače toho istého rozmeru na jednej stránke si lezú do cesty; keď graf
+dostane `frame` nad rokom, filter roku sa zo stránky odoberá.
+
+Pozor na `size`: to je výška karty (`"s"`, `"m"`, `"l"`, `"xl"`). Stĺpec pre
+veľkosť bubliny je `radius` — rovnaká pasca už raz zabila bodový graf, kde sa
+reťazec `"l"` poslal ako polomer a Plot nenakreslil nič.
+
+## 7. Filtre nad stránkou
 
 Jeden riadok filtrov nad všetkými kartami; filtruje všetky naraz, takže čísla si
 navzájom odpovedajú.
@@ -273,7 +315,7 @@ Dve veci, na ktoré si dať pozor:
   zredukuje na jednu sériu. Rozdeľ stránky; presne preto sú „Priemerné dôchodky"
   a „Novopriznané" dve.
 
-## 7. Ukazovateľ, ku ktorému ešte nemáme reálne čísla
+## 8. Ukazovateľ, ku ktorému ešte nemáme reálne čísla
 
 Prázdna karta s nápisom „čaká na dáta" nič nehovorí — nedá sa na nej posúdiť, či
 je zvolený tvar grafu ten správny. Preto taký ukazovateľ dostane **syntetické
@@ -337,7 +379,7 @@ hodnoty, tak sa vypíšu rovno:
 Prehľad toho, čo je zadané a na čo sa čaká, je v
 [POZADOVANE_UKAZOVATELE.md](POZADOVANE_UKAZOVATELE.md).
 
-## 8. Čo dostaneš zadarmo ku každému grafu
+## 9. Čo dostaneš zadarmo ku každému grafu
 
 - tabuľku pod grafom so radením podľa stĺpca a exportom do CSV (UTF-8 s BOM, takže
   Excel otvorí diakritiku správne)
@@ -348,7 +390,7 @@ Prehľad toho, čo je zadané a na čo sa čaká, je v
 - tlač: skryjú sa ovládacie prvky a rozbalia sa tabuľky
 - odznak „Ilustračné dáta", kým dataset nemá reálny zdroj
 
-## 9. Keď niečo nefunguje
+## 10. Keď niečo nefunguje
 
 ```bash
 npm run validate:manifest   # chýbajúci súbor, zlý stĺpec, neznámy typ, rozbitý odkaz
@@ -370,6 +412,8 @@ npm run shots               # vykreslí všetky stránky do screenshots/ a nájd
 | v legende je `nazov_stlpca` | po `unpivot` chýba `rename` |
 | filter je prázdny a nedá sa klikať | dataset je `planned` — dopíš do filtra `values` |
 | filter nič nefiltruje | filtruje sa podľa vyrobeného stĺpca a view nemá krok `pageFilter` |
+| pri prehrávaní sa graf „nafukuje" | factory si počíta domény z `rows`, nie z `opts.allRows` |
+| bubliny sa nekreslia | veľkosť je v `size` (to je výška karty), má byť v `radius` |
 | priemer za skupinu je čudný | priemer priemerov; použi vážený priemer (vyššie) |
 | na osi je 55 rokov natlačených na sebe a v grafe je ⚠ | stĺpec rokov nemá `"type": "year"`, tak z neho je text a os je ordinálna |
 | počet osôb sa vypíše ako „23 281,0" | stĺpec nemá `"type": "int"` |

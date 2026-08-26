@@ -41,6 +41,9 @@ const REQUIRED = {
   scatter:         ['dataset', 'x', 'y'],
   heatmap:         ['dataset', 'x', 'y', 'value'],
   pyramid:         ['dataset', 'y', 'value', 'series'],
+  bubbles:         ['dataset', 'x', 'y'],
+  barrank:         ['dataset', 'x', 'y', 'frame'],
+  mountain:        ['dataset', 'x', 'y'],
   waterfall:       ['dataset', 'x', 'y'],
   surface3d:       ['dataset', 'x', 'y', 'z'],
   scatter3d:       ['dataset', 'x', 'y', 'z'],
@@ -49,7 +52,10 @@ const REQUIRED = {
 };
 
 // Keys whose value must name a real column in the view's dataset.
-const COLUMN_KEYS = ['x', 'y', 'z', 'value', 'series', 'label', 'totalFlag'];
+// `size` is deliberately NOT here: in this manifest `size` is the card height
+// ("s"/"m"/"l"/"xl"). The bubble radius column is `radius`.
+const COLUMN_KEYS = ['x', 'y', 'z', 'value', 'series', 'label', 'totalFlag',
+                     'radius', 'frame'];
 
 /**
  * Columns a transform pipeline creates. They are legal targets even though they
