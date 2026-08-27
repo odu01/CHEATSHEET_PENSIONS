@@ -130,7 +130,7 @@ body {
 }
 
 .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
-.brand-logo { height: 30px; width: auto; color: var(--ink-primary); flex: none; }
+.brand-logo { height: 36px; width: auto; color: var(--ink-primary); flex: none; }
 .brand-text { min-width: 0; }
 .brand h1 {
   font-size: 1.05rem; font-weight: 700; color: var(--ink-primary);
@@ -159,7 +159,7 @@ body {
 @media (max-width: 779px) {
   .app-header { padding: 9px clamp(12px, 3vw, 32px); gap: 10px; }
   .brand { gap: 10px; }
-  .brand-logo { height: 24px; }
+  .brand-logo { height: 22px; }
   .brand h1 { font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .brand-sub { display: none; }
 }
