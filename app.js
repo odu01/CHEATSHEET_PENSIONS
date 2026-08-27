@@ -273,11 +273,14 @@ function markNavMenu(active) {
   const btn = state.navToggle;
   if (btn) {
     const page = active?.pages.find(p => p.id === state.pageId);
-    btn.querySelector('.nav-toggle-group').textContent = active?.name || '';
-    // A section with a single page names it the same as itself; printing the
-    // label twice would just look like a bug.
-    btn.querySelector('.nav-toggle-page').textContent =
-      page && page.label !== active.name ? page.label : '';
+    // Hlavný riadok je vždy stránka, nadriadok len sekcia — a ten sa vynechá,
+    // keď hovorí to isté. Opačné poradie (sekcia ako hlavný riadok, stránka len
+    // keď sa líši) vyzeralo na telefóne zle: na jednostránkovej sekcii zostalo
+    // v riadku samotné malé „PREHĽAD" a nečítalo sa to ako „tu si, ťukni pre
+    // ostatné", ale ako zabudnutý štítok.
+    btn.querySelector('.nav-toggle-page').textContent = page?.label || active?.name || '';
+    btn.querySelector('.nav-toggle-group').textContent =
+      active && page && page.label !== active.name ? active.name : '';
   }
   for (const a of state.navMenu?.querySelectorAll('.nav-menu-page') || []) {
     const on = a.dataset.menuPage === state.pageId;
