@@ -21,6 +21,7 @@
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, dirname, resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseCsv } from './lib/csv.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const errors = [];
@@ -146,12 +147,11 @@ for (const [id, def] of Object.entries(manifest.datasets || {})) {
       cols = Object.keys(rows[0]);
     } catch (e) { err(`dataset "${id}": ${def.file} — ${e.message}`); continue; }
   } else {
-    const first = text.split('\n')[0];
-    const delim = def.file.endsWith('.tsv') ? '\t' : ',';
-    cols = first.split(delim).map(s => s.trim().replace(/^"|"$/g, ''));
-    // every data row must have the same field count as the header
-    const lines = text.trimEnd().split('\n');
-    const bad = lines.findIndex((l, i) => i > 0 && l.split(delim).length !== cols.length);
+    // Skutočný parser, nie split(','): text v úvodzovkách smie obsahovať
+    // čiarku a predtým taký riadok vyzeral ako riadok navyše so stĺpcom.
+    const grid = parseCsv(text);
+    cols = (grid[0] || []).map(s => s.trim());
+    const bad = grid.findIndex((r, i) => i > 0 && r.length !== cols.length);
     if (bad > 0) err(`dataset "${id}": ${def.file} riadok ${bad + 1} má iný počet stĺpcov než hlavička`);
   }
   headers[id] = new Set(cols);
@@ -170,7 +170,12 @@ for (const [id, def] of Object.entries(manifest.datasets || {})) {
   // provenance is not optional for a public statistics page
   if (!def.source && def.illustrative !== true && def.planned !== true)
     err(`dataset "${id}": chýba "source" — alebo ho označ "illustrative": true`);
-  if (!def.unit) warn(`dataset "${id}": chýba "unit", formátovanie čísel padne na predvolené`);
+  // Jednotka má zmysel len tam, kde je čo formátovať: tabuľka samých textov
+  // (podmienky nároku, pravidlá) žiadne číslo nekreslí a jednotku nepotrebuje.
+  const hasNumbers = Object.values(def.columns || {})
+    .some(c => c.measure || ['number', 'int'].includes(c.type));
+  if (!def.unit && hasNumbers)
+    warn(`dataset "${id}": chýba "unit", formátovanie čísel padne na predvolené`);
 }
 
 // ── 2b. integrity checks (second pass: every header is known by now) ────────
@@ -289,6 +294,21 @@ for (const page of manifest.pages || []) {
     for (const c of producedBy(v.transform)) derivedHere.add(c);
     if (v.transform?.some(t => t.kind === 'pageFilter')) marked.add(vid);
   }
+  // Mriežka má dvanásť stĺpcov a každý riadok stránky má dať presne dvanásť.
+  // Nedopočítaný riadok nechá vedľa karty dieru, prepočítaný ju pretlačí na
+  // ďalší riadok — oboje vyzerá ako náhoda a oboje sa dá spočítať dopredu.
+  let row = 0;
+  const rows = [];
+  for (const vid of page.views || []) {
+    const span = views[vid]?.span ?? 12;
+    if (row + span > 12) { rows.push(row); row = span; } else row += span;
+  }
+  rows.push(row);
+  const short = rows.filter(r => r !== 12).length;
+  if (short)
+    err(`page "${page.id}": ${short} z ${rows.length} riadkov mriežky nedáva 12 ` +
+        `(je ${rows.join(' + ')} | spany: ${(page.views || []).map(v => views[v]?.span ?? 12).join(', ')})`);
+
   for (const f of page.filters || []) {
     if (!f.column) err(`page "${page.id}": filter bez "column"`);
     if (f.dataset && !manifest.datasets?.[f.dataset])

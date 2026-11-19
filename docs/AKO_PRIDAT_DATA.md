@@ -8,8 +8,9 @@ Ako sú dáta rozdelené a prečo (granularita, kódovníky, kontrolné súčty)
 
 Dve miesta, kde CSV žijú, a nemiešajú sa:
 
-- **`data/*.csv`** — generované zo zošitov v `data/zdroj/` skriptom
-  `npm run data`. Ručne sa needitujú, najbližší import ich prepíše.
+- **`data/*.csv`** — generované zo zošitov v `data/zdroj/`: `npm run data`
+  (zošity Sociálnej poisťovne) a `npm run data:rrz` (manažérsky prehľad RRZ).
+  Ručne sa needitujú, najbližší import ich prepíše.
 - **`data/vstup/*.csv`** — ručný vstup. Sem sa dopĺňajú čísla, ktoré v zošitoch
   nie sú. Súbory tam už dáta majú (syntetické, viditeľne označené), takže
   „doplniť" znamená prepísať hodnoty. Postup:
@@ -31,6 +32,23 @@ npm run serve             # http://localhost:8080
 
 Ak validácia prejde a stránka sa vykreslí, je to hotové. Commit ide priamo do
 `main`, GitHub Pages nasadí koreň repozitára bez build stepu.
+
+### Keď príde nová verzia manažérskeho prehľadu RRZ
+
+```bash
+npm run data:rrz:extract -- ~/Summary_Report.xlsx   # vyberie hárky statistiky + parametre
+npm run data:rrz                                    # prepíše data/rrz_*.csv a par_*.csv
+npm run validate
+```
+
+Prvý krok nie je formalita. Plný report má okolo sedemdesiat hárkov; publikujú sa
+dva, a repozitár je zároveň zverejnený web — do `data/zdroj/` preto ide výťah
+presne z toho, čo je na stránkach.
+
+Import hľadá každú tabuľku **podľa jej nadpisu**, nie podľa čísla riadku, takže
+pridaný riadok v reporte ho nerozsype. Hneď potom overuje, že hlavička sedí; keď
+nie, spadne s menom tabuľky. Ticho načítané zlé stĺpce sú horšie než spadnutý
+import.
 
 ---
 

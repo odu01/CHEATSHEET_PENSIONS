@@ -372,6 +372,42 @@
           "equals": 45500,
           "tolerance": 0.03,
           "note": "Musí sedieť s počtom úmrtí v matici prechodov — dva súbory, jedno číslo."
+        },
+        {
+          "kind": "sum",
+          "column": "priemer_rokov",
+          "where": {
+            "rok": 2024,
+            "pohlavie": "Muži"
+          },
+          "equalsDataset": {
+            "dataset": "rrz_doba_poberania",
+            "column": "priemer_rokov",
+            "where": {
+              "rok": 2024,
+              "pohlavie": "Muži"
+            }
+          },
+          "tolerance": 0.03,
+          "note": "Model sa v roku 2024 prekrýva s meraným údajom RRZ — tam musí sedieť."
+        },
+        {
+          "kind": "sum",
+          "column": "priemer_rokov",
+          "where": {
+            "rok": 2024,
+            "pohlavie": "Ženy"
+          },
+          "equalsDataset": {
+            "dataset": "rrz_doba_poberania",
+            "column": "priemer_rokov",
+            "where": {
+              "rok": 2024,
+              "pohlavie": "Ženy"
+            }
+          },
+          "tolerance": 0.03,
+          "note": "To isté za ženy."
         }
       ]
     },
@@ -611,6 +647,658 @@
           "note": "Úmrtia v matici sa musia rovnať úmrtiam v dobe poberania."
         }
       ]
+    },
+    "rrz_kpi": {
+      "file": "data/rrz_kpi.csv",
+      "label": "Kľúčové čísla dôchodkového systému",
+      "unit": "rôzna",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „statistiky“ (spracované dáta Sociálnej poisťovne)",
+      "vintage": "jún 2026",
+      "note": "Hlavička manažérskeho prehľadu — osem čísel, ktorými report otvára, aj s popisom, ktorý im dal jeho autor. Jednotka je pri každom čísle zvlášť, lebo sa líši.",
+      "columns": {
+        "ukazovatel": {
+          "type": "string",
+          "label": "Ukazovateľ"
+        },
+        "hodnota": {
+          "type": "number",
+          "measure": true,
+          "decimals": 2,
+          "label": "Hodnota"
+        },
+        "jednotka": {
+          "type": "string",
+          "label": "Jednotka"
+        },
+        "popis": {
+          "type": "string",
+          "label": "Vymedzenie"
+        }
+      }
+    },
+    "rrz_davky_druh": {
+      "file": "data/rrz_davky_druh.csv",
+      "label": "Dávky podľa druhu dôchodku (jún 2026)",
+      "unit": "osôb",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „statistiky“ (spracované dáta Sociálnej poisťovne)",
+      "vintage": "jún 2026",
+      "note": "Tri pohľady na ten istý dôchodok: „všetci poberatelia“, „nekrátené bez iného dôchodku“ (bez dôchodku z cudziny a výsluhového) a „sólo“ (bez súbehu s iným druhom). Líšia sa o desiatky eur, takže sa nesmú miešať do jedného radu. Podiel je dopočítaný v rámci pohľadu.",
+      "checks": [
+        {
+          "kind": "sum",
+          "column": "pocet",
+          "where": {
+            "pohlad": "Všetci poberatelia"
+          },
+          "equals": 1778143,
+          "tolerance": 0.0001,
+          "note": "Súčet všetkých dávok musí dať číslo z hlavičky reportu."
+        }
+      ],
+      "columns": {
+        "druh": {
+          "type": "string",
+          "label": "Druh dôchodku"
+        },
+        "pohlad": {
+          "type": "string",
+          "label": "Pohľad"
+        },
+        "pocet": {
+          "type": "int",
+          "measure": true,
+          "unit": "osôb",
+          "label": "Počet poberateľov"
+        },
+        "priemer_eur": {
+          "type": "number",
+          "measure": true,
+          "unit": "EUR",
+          "decimals": 2,
+          "label": "Priemerná dávka"
+        },
+        "podiel_pct": {
+          "type": "number",
+          "measure": true,
+          "unit": "%",
+          "decimals": 2,
+          "label": "Podiel na dávkach"
+        }
+      }
+    },
+    "rrz_sd_vyvoj": {
+      "file": "data/rrz_sd_vyvoj.csv",
+      "label": "Priemerný starobný dôchodok — vývoj",
+      "unit": "EUR",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „statistiky“ (spracované dáta Sociálnej poisťovne)",
+      "vintage": "december 2024, december 2025, jún 2026",
+      "note": "Posledný dostupný mesiac roka: december 2024, december 2025 a jún 2026.",
+      "columns": {
+        "rok": {
+          "type": "year",
+          "label": "Rok"
+        },
+        "pohlad": {
+          "type": "string",
+          "label": "Pohľad"
+        },
+        "pocet": {
+          "type": "int",
+          "measure": true,
+          "unit": "osôb",
+          "label": "Počet poberateľov"
+        },
+        "priemer_eur": {
+          "type": "number",
+          "measure": true,
+          "unit": "EUR",
+          "decimals": 2,
+          "label": "Priemerný dôchodok"
+        }
+      }
+    },
+    "rrz_sd_pohlavie": {
+      "file": "data/rrz_sd_pohlavie.csv",
+      "label": "Starobný dôchodok podľa pohlavia",
+      "unit": "EUR",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „statistiky“ (spracované dáta Sociálnej poisťovne)",
+      "vintage": "december 2024, december 2025, jún 2026",
+      "note": "Nekrátené starobné dôchodky bez iného dôchodku.",
+      "checks": [
+        {
+          "kind": "sum",
+          "column": "pocet",
+          "where": {
+            "rok": 2026
+          },
+          "equalsDataset": {
+            "dataset": "rrz_sd_vyvoj",
+            "column": "pocet",
+            "where": {
+              "rok": 2026,
+              "pohlad": "Nekrátené bez iného dôchodku"
+            }
+          },
+          "tolerance": 0.0001,
+          "note": "Muži a ženy spolu musia dať ten istý počet, aký vykazuje rad za oba pohlavia."
+        }
+      ],
+      "columns": {
+        "rok": {
+          "type": "year",
+          "label": "Rok"
+        },
+        "pohlavie": {
+          "type": "string",
+          "label": "Pohlavie"
+        },
+        "pocet": {
+          "type": "int",
+          "measure": true,
+          "unit": "osôb",
+          "label": "Počet poberateľov"
+        },
+        "priemer_eur": {
+          "type": "number",
+          "measure": true,
+          "unit": "EUR",
+          "decimals": 2,
+          "label": "Priemerný dôchodok"
+        }
+      }
+    },
+    "rrz_vstup_vystup": {
+      "file": "data/rrz_vstup_vystup.csv",
+      "label": "Novopriznaní a odchádzajúci poberatelia SD",
+      "unit": "EUR",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „statistiky“ (spracované dáta Sociálnej poisťovne)",
+      "vintage": "2024–2026",
+      "note": "Rok 2026 je stav k júnu 2026; pri tokových veličinách (náklady, počty novopriznaných a odchádzajúcich, úspora z krátenia) je to súčet za január – jún, nie celý rok.",
+      "columns": {
+        "rok": {
+          "type": "year",
+          "label": "Rok"
+        },
+        "smer": {
+          "type": "string",
+          "label": "Smer"
+        },
+        "pocet": {
+          "type": "int",
+          "measure": true,
+          "unit": "osôb",
+          "label": "Počet osôb"
+        },
+        "priemer_eur": {
+          "type": "number",
+          "measure": true,
+          "unit": "EUR",
+          "decimals": 2,
+          "label": "Priemerný dôchodok"
+        }
+      }
+    },
+    "rrz_kratenie": {
+      "file": "data/rrz_kratenie.csv",
+      "label": "Krátenie dôchodkov za účasť v II. pilieri",
+      "unit": "%",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „statistiky“ (spracované dáta Sociálnej poisťovne)",
+      "vintage": "2024–2026",
+      "note": "Rok 2026 je stav k júnu 2026; pri tokových veličinách (náklady, počty novopriznaných a odchádzajúcich, úspora z krátenia) je to súčet za január – jún, nie celý rok.",
+      "columns": {
+        "rok": {
+          "type": "year",
+          "label": "Rok"
+        },
+        "druh": {
+          "type": "string",
+          "label": "Druh dôchodku"
+        },
+        "pocet": {
+          "type": "int",
+          "measure": true,
+          "unit": "osôb",
+          "label": "Osoby s kráteným dôchodkom"
+        },
+        "kratenie_pct": {
+          "type": "number",
+          "measure": true,
+          "unit": "%",
+          "decimals": 2,
+          "label": "Priemerné krátenie"
+        },
+        "kratenie_eur": {
+          "type": "number",
+          "measure": true,
+          "unit": "EUR",
+          "decimals": 2,
+          "label": "Priemerná suma krátenia"
+        },
+        "uspora_mil_eur": {
+          "type": "number",
+          "measure": true,
+          "unit": "mil. EUR",
+          "decimals": 1,
+          "label": "Úspora z krátenia"
+        }
+      }
+    },
+    "rrz_doba_poberania": {
+      "file": "data/rrz_doba_poberania.csv",
+      "label": "Dĺžka poberania starobného dôchodku",
+      "unit": "rokov",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „statistiky“ (spracované dáta Sociálnej poisťovne)",
+      "vintage": "2024–2026",
+      "note": "Odchádzajúci poberatelia — koľko rokov dôchodok poberali, kým zanikol. Rok 2026 je január – jún.",
+      "columns": {
+        "rok": {
+          "type": "year",
+          "label": "Rok"
+        },
+        "pohlavie": {
+          "type": "string",
+          "label": "Pohlavie"
+        },
+        "priemer_rokov": {
+          "type": "number",
+          "measure": true,
+          "unit": "rokov",
+          "decimals": 1,
+          "label": "Priemer"
+        },
+        "median_rokov": {
+          "type": "int",
+          "measure": true,
+          "unit": "rokov",
+          "label": "Medián"
+        }
+      }
+    },
+    "rrz_naklady_druh": {
+      "file": "data/rrz_naklady_druh.csv",
+      "label": "Náklady na dôchodky podľa druhu",
+      "unit": "mil. EUR",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „statistiky“ (spracované dáta Sociálnej poisťovne)",
+      "vintage": "2024–2026",
+      "note": "Rok 2026 je január – jún a 13. dôchodok v ňom ešte nebol vyplatený, takže podiely za 2026 nie sú porovnateľné s plnými rokmi.",
+      "checks": [
+        {
+          "kind": "sum",
+          "column": "naklady_mil_eur",
+          "where": {
+            "rok": 2025
+          },
+          "equals": 12430.42,
+          "tolerance": 0.001,
+          "note": "Náklady za rok 2025 musia dať 12,43 mld. € z hlavičky reportu."
+        }
+      ],
+      "columns": {
+        "rok": {
+          "type": "year",
+          "label": "Rok"
+        },
+        "druh": {
+          "type": "string",
+          "label": "Druh dôchodku"
+        },
+        "naklady_mil_eur": {
+          "type": "number",
+          "measure": true,
+          "unit": "mil. EUR",
+          "decimals": 1,
+          "label": "Náklady"
+        },
+        "podiel_pct": {
+          "type": "number",
+          "measure": true,
+          "unit": "%",
+          "decimals": 2,
+          "label": "Podiel na nákladoch"
+        }
+      }
+    },
+    "rrz_decily": {
+      "file": "data/rrz_decily.csv",
+      "label": "Decily celkového dôchodkového príjmu",
+      "unit": "EUR",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „statistiky“ (spracované dáta Sociálnej poisťovne)",
+      "vintage": "jún 2026",
+      "note": "Hranice desatín poberateľov starobného dôchodku zoradených podľa celkového dôchodkového príjmu. D1 je desatina s najnižším príjmom.",
+      "columns": {
+        "decil": {
+          "type": "string",
+          "label": "Decil"
+        },
+        "poradie": {
+          "type": "int",
+          "label": "Poradie decilu"
+        },
+        "od_eur": {
+          "type": "int",
+          "measure": true,
+          "unit": "EUR",
+          "label": "Od"
+        },
+        "do_eur": {
+          "type": "int",
+          "measure": true,
+          "unit": "EUR",
+          "label": "Do"
+        },
+        "sirka_eur": {
+          "type": "int",
+          "measure": true,
+          "unit": "EUR",
+          "label": "Šírka pásma"
+        }
+      }
+    },
+    "par_veliciny": {
+      "file": "data/par_veliciny.csv",
+      "label": "Výpočtové veličiny a valorizácia",
+      "unit": "EUR",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „parametre“",
+      "vintage": "2024–2026",
+      "note": "Valorizácia za rok 2024 sa v reporte neuvádza (mimoriadne úpravy), preto je prázdna.",
+      "columns": {
+        "rok": {
+          "type": "year",
+          "label": "Rok"
+        },
+        "adh_eur": {
+          "type": "number",
+          "measure": true,
+          "unit": "EUR",
+          "decimals": 4,
+          "label": "Aktuálna dôchodková hodnota"
+        },
+        "valorizacia_pct": {
+          "type": "number",
+          "measure": true,
+          "unit": "%",
+          "decimals": 1,
+          "label": "Štandardná valorizácia"
+        },
+        "zivotne_minimum_eur": {
+          "type": "number",
+          "measure": true,
+          "unit": "EUR",
+          "decimals": 2,
+          "label": "Životné minimum od 1. júla"
+        },
+        "referencna_suma_eur": {
+          "type": "number",
+          "measure": true,
+          "unit": "EUR",
+          "decimals": 2,
+          "label": "Referenčná suma pre II. pilier"
+        }
+      }
+    },
+    "par_dochodkovy_vek": {
+      "file": "data/par_dochodkovy_vek.csv",
+      "label": "Dôchodkový vek podľa ročníka a počtu detí",
+      "unit": "rokov",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „parametre“",
+      "vintage": "ročníky 1964–1968",
+      "note": "Ročník 1969 a mladší už nemá pevné číslo: vek sa určuje vyhláškou päť rokov vopred podľa strednej dĺžky života, pričom za každé vychované dieťa sa znižuje o 6 mesiacov, najviac o 18.",
+      "columns": {
+        "rocnik": {
+          "type": "year",
+          "label": "Ročník narodenia"
+        },
+        "deti": {
+          "type": "string",
+          "label": "Vychované deti"
+        },
+        "vek_mesiacov": {
+          "type": "int",
+          "measure": true,
+          "unit": "mesiacov",
+          "label": "Vek v mesiacoch"
+        },
+        "vek_rokov": {
+          "type": "number",
+          "measure": true,
+          "unit": "rokov",
+          "decimals": 2,
+          "label": "Dôchodkový vek"
+        }
+      }
+    },
+    "par_minimalny_dochodok": {
+      "file": "data/par_minimalny_dochodok.csv",
+      "label": "Minimálny dôchodok podľa rokov poistenia",
+      "unit": "EUR",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „parametre“",
+      "vintage": "2025–2026",
+      "note": "Suma je násobok životného minima; nárok vzniká od 30 rokov kvalifikovaného poistenia.",
+      "columns": {
+        "roky_poistenia": {
+          "type": "int",
+          "label": "Roky kvalifikovaného poistenia"
+        },
+        "rok": {
+          "type": "year",
+          "label": "Rok"
+        },
+        "nasobok_zm": {
+          "type": "number",
+          "measure": true,
+          "decimals": 3,
+          "label": "Násobok životného minima"
+        },
+        "suma_eur": {
+          "type": "number",
+          "measure": true,
+          "unit": "EUR",
+          "decimals": 2,
+          "label": "Minimálny dôchodok"
+        }
+      }
+    },
+    "par_trinasty_dochodok": {
+      "file": "data/par_trinasty_dochodok.csv",
+      "label": "13. dôchodok podľa druhu dávky",
+      "unit": "EUR",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „parametre“",
+      "vintage": "2024, 2025–2028",
+      "note": "Od roku 2025 je 13. dôchodok pevná suma zmrazená do roku 2028.",
+      "columns": {
+        "druh": {
+          "type": "string",
+          "label": "Druh poberaného dôchodku"
+        },
+        "obdobie": {
+          "type": "string",
+          "label": "Obdobie"
+        },
+        "suma_eur": {
+          "type": "number",
+          "measure": true,
+          "unit": "EUR",
+          "decimals": 2,
+          "label": "Suma 13. dôchodku"
+        }
+      }
+    },
+    "par_vypocet": {
+      "file": "data/par_vypocet.csv",
+      "label": "Modelový výpočet novopriznaného dôchodku (2026)",
+      "unit": "EUR",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „parametre“",
+      "vintage": "2026",
+      "note": "Ilustračný výpočet podľa zákonného vzorca (POMB × ODP × ADH), nie oficiálny príklad Sociálnej poisťovne. Porovnanie s minimálnym dôchodkom predpokladá, že celé obdobie poistenia je kvalifikované.",
+      "columns": {
+        "profil": {
+          "type": "string",
+          "label": "Príjmový profil"
+        },
+        "pripad": {
+          "type": "string",
+          "label": "Prípad"
+        },
+        "pomb": {
+          "type": "number",
+          "measure": true,
+          "decimals": 2,
+          "label": "POMB"
+        },
+        "odp_rokov": {
+          "type": "int",
+          "measure": true,
+          "unit": "rokov",
+          "label": "Obdobie poistenia"
+        },
+        "zakladna_eur": {
+          "type": "number",
+          "measure": true,
+          "unit": "EUR",
+          "decimals": 2,
+          "label": "Základná suma"
+        },
+        "po_valorizacii_eur": {
+          "type": "number",
+          "measure": true,
+          "unit": "EUR",
+          "decimals": 2,
+          "label": "Po valorizácii 2026"
+        },
+        "komentar": {
+          "type": "string",
+          "label": "Komentár"
+        }
+      }
+    },
+    "par_pomb_uprava": {
+      "file": "data/par_pomb_uprava.csv",
+      "label": "Solidarizácia POMB podľa roku priznania",
+      "unit": "%",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „parametre“",
+      "vintage": "2004–2016+",
+      "note": "Vysoký osobný mzdový bod sa oreže, nízky sa dorovná. Čím vyššie je prvé číslo, tým menej sa orezáva; čím nižšie je druhé, tým menej sa dorovnáva — od roku 2004 sa posunuli oba smerom k nižšej solidarite. Posledný riadok „2016+\" platí pre rok 2016 a všetky neskoršie.",
+      "columns": {
+        "rok_priznania": {
+          "type": "string",
+          "label": "Rok priznania dôchodku"
+        },
+        "rok": {
+          "type": "year",
+          "label": "Rok priznania (číselne)"
+        },
+        "nad_125_pct": {
+          "type": "number",
+          "measure": true,
+          "unit": "%",
+          "decimals": 1,
+          "label": "Zo sumy nad POMB 1,25 sa započíta"
+        },
+        "pod_1_pct": {
+          "type": "number",
+          "measure": true,
+          "unit": "%",
+          "decimals": 1,
+          "label": "Z rozdielu pod POMB 1 sa pripočíta"
+        },
+        "max_pomb": {
+          "type": "number",
+          "measure": true,
+          "decimals": 2,
+          "label": "Maximálny POMB"
+        }
+      }
+    },
+    "par_odvody": {
+      "file": "data/par_odvody.csv",
+      "label": "Sadzby odvodov na starobné poistenie",
+      "unit": "%",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „parametre“",
+      "vintage": "2004–2026",
+      "note": "Odvod do II. piliera znižuje časť zamestnávateľa v I. pilieri; súčet je po celý čas 22,75 % vymeriavacieho základu.",
+      "columns": {
+        "obdobie": {
+          "type": "string",
+          "label": "Obdobie"
+        },
+        "zamestnanec_pct": {
+          "type": "number",
+          "measure": true,
+          "unit": "%",
+          "decimals": 2,
+          "label": "I. pilier — zamestnanec"
+        },
+        "zamestnavatel_pct": {
+          "type": "number",
+          "measure": true,
+          "unit": "%",
+          "decimals": 2,
+          "label": "I. pilier — zamestnávateľ"
+        },
+        "i_pilier_pct": {
+          "type": "number",
+          "measure": true,
+          "unit": "%",
+          "decimals": 2,
+          "label": "I. pilier spolu"
+        },
+        "ii_pilier_pct": {
+          "type": "number",
+          "measure": true,
+          "unit": "%",
+          "decimals": 2,
+          "label": "II. pilier"
+        },
+        "spolu_pct": {
+          "type": "number",
+          "measure": true,
+          "unit": "%",
+          "decimals": 2,
+          "label": "Starobné poistenie spolu"
+        }
+      }
+    },
+    "par_narok": {
+      "file": "data/par_narok.csv",
+      "label": "Podmienky nároku na dôchodok",
+      "unit": "",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „parametre“",
+      "vintage": "2026",
+      "columns": {
+        "druh": {
+          "type": "string",
+          "label": "Druh dôchodku"
+        },
+        "podmienka": {
+          "type": "string",
+          "label": "Podmienka nároku"
+        }
+      }
+    },
+    "par_psd_pravidla": {
+      "file": "data/par_psd_pravidla.csv",
+      "label": "Predčasný dôchodok — pravidlá pred a po 15. 5. 2024",
+      "unit": "",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „parametre“",
+      "vintage": "2024–2026",
+      "columns": {
+        "parameter": {
+          "type": "string",
+          "label": "Parameter / podmienka"
+        },
+        "do_15_5_2024": {
+          "type": "string",
+          "label": "Do 14. 5. 2024"
+        },
+        "od_15_5_2024": {
+          "type": "string",
+          "label": "Od 15. 5. 2024"
+        },
+        "zmena": {
+          "type": "string",
+          "label": "Zmenilo sa"
+        }
+      }
     }
   },
   "pages": [
@@ -624,6 +1312,19 @@
         "pocty_celkom_trend"
       ],
       "group": "Prehľad"
+    },
+    {
+      "id": "stav2026",
+      "label": "Stav k júnu 2026",
+      "group": "Prehľad",
+      "description": "Manažérsky prehľad Kancelárie RRZ: kde dôchodkový systém stojí k poslednému spracovanému mesiacu. Pozor na to, ktorá definícia priemerného dôchodku sa práve ukazuje — líšia sa o desiatky eur.",
+      "views": [
+        "rrz_kpi_row",
+        "rrz_davky_pocet",
+        "rrz_davky_priemer",
+        "rrz_sd_vyvoj_pohlady",
+        "rrz_sd_pohlavie_bars"
+      ]
     },
     {
       "id": "vydavky",
@@ -664,7 +1365,9 @@
         "dochodky_tiles",
         "dochodky_kumulativ",
         "dochodky_histogram",
-        "dochodky_tabulka"
+        "dochodky_tabulka",
+        "rrz_decily_hranice",
+        "rrz_decily_sirka"
       ],
       "group": "Rozdelenie"
     },
@@ -683,7 +1386,9 @@
       ],
       "views": [
         "priemer_novo_vs_stav_trend",
-        "novopriznane_trend"
+        "novopriznane_trend",
+        "rrz_vstup_vystup_priemer",
+        "rrz_vstup_vystup_pocet"
       ],
       "group": "Výdavky a počty"
     },
@@ -696,6 +1401,16 @@
         "sezonnost_3d"
       ],
       "group": "Výdavky a počty"
+    },
+    {
+      "id": "naklady",
+      "label": "Náklady podľa druhu",
+      "group": "Výdavky a počty",
+      "description": "Koľko stojí každý druh dôchodku a ako sa to delí. Čísla sú z manažérskeho prehľadu RRZ a zahŕňajú 13. dôchodok aj štátne dávky.",
+      "views": [
+        "rrz_naklady_stack",
+        "rrz_naklady_podiel"
+      ]
     },
     {
       "id": "pohyb",
@@ -787,8 +1502,10 @@
     {
       "id": "doba_poberania",
       "label": "Doba poberania",
-      "description": "Ako dlho v priemere poberali starobný dôchodok tí, ktorí v danom roku zomreli. Priamo súvisí s dôchodkovým vekom a dĺžkou života.",
+      "description": "Ako dlho poberali starobný dôchodok tí, ktorým zanikol. Prvá karta sú merané čísla z manažérskeho prehľadu RRZ za roky 2024 – 2026, za ňou je modelovaný rad od roku 2000, ktorý ukazuje, odkiaľ sa tam systém dostal.",
       "views": [
+        "rrz_doba_bars",
+        "rrz_doba_median",
         "doba_poberania_trend",
         "doba_poberania_tabulka"
       ],
@@ -797,8 +1514,10 @@
     {
       "id": "pilier2",
       "label": "II. pilier",
-      "description": "Aktíva a sporitelia v druhom pilieri. Dva grafy, nie dve osi — sú to rôzne jednotky.",
+      "description": "Čo účasť v druhom pilieri robí s dôchodkom z prvého — a ako veľký ten druhý pilier je. Krátenie sú merané čísla RRZ, aktíva a sporitelia sú kotvené na zverejnené koncoročné stavy a medzi nimi modelované.",
       "views": [
+        "rrz_kratenie_pct",
+        "rrz_kratenie_pocet",
         "pilier2_aktiva",
         "pilier2_sporitelia"
       ],
@@ -815,6 +1534,48 @@
         "tab_dochodcovia"
       ],
       "group": "Dáta"
+    },
+    {
+      "id": "param_veliciny",
+      "label": "Veličiny a odvody",
+      "group": "Parametre",
+      "description": "Čísla, ktorými zákon počíta: dôchodková hodnota, valorizácia, životné minimum, referenčná suma — a sadzby odvodov, z ktorých sa celé poistenie financuje.",
+      "views": [
+        "par_kpi",
+        "par_odvody_stack",
+        "par_veliciny_tab"
+      ]
+    },
+    {
+      "id": "param_vek",
+      "label": "Dôchodkový vek a nárok",
+      "group": "Parametre",
+      "description": "Kedy vzniká nárok na dôchodok, ako sa dôchodkový vek posúva s ročníkom a čo z neho uberajú vychované deti.",
+      "views": [
+        "par_vek_line",
+        "par_narok_tab",
+        "par_psd_tab"
+      ]
+    },
+    {
+      "id": "param_minimum",
+      "label": "Minimálny a 13. dôchodok",
+      "group": "Parametre",
+      "description": "Dolná hranica systému: minimálny dôchodok naviazaný na životné minimum a 13. dôchodok, ktorý je od roku 2025 pevnou sumou.",
+      "views": [
+        "par_min_bars",
+        "par_13_bars"
+      ]
+    },
+    {
+      "id": "param_vypocet",
+      "label": "Výpočet dôchodku",
+      "group": "Parametre",
+      "description": "Ako zo mzdy a odpracovaných rokov vznikne suma na výmere — a ako do nej zasahuje solidarizácia osobného mzdového bodu.",
+      "views": [
+        "par_vypocet_bars",
+        "par_pomb_line"
+      ]
     }
   ],
   "views": {
@@ -1906,7 +2667,7 @@
     "doba_poberania_trend": {
       "type": "line",
       "title": "Priemerná doba poberania starobného dôchodku",
-      "subtitle": "Za dôchodcov, ktorí v danom roku zomreli.",
+      "subtitle": "Modelovaný rad od roku 2000. V roku 2024, kde sa prekrýva s meraným údajom, sa od neho líši o 0,4 % u mužov a 0,9 % u žien — kontrolu drží `npm run vstup`.",
       "dataset": "doba_poberania",
       "x": "rok",
       "y": "priemer_rokov",
@@ -2962,6 +3723,838 @@
         "pocet": "Osôb"
       },
       "note": "Prechody, ktoré v diagrame nie sú, tam nie sú zámerne: zo starobného dôchodku sa nedá prejsť na invalidný (po dôchodkovom veku sa nepriznáva) ani na predčasný. Najmenší stav je proti najväčšiemu v pomere 1 : 270, takže má v diagrame minimálnu viditeľnú výšku — to je jediné miesto, kde nedrží presnú proporciu."
+    },
+    "rrz_kpi_row": {
+      "type": "tiles",
+      "title": "Dôchodkový systém v ôsmich číslach",
+      "subtitle": "Hlavička manažérskeho prehľadu RRZ k júnu 2026. Kde existuje rad za viac rokov, dlaždica ukazuje aj medziročnú zmenu.",
+      "dataset": "rrz_kpi",
+      "span": 12,
+      "tiles": [
+        {
+          "label": "Priemerný starobný dôchodok",
+          "dataset": "rrz_sd_vyvoj",
+          "value": "priemer_eur",
+          "unit": "EUR",
+          "note": "Nekrátený, bez dôchodku z cudziny a výsluhového. Jún 2026.",
+          "decimals": 2,
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "pohlad": "Nekrátené bez iného dôchodku"
+              }
+            },
+            {
+              "kind": "sort",
+              "by": "rok"
+            }
+          ],
+          "hero": true,
+          "higherIsBetter": true,
+          "deltaUnit": "€",
+          "deltaNote": "r/r"
+        },
+        {
+          "label": "Vyplácané dávky",
+          "dataset": "rrz_davky_druh",
+          "value": "pocet",
+          "unit": "dôchodkov",
+          "note": "Šesť druhov dôchodku spolu, jún 2026.",
+          "decimals": 0,
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "pohlad": "Všetci poberatelia"
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false,
+          "agg": "sum"
+        },
+        {
+          "label": "Poberatelia starobného dôchodku",
+          "dataset": "rrz_davky_druh",
+          "value": "pocet",
+          "unit": "osôb",
+          "note": "De jure starobní dôchodcovia, jún 2026.",
+          "decimals": 0,
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "pohlad": "Všetci poberatelia",
+                "druh": "Starobný dôchodok"
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false
+        },
+        {
+          "label": "Náklady na dôchodky",
+          "dataset": "rrz_naklady_druh",
+          "value": "mld_eur",
+          "unit": "mld. EUR",
+          "note": "Všetky druhy dávok vrátane 13. dôchodku, celý rok 2025.",
+          "decimals": 2,
+          "higherIsBetter": false,
+          "deltaUnit": "mld. €",
+          "deltaNote": "r/r",
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "rok": [
+                  2024,
+                  2025
+                ]
+              }
+            },
+            {
+              "kind": "aggregate",
+              "by": [
+                "rok"
+              ],
+              "value": "naklady_mil_eur",
+              "as": "sum"
+            },
+            {
+              "kind": "derive",
+              "into": "mld_eur",
+              "expr": "v / 1000",
+              "vars": {
+                "v": "naklady_mil_eur"
+              }
+            },
+            {
+              "kind": "sort",
+              "by": "rok"
+            }
+          ]
+        },
+        {
+          "label": "Novopriznaný starobný dôchodok",
+          "dataset": "rrz_vstup_vystup",
+          "value": "priemer_eur",
+          "unit": "EUR",
+          "note": "Priemer novopriznaných, január – jún 2026.",
+          "decimals": 2,
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "smer": "Novopriznaní"
+              }
+            },
+            {
+              "kind": "sort",
+              "by": "rok"
+            }
+          ],
+          "higherIsBetter": true,
+          "deltaUnit": "€",
+          "deltaNote": "r/r"
+        },
+        {
+          "label": "Muži vs. ženy",
+          "dataset": "rrz_kpi",
+          "value": "hodnota",
+          "unit": "%",
+          "note": "O koľko je priemerný nekrátený SD mužov vyšší než u žien.",
+          "decimals": 2,
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "ukazovatel": "Muži vs. ženy"
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false
+        },
+        {
+          "label": "Pracujúci dôchodcovia",
+          "dataset": "rrz_kpi",
+          "value": "hodnota",
+          "unit": "%",
+          "note": "Úzka definícia, podiel poberateľov SD, jún 2026.",
+          "decimals": 2,
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "ukazovatel": "Pracujúci dôchodcovia"
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false
+        },
+        {
+          "label": "Krátenie SD za II. pilier",
+          "dataset": "rrz_kratenie",
+          "value": "kratenie_pct",
+          "unit": "%",
+          "note": "Priemerné krátenie u tých, ktorým sa dôchodok kráti. 2026.",
+          "decimals": 2,
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "druh": "Starobný dôchodok"
+              }
+            },
+            {
+              "kind": "sort",
+              "by": "rok"
+            }
+          ],
+          "deltaUnit": "p. b.",
+          "deltaNote": "r/r"
+        }
+      ]
+    },
+    "rrz_davky_pocet": {
+      "type": "bar",
+      "title": "Koľko dôchodkov sa vypláca",
+      "subtitle": "Každý poberateľ daného druhu bez ohľadu na krátenie a súbeh s iným dôchodkom. Jeden človek môže byť v dvoch riadkoch naraz.",
+      "dataset": "rrz_davky_druh",
+      "x": "druh",
+      "y": "pocet",
+      "unit": "osôb",
+      "size": "l",
+      "span": 6,
+      "transform": [
+        {
+          "kind": "filter",
+          "where": {
+            "pohlad": "Všetci poberatelia"
+          }
+        },
+        {
+          "kind": "sort",
+          "by": "pocet",
+          "dir": "desc"
+        }
+      ],
+      "tableColumns": [
+        "druh",
+        "pocet",
+        "priemer_eur",
+        "podiel_pct"
+      ]
+    },
+    "rrz_davky_priemer": {
+      "type": "bar",
+      "title": "Priemerná dávka podľa druhu",
+      "subtitle": "Nekrátené dôchodky bez dôchodku z cudziny a výsluhového — pohľad, ktorým report vykazuje hlavné čísla.",
+      "dataset": "rrz_davky_druh",
+      "x": "druh",
+      "y": "priemer_eur",
+      "unit": "EUR",
+      "decimals": 2,
+      "size": "l",
+      "span": 6,
+      "transform": [
+        {
+          "kind": "filter",
+          "where": {
+            "pohlad": "Nekrátené bez iného dôchodku"
+          }
+        },
+        {
+          "kind": "sort",
+          "by": "priemer_eur",
+          "dir": "desc"
+        }
+      ],
+      "tableColumns": [
+        "druh",
+        "priemer_eur",
+        "pocet",
+        "podiel_pct"
+      ]
+    },
+    "rrz_sd_vyvoj_pohlady": {
+      "type": "bar-grouped",
+      "title": "Tri definície jedného dôchodku",
+      "subtitle": "Ten istý starobný dôchodok vyjde o desiatky eur inak podľa toho, koho do priemeru pustíme. Rozdiel medzi krajnými pohľadmi je takmer 60 €.",
+      "dataset": "rrz_sd_vyvoj",
+      "x": "rok",
+      "y": "priemer_eur",
+      "series": "pohlad",
+      "unit": "EUR",
+      "decimals": 2,
+      "size": "m",
+      "span": 6,
+      "xTickFormat": "year",
+      "note": "December 2024, december 2025, jún 2026."
+    },
+    "rrz_sd_pohlavie_bars": {
+      "type": "bar-grouped",
+      "title": "Muži a ženy",
+      "subtitle": "Priemerný nekrátený starobný dôchodok. Rozdiel rastie v eurách (176 → 187 €), v pomere sa drží na 1,29.",
+      "dataset": "rrz_sd_pohlavie",
+      "x": "rok",
+      "y": "priemer_eur",
+      "series": "pohlavie",
+      "unit": "EUR",
+      "decimals": 2,
+      "size": "m",
+      "span": 6,
+      "xTickFormat": "year",
+      "tableColumns": [
+        "rok",
+        "pohlavie",
+        "priemer_eur",
+        "pocet"
+      ]
+    },
+    "rrz_naklady_stack": {
+      "type": "bar-stacked",
+      "title": "Náklady na dôchodky podľa druhu",
+      "subtitle": "Invalidné a pozostalostné dôchodky sú zlúčené, aby počet farieb zostal v overenom rozsahu. Rok 2026 je len prvý polrok — je to napísané priamo na osi, aby sa nedal prečítať ako prepad.",
+      "dataset": "rrz_naklady_druh",
+      "x": "rok",
+      "y": "naklady_mil_eur",
+      "series": "druh",
+      "unit": "mil. EUR",
+      "decimals": 0,
+      "size": "l",
+      "span": 7,
+      "transform": [
+        {
+          "kind": "filter",
+          "where": {
+            "druh": [
+              "Starobný dôchodok",
+              "Predčasný dôchodok",
+              "Invalidný dôchodok do 70 %",
+              "Invalidný dôchodok nad 70 %",
+              "Vdovský/vdovecký dôchodok",
+              "Sirotský dôchodok",
+              "13. dôchodok"
+            ]
+          }
+        },
+        {
+          "kind": "rename",
+          "column": "druh",
+          "map": {
+            "Invalidný dôchodok do 70 %": "Invalidný dôchodok",
+            "Invalidný dôchodok nad 70 %": "Invalidný dôchodok",
+            "Vdovský/vdovecký dôchodok": "Pozostalostné",
+            "Sirotský dôchodok": "Pozostalostné"
+          }
+        },
+        {
+          "kind": "rename",
+          "column": "rok",
+          "map": {
+            "2026": "2026 (I. polrok)"
+          }
+        },
+        {
+          "kind": "aggregate",
+          "by": [
+            "rok",
+            "druh"
+          ],
+          "value": "naklady_mil_eur",
+          "as": "sum"
+        }
+      ],
+      "note": "Štátne dávky (0,03 % nákladov) sú len v tabuľke. V roku 2026 ešte nebol vyplatený 13. dôchodok, takže ani prepočet na celý rok by stĺpec neporovnal s predošlými."
+    },
+    "rrz_naklady_podiel": {
+      "type": "bar",
+      "title": "Z čoho sa skladá eurо na dôchodky",
+      "subtitle": "Podiel na celkových nákladoch za posledný celý rok (2025), v plnom členení reportu.",
+      "dataset": "rrz_naklady_druh",
+      "x": "druh",
+      "y": "podiel_pct",
+      "unit": "%",
+      "decimals": 2,
+      "size": "l",
+      "span": 5,
+      "transform": [
+        {
+          "kind": "filter",
+          "where": {
+            "rok": 2025
+          }
+        },
+        {
+          "kind": "sort",
+          "by": "podiel_pct",
+          "dir": "desc"
+        }
+      ],
+      "tableColumns": [
+        "druh",
+        "podiel_pct",
+        "naklady_mil_eur"
+      ]
+    },
+    "rrz_decily_hranice": {
+      "type": "column",
+      "title": "Hranice decilov dôchodkového príjmu",
+      "subtitle": "Poberatelia starobného dôchodku zoradení podľa celkového dôchodkového príjmu a rozdelení na desatiny. Stĺpec je horná hranica desatiny.",
+      "dataset": "rrz_decily",
+      "x": "decil",
+      "y": "do_eur",
+      "unit": "EUR",
+      "decimals": 0,
+      "size": "m",
+      "span": 6,
+      "tableColumns": [
+        "decil",
+        "od_eur",
+        "do_eur",
+        "sirka_eur"
+      ]
+    },
+    "rrz_decily_sirka": {
+      "type": "column",
+      "title": "Stlačený stred",
+      "subtitle": "Aké široké je pásmo každej desatiny. Päť stredných sa zmestí do 52 – 68 €, zatiaľ čo najvyššia sa rozťahuje cez tri tisícky.",
+      "dataset": "rrz_decily",
+      "x": "decil",
+      "y": "sirka_eur",
+      "unit": "EUR",
+      "decimals": 0,
+      "size": "m",
+      "span": 6,
+      "tableColumns": [
+        "decil",
+        "od_eur",
+        "do_eur",
+        "sirka_eur"
+      ]
+    },
+    "rrz_vstup_vystup_priemer": {
+      "type": "bar-grouped",
+      "title": "Prichádzajúci a odchádzajúci dôchodok",
+      "subtitle": "Novopriznaný dôchodok je vyšší než ten, ktorý systému odchádza — ale pomer sa stenčuje: 1,28 → 1,18 → 1,15.",
+      "dataset": "rrz_vstup_vystup",
+      "x": "rok",
+      "y": "priemer_eur",
+      "series": "smer",
+      "unit": "EUR",
+      "decimals": 2,
+      "size": "m",
+      "span": 6,
+      "xTickFormat": "year"
+    },
+    "rrz_vstup_vystup_pocet": {
+      "type": "bar-grouped",
+      "title": "Koľko ľudí pribudlo a koľko odišlo",
+      "subtitle": "Rok 2026 je len január – jún, preto je stĺpec nižší; porovnávať sa dajú roky 2024 a 2025.",
+      "dataset": "rrz_vstup_vystup",
+      "x": "rok",
+      "y": "pocet",
+      "series": "smer",
+      "unit": "osôb",
+      "size": "m",
+      "span": 6,
+      "xTickFormat": "year"
+    },
+    "rrz_kratenie_pct": {
+      "type": "bar-grouped",
+      "title": "Priemerné krátenie za účasť v II. pilieri",
+      "subtitle": "O koľko percent je nižší dôchodok tým, ktorým sa kráti. Predčasný dôchodok sa kráti viac než starobný.",
+      "dataset": "rrz_kratenie",
+      "x": "rok",
+      "y": "kratenie_pct",
+      "series": "druh",
+      "unit": "%",
+      "decimals": 2,
+      "size": "m",
+      "span": 6,
+      "xTickFormat": "year",
+      "tableColumns": [
+        "rok",
+        "druh",
+        "kratenie_pct",
+        "kratenie_eur",
+        "pocet"
+      ]
+    },
+    "rrz_kratenie_pocet": {
+      "type": "bar-grouped",
+      "title": "Koľkým sa dôchodok kráti",
+      "subtitle": "Sporiteľov s kráteným starobným dôchodkom pribúda, pri predčasnom ich ubúda — do dôchodku prichádzajú ročníky s dlhšou účasťou v II. pilieri.",
+      "dataset": "rrz_kratenie",
+      "x": "rok",
+      "y": "pocet",
+      "series": "druh",
+      "unit": "osôb",
+      "size": "m",
+      "span": 6,
+      "xTickFormat": "year",
+      "tableColumns": [
+        "rok",
+        "druh",
+        "pocet",
+        "uspora_mil_eur"
+      ]
+    },
+    "rrz_doba_bars": {
+      "type": "bar-grouped",
+      "title": "Ako dlho sa dôchodok poberal — skutočné čísla",
+      "subtitle": "Priemer u poberateľov, ktorým starobný dôchodok v danom roku zanikol. Ženy ho poberali o deväť rokov dlhšie než muži.",
+      "dataset": "rrz_doba_poberania",
+      "x": "rok",
+      "y": "priemer_rokov",
+      "series": "pohlavie",
+      "unit": "rokov",
+      "decimals": 1,
+      "size": "m",
+      "span": 6,
+      "xTickFormat": "year",
+      "tableColumns": [
+        "rok",
+        "pohlavie",
+        "priemer_rokov",
+        "median_rokov"
+      ]
+    },
+    "par_kpi": {
+      "type": "tiles",
+      "title": "Parametre platné v roku 2026",
+      "subtitle": "Štyri čísla, z ktorých sa počíta každý novopriznaný dôchodok, a dve, ktoré určujú dolnú hranicu.",
+      "dataset": "par_veliciny",
+      "span": 12,
+      "tiles": [
+        {
+          "label": "Aktuálna dôchodková hodnota",
+          "dataset": "par_veliciny",
+          "value": "adh_eur",
+          "unit": "EUR",
+          "note": "95 % rastu priemernej mzdy za 3. štvrťrok. Rok 2026.",
+          "decimals": 4,
+          "transform": [
+            {
+              "kind": "sort",
+              "by": "rok"
+            }
+          ],
+          "hero": true,
+          "higherIsBetter": true,
+          "deltaUnit": "€",
+          "deltaNote": "r/r"
+        },
+        {
+          "label": "Štandardná valorizácia",
+          "dataset": "par_veliciny",
+          "value": "valorizacia_pct",
+          "unit": "%",
+          "note": "Dôchodcovská inflácia za január – september. Rok 2026.",
+          "decimals": 1,
+          "transform": [
+            {
+              "kind": "sort",
+              "by": "rok"
+            }
+          ],
+          "deltaUnit": "p. b.",
+          "deltaNote": "r/r"
+        },
+        {
+          "label": "Životné minimum",
+          "dataset": "par_veliciny",
+          "value": "zivotne_minimum_eur",
+          "unit": "EUR",
+          "note": "Plnoletá osoba, od 1. júla 2026.",
+          "decimals": 2,
+          "transform": [
+            {
+              "kind": "sort",
+              "by": "rok"
+            }
+          ],
+          "higherIsBetter": true,
+          "deltaUnit": "€",
+          "deltaNote": "r/r"
+        },
+        {
+          "label": "Referenčná suma pre II. pilier",
+          "dataset": "par_veliciny",
+          "value": "referencna_suma_eur",
+          "unit": "EUR",
+          "note": "Podmienka programového výberu z II. piliera. Rok 2026.",
+          "decimals": 2,
+          "transform": [
+            {
+              "kind": "sort",
+              "by": "rok"
+            }
+          ],
+          "deltaUnit": "€",
+          "deltaNote": "r/r"
+        },
+        {
+          "label": "Minimálny dôchodok",
+          "dataset": "par_minimalny_dochodok",
+          "value": "suma_eur",
+          "unit": "EUR",
+          "note": "30 rokov kvalifikovaného poistenia, rok 2026.",
+          "decimals": 2,
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "roky_poistenia": 30
+              }
+            },
+            {
+              "kind": "sort",
+              "by": "rok"
+            }
+          ],
+          "higherIsBetter": true,
+          "deltaUnit": "€",
+          "deltaNote": "r/r"
+        },
+        {
+          "label": "13. dôchodok (starobný)",
+          "dataset": "par_trinasty_dochodok",
+          "value": "suma_eur",
+          "unit": "EUR",
+          "note": "Pevná suma zmrazená pre roky 2025 – 2028.",
+          "decimals": 2,
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "druh": "Starobný dôchodok",
+                "obdobie": "2025–2028"
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false
+        }
+      ]
+    },
+    "par_veliciny_tab": {
+      "type": "table",
+      "title": "Výpočtové veličiny 2024 – 2026",
+      "subtitle": "Čo sa o koľko medziročne pohlo.",
+      "dataset": "par_veliciny",
+      "span": 12,
+      "tableColumns": [
+        "rok",
+        "adh_eur",
+        "valorizacia_pct",
+        "zivotne_minimum_eur",
+        "referencna_suma_eur"
+      ]
+    },
+    "par_odvody_stack": {
+      "type": "bar-stacked-h",
+      "title": "Kam ide 22,75 % z vymeriavacieho základu",
+      "subtitle": "Sadzba na starobné poistenie sa od roku 2004 nezmenila ani raz — menilo sa len to, koľko z nej ide do II. piliera a o koľko sa zníži časť zamestnávateľa v I. pilieri.",
+      "dataset": "par_odvody",
+      "x": "obdobie",
+      "y": "sadzba_pct",
+      "series": "zlozka",
+      "unit": "%",
+      "decimals": 2,
+      "size": "xl",
+      "span": 12,
+      "transform": [
+        {
+          "kind": "unpivot",
+          "keep": [
+            "obdobie"
+          ],
+          "only": [
+            "zamestnanec_pct",
+            "zamestnavatel_pct",
+            "ii_pilier_pct"
+          ],
+          "into": "zlozka",
+          "value": "sadzba_pct"
+        },
+        {
+          "kind": "rename",
+          "column": "zlozka",
+          "map": {
+            "zamestnanec_pct": "I. pilier — zamestnanec",
+            "zamestnavatel_pct": "I. pilier — zamestnávateľ",
+            "ii_pilier_pct": "II. pilier"
+          }
+        }
+      ]
+    },
+    "par_vek_line": {
+      "type": "line",
+      "title": "Dôchodkový vek podľa ročníka a počtu detí",
+      "subtitle": "Každé vychované dieťa posúva vek o pol roka nižšie, najviac o 18 mesiacov. Ročníky 1967 a 1968 už určila vyhláška podľa strednej dĺžky dožitia, nie zákon.",
+      "dataset": "par_dochodkovy_vek",
+      "x": "rocnik",
+      "y": "vek_rokov",
+      "series": "deti",
+      "unit": "rokov",
+      "decimals": 2,
+      "size": "m",
+      "span": 7,
+      "xTickFormat": "year",
+      "tableColumns": [
+        "rocnik",
+        "deti",
+        "vek_rokov",
+        "vek_mesiacov"
+      ]
+    },
+    "par_narok_tab": {
+      "type": "table",
+      "title": "Kedy vzniká nárok",
+      "subtitle": "Podmienka nároku podľa druhu dôchodku.",
+      "dataset": "par_narok",
+      "span": 5
+    },
+    "par_psd_tab": {
+      "type": "table",
+      "title": "Predčasný dôchodok pred a po 15. máji 2024",
+      "subtitle": "Tri z piatich parametrov sa zmenili — najviac krátenie po odpracovaní potrebného obdobia, ktoré sa z 0,3 % zvýšilo na 0,5 % za každých 30 dní.",
+      "dataset": "par_psd_pravidla",
+      "span": 12
+    },
+    "par_min_bars": {
+      "type": "bar-grouped",
+      "title": "Minimálny dôchodok podľa rokov poistenia",
+      "subtitle": "Násobok životného minima rastie s odpracovanými rokmi — od 1,45× pri tridsiatich po 2,03× pri päťdesiatich.",
+      "dataset": "par_minimalny_dochodok",
+      "x": "roky_poistenia",
+      "y": "suma_eur",
+      "series": "rok",
+      "unit": "EUR",
+      "decimals": 2,
+      "size": "m",
+      "span": 6,
+      "xLabel": "rokov kvalifikovaného poistenia",
+      "tableColumns": [
+        "roky_poistenia",
+        "rok",
+        "suma_eur",
+        "nasobok_zm"
+      ]
+    },
+    "par_13_bars": {
+      "type": "bar",
+      "title": "13. dôchodok podľa druhu dávky",
+      "subtitle": "Pevná suma pre roky 2025 – 2028. U starobného dôchodku stúpla zo 606,30 € v roku 2024 na 667,30 €; staršie sumy sú v datasete.",
+      "dataset": "par_trinasty_dochodok",
+      "x": "druh",
+      "y": "suma_eur",
+      "unit": "EUR",
+      "decimals": 2,
+      "size": "l",
+      "span": 6,
+      "transform": [
+        {
+          "kind": "filter",
+          "where": {
+            "obdobie": "2025–2028"
+          }
+        },
+        {
+          "kind": "sort",
+          "by": "suma_eur",
+          "dir": "desc"
+        }
+      ]
+    },
+    "par_vypocet_bars": {
+      "type": "bar",
+      "title": "Čo vyjde z modelového výpočtu",
+      "subtitle": "Dôchodok = POMB × roky poistenia × aktuálna dôchodková hodnota, po valorizácii 2026. Dva najnižšie prípady by spadli pod minimálny dôchodok a dvíhajú sa naň.",
+      "dataset": "par_vypocet",
+      "x": "pripad",
+      "y": "po_valorizacii_eur",
+      "unit": "EUR",
+      "decimals": 2,
+      "size": "l",
+      "span": 7,
+      "transform": [
+        {
+          "kind": "sort",
+          "by": "po_valorizacii_eur",
+          "dir": "desc"
+        }
+      ],
+      "tableColumns": [
+        "pripad",
+        "profil",
+        "pomb",
+        "odp_rokov",
+        "zakladna_eur",
+        "po_valorizacii_eur",
+        "komentar"
+      ]
+    },
+    "par_pomb_line": {
+      "type": "line",
+      "title": "Solidarizácia osobného mzdového bodu",
+      "subtitle": "Z nadpriemerného mzdového bodu sa započítava stále väčšia časť (40 → 68 %) a z podpriemerného sa dopláca stále menšia (60 → 20 %). Oboje znamená menej solidarity; najviac sa prerozdeľovalo okolo rokov 2011 – 2012.",
+      "dataset": "par_pomb_uprava",
+      "x": "rok",
+      "y": "podiel_pct",
+      "series": "zlozka",
+      "unit": "%",
+      "decimals": 1,
+      "size": "m",
+      "span": 5,
+      "xTickFormat": "year",
+      "transform": [
+        {
+          "kind": "unpivot",
+          "keep": [
+            "rok"
+          ],
+          "only": [
+            "nad_125_pct",
+            "pod_1_pct"
+          ],
+          "into": "zlozka",
+          "value": "podiel_pct"
+        },
+        {
+          "kind": "rename",
+          "column": "zlozka",
+          "map": {
+            "nad_125_pct": "Zo sumy nad POMB 1,25",
+            "pod_1_pct": "Z rozdielu pod POMB 1"
+          }
+        }
+      ],
+      "note": "Posledná hodnota platí pre rok 2016 a všetky neskoršie."
+    },
+    "rrz_doba_median": {
+      "type": "bar-grouped",
+      "title": "Medián dĺžky poberania",
+      "subtitle": "Polovica poberateľov bola pod touto hranicou. U žien je medián vyšší než priemer (29 vs. 26,8 roka) — priemer stláča menšina s krátkym poberaním.",
+      "dataset": "rrz_doba_poberania",
+      "x": "rok",
+      "y": "median_rokov",
+      "series": "pohlavie",
+      "unit": "rokov",
+      "decimals": 0,
+      "size": "m",
+      "span": 6,
+      "xTickFormat": "year",
+      "tableColumns": [
+        "rok",
+        "pohlavie",
+        "median_rokov",
+        "priemer_rokov"
+      ]
     }
   }
 }

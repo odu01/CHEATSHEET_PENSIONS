@@ -17,6 +17,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseCsv } from './lib/csv.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -39,28 +40,6 @@ if (WANT_TEMPLATE) {
   }
   console.log(Object.keys(hit[1].columns || {}).join(','));
   process.exit(0);
-}
-
-// ── parsovanie CSV: rovnaké pravidlá ako lib/data.js ─────────────────────────
-function parseCsv(text) {
-  const clean = text.replace(/^﻿/, '').replace(/\r\n?/g, '\n').trim();
-  const delim = (clean.split('\n')[0].match(/\t/g) || []).length ? '\t' : ',';
-  const rows = [];
-  let field = '', row = [], quoted = false;
-  for (let i = 0; i < clean.length; i++) {
-    const c = clean[i];
-    if (quoted) {
-      if (c === '"' && clean[i + 1] === '"') { field += '"'; i++; }
-      else if (c === '"') quoted = false;
-      else field += c;
-    } else if (c === '"') quoted = true;
-    else if (c === delim) { row.push(field); field = ''; }
-    else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
-    else field += c;
-  }
-  row.push(field);
-  rows.push(row);
-  return rows;
 }
 
 const TYPE_OK = {
@@ -269,6 +248,27 @@ for (const [id, def] of inputs) {
   for (const [c] of cols) {
     const lbl = def.columns[c].label;
     if (lbl) console.log(`     ${c.padEnd(22)} ${lbl}`);
+  }
+  console.log('');
+}
+
+// ── kontrolné súčty mimo data/vstup/ ────────────────────────────────────────
+// Deklarovaná kontrola má bežať bez ohľadu na to, kde súbor leží. Generované
+// datasety (data/*.csv) ich dovtedy mali v manifeste, ale nikdy sa nespustili —
+// vyzeralo to, že sú overené, a overené neboli.
+const generated = Object.entries(manifest.datasets)
+  .filter(([, d]) => !(d.file || '').startsWith('data/vstup/') && (d.checks || []).length);
+if (generated.length) {
+  console.log('Kontrolné súčty v generovaných súboroch\n');
+  for (const [id, def] of generated) {
+    const rec = readDataset(id);
+    if (!rec) { problems.push(`${id}: súbor ${def.file} sa nedá prečítať`); continue; }
+    console.log(` ${id}  (${def.file})`);
+    for (const chk of def.checks) {
+      const res = runCheck(id, chk, rec.want, rec.body);
+      if (res) problems.push(res);
+      else console.log(`   ✓ ${describeCheck(chk)}`);
+    }
   }
   console.log('');
 }

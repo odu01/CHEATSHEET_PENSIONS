@@ -1,0 +1,6 @@
+parameter,do_15_5_2024,od_15_5_2024,zmena
+Min. výška PSD pre priznanie [násobok ŽM],1.6,1.6,nie
+Krátenie: štandardné (max. 2 roky do penzie),"0,5 % za každých 30 dní","0,5 % za každých 30 dní",nie
+Krátenie: po odpracovaní potrebného obdobia,"0,3 % za každých 30 dní","0,5 % za každých 30 dní",áno
+Definícia potrebného odpracovaného obdobia,Fixných 40 rokov,Naviazané na dôchodkový vek,áno
+Súbeh so zamestnaním / živnosťou,Vylúčený okrem výnimiek pre definované živnosti,Vylúčený okrem výnimiek pre definované živnosti,nie

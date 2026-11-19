@@ -1,0 +1,10 @@
+profil,pripad,pomb,odp_rokov,zakladna_eur,po_valorizacii_eur,komentar
+veľmi nízky príjem (SZČO na minime),"POMB 0,6 · 30 rokov",0.6,30,355.74,368.9,"Vypočítaná suma je pod zákonným minimom, preto sa dôchodok zvyšuje na minimálny dôchodok pri 30 rokoch poistenia (časť 3)."
+veľmi nízky príjem (SZČO na minime),"POMB 0,6 · 40 rokov",0.6,40,474.32,491.87,"Základná suma je mierne pod minimálnym dôchodkom pri 40 rokoch poistenia, preto sa dôchodok zvyšuje na minimum (časť 3)."
+podpriemerná mzda (~80 % priemeru),"POMB 0,8 · 35 rokov",0.8,35,553.37,573.85,Zodpovedá zamestnancom v nízkopríjmových odvetviach.
+podpriemerná mzda (~80 % priemeru),"POMB 0,8 · 40 rokov",0.8,40,632.43,655.83,Modelový príklad 40 rokov poistenia pri ~80 % priemernej mzdy.
+priemerná mzda v hospodárstve,"POMB 1,0 · 40 rokov",1.0,40,790.53,819.78,Celoživotné zarábanie na úrovni celoštátneho priemeru.
+priemerná mzda v hospodárstve,"POMB 1,0 · 45 rokov",1.0,45,889.35,922.25,Dlhá kariéra s priemerným príjmom výrazne zvyšuje výšku penzie.
+nadpriemerná mzda (~120 % priemeru),"POMB 1,2 · 40 rokov",1.2,40,948.64,983.74,Príjmovo nadštandardný poistenec pred odchodom na penziu.
+nadpriemerná mzda (~120 % priemeru),"POMB 1,2 · 45 rokov",1.2,45,1067.22,1106.71,Penzia patrí k najvyšším v modelovej matici.
+vysoký príjem (~150 % priemeru),"POMB 1,5 · 45 rokov",1.5,45,1334.02,1383.38,"Špecialisti, manažment (odvody z vyšších vymeriavacích základov)."

@@ -19,7 +19,7 @@
 import { spawn } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'screenshots');
@@ -35,9 +35,22 @@ const TARGETS = [
   { name: 'mobile', colorScheme: 'light', viewport: { width: 390, height: 844 }, phone: true },
 ].filter(t => !ONLY || t.name === ONLY);
 
-const { chromium } = await import('playwright').catch(() => {
-  console.error('Chýba playwright. Nainštaluj: npm install playwright && npx playwright install chromium');
-  process.exit(2);
+// Playwright môže byť lokálna devDependency alebo globálne predinštalovaný
+// balík (CI image, sandbox). ESM import vidí len to prvé — NODE_PATH ho
+// nezaujíma — takže druhý pokus ide cez CJS rozlíšenie, ktoré ho vidí.
+const { chromium } = await import('playwright').catch(async () => {
+  try {
+    const { createRequire } = await import('node:module');
+    const req = createRequire(import.meta.url);
+    const mod = await import(pathToFileURL(req.resolve('playwright')).href);
+    // Playwright je CJS: cez import() príde ako { default: exports }, a podľa
+    // toho, či Node rozpozná pomenované exporty, `chromium` buď je hore, alebo
+    // je v `default`. Zrovnáme to na jeden tvar.
+    return mod.chromium ? mod : mod.default;
+  } catch {
+    console.error('Chýba playwright. Nainštaluj: npm install playwright && npx playwright install chromium');
+    process.exit(2);
+  }
 });
 
 const manifest = JSON.parse(readFileSync(join(ROOT, 'data', 'manifest.json'), 'utf8'));
@@ -74,7 +87,17 @@ function chromiumPath() {
   return undefined;
 }
 
-const browser = await chromium.launch({ executablePath: chromiumPath() });
+// Server beží od tohto bodu, takže od tohto bodu musí mať kto upratať: keď
+// padne spustenie prehliadača, osirený server drží port a ďalší beh zomrie na
+// EADDRINUSE skôr, než sa vôbec dostane k veci.
+let browser;
+try {
+  browser = await chromium.launch({ executablePath: chromiumPath() });
+} catch (err) {
+  server.kill();
+  console.error(`Prehliadač sa nepodarilo spustiť: ${err.message}`);
+  process.exit(2);
+}
 
 try {
   for (const target of TARGETS) {

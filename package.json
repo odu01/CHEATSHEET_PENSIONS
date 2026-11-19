@@ -12,6 +12,8 @@
     "vstup": "node tools/check-vstup.mjs",
     "vstup:gen": "python3 tools/gen_vstup.py",
     "data": "python3 tools/import_sp.py",
+    "data:rrz": "python3 tools/import_rrz.py",
+    "data:rrz:extract": "python3 tools/extract_rrz_sheets.py",
     "shots": "node tools/screenshots.mjs"
   },
   "comment": "There are no runtime dependencies on purpose: d3, Observable Plot and the Plotly gl3d bundle are vendored under vendor/ at pinned versions. devDependencies are only needed for `npm run shots`.",

@@ -57,7 +57,7 @@ odznak **„Syntetické dáta"** a v zdroji vypísané kotvy, na ktorých model 
 Vstupné súbory ležia v `data/vstup/` — doplniť reálne čísla znamená prepísať v
 nich hodnoty; postup je v **[data/vstup/README.md](data/vstup/README.md)**,
 kontrolu robí `npm run vstup`. Evidencia zadaných ukazovateľov je v
-**[docs/POZADOVANE_UKAZOVATELE.md](docs/POZADOVANE_UKAZOVATELE.md)**.
+**[docs/POZADOVANE_UKAZOVATELE.md](docs/POZADOVANE_UKAZOVATELE.md)**. Posledná vizuálna kontrola a jej nálezy: **[docs/VIZUALNY_AUDIT.md](docs/VIZUALNY_AUDIT.md)**.
 
 Každý graf dostane automaticky tabuľku s presnými hodnotami, export do CSV,
 tooltip so všetkými sériami na danom X, ovládanie klávesnicou, prepínanie sérií v
@@ -85,7 +85,8 @@ lib/view.js                zloží jednu kartu: graf + legenda + tabuľka + prov
 data/manifest.json         KONTRAKT: datasety, stránky, views
 data/manifest.schema.json  JSON Schema pre editor
 data/sp_*.csv              dátové súbory (generované z data/zdroj/)
-data/zdroj/*.xlsx          pôvodné zošity Sociálnej poisťovne
+data/rrz_*.csv, par_*.csv  manažérsky prehľad RRZ (generované z data/zdroj/)
+data/zdroj/*.xlsx          pôvodné zošity Sociálnej poisťovne a RRZ
 data/vstup/*.csv           ručný vstup — sem sa dopĺňajú čísla, ktoré v zošitoch nie sú
 
 tools/serve.mjs            lokálny server bez závislostí
@@ -93,6 +94,9 @@ tools/validate-manifest.mjs kontroluje, že všetko, čo stránka načíta, exis
 tools/check-palette.mjs    premeria paletu proti prístupnostným limitom
 tools/screenshots.mjs      vykreslí všetky stránky v oboch režimoch, hľadá chyby
 tools/import_sp.py         prevod zošitov SP na tidy CSV + kontrolné súčty
+tools/import_rrz.py        prevod manažérskeho prehľadu RRZ na tidy CSV
+tools/extract_rrz_sheets.py vyberie z reportu len hárky, ktoré sa publikujú
+tools/lib/csv.mjs          jeden parser CSV pre všetky nástroje
 tools/check-vstup.mjs      čo je v data/vstup, čo v ňom chýba, či sedí na kontrakt
 tools/gen_vstup.py         model pre syntetické vstupné dáta (kalibrovaný na kotvy)
 
@@ -109,6 +113,22 @@ sa z nich generujú skriptom:
 ```bash
 npm run data     # python3 tools/import_sp.py
 ```
+
+Druhým zdrojom je **manažérsky prehľad dôchodkového systému Kancelárie RRZ**
+(hárky `statistiky` a `parametre`). Dáva to, čo v mesačných zošitoch SP nie je:
+tri definície priemerného dôchodku vedľa seba, rozdiel medzi mužmi a ženami,
+krátenie za II. pilier, dĺžku poberania, náklady podľa druhu a celú legislatívnu
+parametriku (dôchodková hodnota, dôchodkový vek, minimálny a 13. dôchodok,
+modelový výpočet, sadzby odvodov).
+
+```bash
+npm run data:rrz:extract -- <report.xlsx>   # z plného reportu vyberie dva hárky
+npm run data:rrz                            # hárky -> data/rrz_*.csv a par_*.csv
+```
+
+Prvý krok existuje zámerne: plný report má okolo sedemdesiat hárkov a 4,3 MB,
+publikujú sa dva. Repozitár je zároveň zverejnený web, takže do `data/zdroj/`
+ide 18 KB výťah presne z toho, čo je na stránkach — nie celý zošit.
 
 Skript rieši sedem pascí, ktoré sa pri ručnom prepise ľahko prehliadnu — počty
 uvedené v tisícoch, kumulatívne stĺpce výdavkov, dve rôzne definície priemerného

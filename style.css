@@ -676,7 +676,9 @@ body {
 .viz-source-more-sum:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 
 .viz-source {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  /* Pri viacerých zdrojoch je zoznam viacriadkový a `center` posunul slovo
+     „Zdroje:" doprostred — patrí k prvému riadku. */
+  display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap;
   margin-top: 10px; padding-top: 8px;
   border-top: 1px solid var(--border);
   font-size: 0.72rem; color: var(--ink-muted);
