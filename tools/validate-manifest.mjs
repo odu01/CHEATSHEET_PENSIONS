@@ -83,6 +83,10 @@ function producedBy(pipeline) {
       produced.add(into);
       produced.add(into + '_od');                        // numeric band start
     }
+    if (t.kind === 'quantiles') {
+      const into = t.into || 'kvantil';
+      for (const sfx of ['', '_poradie', '_od', '_do', '_podiel_pct']) produced.add(into + sfx);
+    }
     if (t.kind === 'cumsum') {
       const suffix = t.suffix || '_kum';
       for (const c of (t.columns || [t.column])) {

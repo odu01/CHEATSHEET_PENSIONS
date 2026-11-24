@@ -143,6 +143,13 @@ ukazujú hotovostné výdavky SP za všetky druhy. `sp_vydavky_zmena.csv` (2021 
 2024) sa ďalej generuje a dataset `vydavky_zmena` zostáva v manifeste, len ho
 dnes nezobrazuje žiadna stránka.
 
+Tabuľka na stránke *Rozdelenie dôchodkov* je odvtedy **po deciloch, nie po
+pásmach**: 10 riadkov na rok, dopočítané transformáciou `quantiles` z
+`data/vstup/dochodky_pasma.csv`. Kým je súbor syntetický, sú syntetické aj
+decily — a ich podiely na výdavkoch sa medzi rokmi takmer nemenia, lebo model
+rozdelenie len posúva s priemerom. Reálna tabuľka pásiem od SP to prepne bez
+zmeny manifestu.
+
 ---
 
 ## Čo treba dodať

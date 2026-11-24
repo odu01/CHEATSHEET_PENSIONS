@@ -209,6 +209,7 @@ strane view, takže jedno CSV môže živiť viacero grafov.
 | `sort` | zoradí (`dir` môže byť pole podľa `by`) | `{"kind":"sort","by":["rok","mesiac"],"dir":["desc","asc"]}` |
 | `bin` | zoskupí čísla do pásiem | `{"kind":"bin","column":"vek","into":"vekova_skupina","width":5,"max":95,"maxLabel":"95+"}` |
 | `cumsum` | bežiaci súčet a podiel | `{"kind":"cumsum","columns":["pocet","vydavky"],"by":["rok"],"share":true,"origin":true}` |
+| `quantiles` | decily (kvantily) z tabuľky pásiem | `{"kind":"quantiles","n":10,"by":["rok"],"lower":"od_eur","count":"pocet","mean":"priemer_eur","into":"decil"}` |
 | `topN` | ponechá N, zvyšok do „Ostatné" | `{"kind":"topN","n":6,"by":"hodnota","group":"krajina"}` |
 | `limit` | prvých N riadkov | `{"kind":"limit","n":20}` |
 
@@ -236,6 +237,22 @@ pásma. Celá krivka „koľko % výdavkov ide na koľko % dôchodcov" je potom:
 
 Posledné dva kroky pridajú do grafu diagonálu rovnomerného rozdelenia — bez nej
 sa krivka nedá s ničím porovnať.
+
+### Decily z tabuľky pásiem
+
+`quantiles` z tej istej tabuľky pásiem vyrobí na každú skupinu `n` riadkov:
+`decil` (D1 … D10), `decil_poradie`, hranice `decil_od` a `decil_do`, počet a
+priemer v decile (do stĺpcov `count` a `mean`) a `decil_podiel_pct` — podiel
+decilu na výdavkoch. V pásme sa predpokladá lineárna hustota so stredom v
+priemere pásma, takže hranice aj priemery idú z jedného rozdelenia a objem sa
+sčíta presne na celok. Dolná hranica D1 a horná hranica D10 sú minimum a
+maximum a z pásiem sa určiť nedajú — zostanú prázdne. Čím hrubšie pásma, tým
+viac je hranica decilu vecou predpokladu o tvare v pásme.
+
+Stĺpce, ktoré vyrobí transformácia, dataset nedeklaruje, takže tabuľka nevie ich
+jednotku. Dodá ju view: `"columnFormats": { "decil_od": { "unit": "EUR",
+"decimals": 0 }, "decil_podiel_pct": { "unit": "%", "decimals": 1 } }`. Vzor:
+`dochodky_tabulka` na stránke *Rozdelenie dôchodkov*.
 
 ### Vážený priemer
 

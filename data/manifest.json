@@ -1954,6 +1954,7 @@
       "size": "l",
       "span": 6,
       "minWidth": 560,
+      "note": "Paušálna valorizácia (t−1) je nula: dôchodky sa valorizujú od 1. januára, takže valorizácia roka 2024 bola v nákladoch roka 2024 už celých 12 mesiacov a do zmeny 2025 nemá čo preniesť. Príspevok z predošlého roka majú len udalosti v priebehu roka — dôchodok priznaný v júli 2024 sa v roku 2024 vyplácal 6 mesiacov, v roku 2025 celých 12.",
       "tableColumns": [
         "faktor",
         "obdobie",
@@ -3273,39 +3274,62 @@
     },
     "dochodky_tabulka": {
       "type": "table",
-      "title": "Starobné dôchodky podľa pásiem výšky",
+      "title": "Starobné dôchodky podľa decilov",
+      "subtitle": "V roku 2024 mala najnižšia desatina dôchodkov menej než 415 € a najvyššia viac než 991 €. Horný decil dostal 16,6 % výdavkov, dolný 5,0 % — 3,3-krát viac.",
       "dataset": "dochodky_pasma",
-      "unit": "EUR",
-      "sortKey": "rok",
       "transform": [
         {
-          "kind": "derive",
-          "into": "vydavky_mes_eur",
-          "expr": "n * p",
-          "vars": {
-            "n": "pocet",
-            "p": "priemer_eur"
-          }
+          "kind": "quantiles",
+          "n": 10,
+          "by": [
+            "rok"
+          ],
+          "lower": "od_eur",
+          "count": "pocet",
+          "mean": "priemer_eur",
+          "into": "decil"
         }
       ],
+      "sortKey": "rok",
+      "sortDir": "desc",
       "tableColumns": [
         "rok",
-        "pasmo",
-        "pocet",
+        "decil",
+        "decil_od",
+        "decil_do",
         "priemer_eur",
-        "vydavky_mes_eur"
+        "pocet",
+        "decil_podiel_pct"
       ],
       "labels": {
-        "pasmo": "Pásmo (EUR)",
+        "rok": "Rok",
+        "decil": "Decil",
+        "decil_od": "Od",
+        "decil_do": "Do",
+        "priemer_eur": "Priemer v decile",
         "pocet": "Počet dôchodkov",
-        "priemer_eur": "Priemer v pásme (EUR)",
-        "vydavky_mes_eur": "Výdavky za mesiac (EUR)",
-        "rok": "Rok"
+        "decil_podiel_pct": "Podiel na výdavkoch"
       },
-      "span": 12,
-      "y": "vydavky_mes_eur",
-      "decimals": 0,
-      "sortDir": "desc"
+      "columnFormats": {
+        "decil_od": {
+          "unit": "EUR",
+          "decimals": 0
+        },
+        "decil_do": {
+          "unit": "EUR",
+          "decimals": 0
+        },
+        "priemer_eur": {
+          "unit": "EUR",
+          "decimals": 0
+        },
+        "decil_podiel_pct": {
+          "unit": "%",
+          "decimals": 1
+        }
+      },
+      "note": "Decily sú dopočítané z tabuľky pásiem po 100 € (ten istý súbor ako grafy vyššie): v pásme sa predpokladá lineárna hustota so stredom v priemere pásma, z nej sa berú hranice aj priemery. Dolná hranica D1 a horná hranica D10 sú minimum a maximum — z pásiem sa určiť nedajú. Podiely decilov sú medzi rokmi takmer rovnaké, lebo model rozdelenie len posúva s priemerom; reálne pásma SP to zmenia.",
+      "span": 12
     },
     "veky_znaky_tiles": {
       "type": "tiles",

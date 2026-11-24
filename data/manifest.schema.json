@@ -384,7 +384,9 @@
           },
           "periodTicks": {
             "type": "object",
-            "additionalProperties": { "type": "string" },
+            "additionalProperties": {
+              "type": "string"
+            },
             "description": "Len waterfall s 'period': hodnota obdobia → krátky popis pod stĺpcom. Poradie kľúčov určuje tón: prvé obdobie sýtejšie, ďalšie svetlejšie."
           },
           "unit": {
@@ -414,6 +416,24 @@
               "monthName"
             ],
             "description": "year = letopočet bez oddeľovača. month = časová os, pri dlhom rozsahu len roky. monthName = čísla mesiacov 1–12 ako skratky (jan, feb, …), pre teplotnú mapu."
+          },
+          "columnFormats": {
+            "type": "object",
+            "description": "Jednotka a desatinné miesta pre stĺpce tabuľky, ktoré vyrobí transformácia a dataset ich nedeklaruje. Napr. {\"decil_od\": {\"unit\": \"EUR\", \"decimals\": 0}}.",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "unit": {
+                  "type": "string"
+                },
+                "decimals": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 6
+                }
+              }
+            }
           },
           "labels": {
             "type": "object",
@@ -749,6 +769,7 @@
               "sort",
               "bin",
               "cumsum",
+              "quantiles",
               "limit",
               "topN"
             ]
@@ -912,6 +933,22 @@
             "type": "boolean",
             "default": true,
             "description": "expand: čo s hodnotami, ktoré v `map` nie sú — prejdú (true) alebo vypadnú."
+          },
+          "lower": {
+            "type": "string",
+            "description": "quantiles: stĺpec s dolnou hranicou pásma."
+          },
+          "count": {
+            "type": "string",
+            "description": "quantiles: stĺpec s počtom v pásme."
+          },
+          "mean": {
+            "type": "string",
+            "description": "quantiles: stĺpec s priemerom v pásme (stred lineárnej hustoty v pásme)."
+          },
+          "prefix": {
+            "type": "string",
+            "description": "quantiles: predpona označenia kvantilu, predvolene \"D\" (D1…D10)."
           }
         }
       }
