@@ -1,7 +1,7 @@
 # CHEATSHEET_PENSIONS
 
 Dynamické grafy a tabuľky k dôchodkovému (PAYGO) systému. Dodáš CSV a jeden blok
-do manifestu, web z toho vykreslí graf, tabuľku a export — bez zmeny kódu.
+do manifestu, web z toho vykreslí graf, tabuľku a export — bez zmeny kódu..
 
 Statická stránka: žiadny build step, žiadny bundler, žiadne runtime závislosti.
 Repozitár *je* stránka.
