@@ -2552,7 +2552,7 @@
     "veky_heatmapa": {
       "type": "heatmap",
       "title": "Počet dôchodcov: vekové pásmo × kategória",
-      "subtitle": "Stav k roku 2024, bez kategórie „Iba SP\" — tá je o rád väčšia než ostatné a stlačila by celú škálu na jednu farbu.",
+      "subtitle": "Za rok a pohlavie vybrané filtrom, bez kategórie „Iba SP\" — tá je o rád väčšia než ostatné a stlačila by celú škálu na jednu farbu.",
       "dataset": "starobni_veky",
       "x": "kategoria",
       "y": "vekova_skupina",
@@ -2564,12 +2564,6 @@
       "size": "xl",
       "span": 12,
       "transform": [
-        {
-          "kind": "filter",
-          "where": {
-            "rok": 2024
-          }
-        },
         {
           "kind": "filter",
           "where": {
@@ -3334,7 +3328,7 @@
     "veky_znaky_tiles": {
       "type": "tiles",
       "title": "Koľko dôchodcov má ktorú vlastnosť",
-      "subtitle": "Stav k roku 2024 za vybrané pohlavie: každý dôchodca je v tej skupine, ktorej vlastnosť má, aj keď má aj ďalšiu. Súčet týchto štyroch čísel je preto vyšší než počet dôchodcov — o kombinácie.",
+      "subtitle": "Za rok a pohlavie vybrané filtrom: každý dôchodca je v tej skupine, ktorej vlastnosť má, aj keď má aj ďalšiu. Súčet týchto štyroch čísel je preto vyšší než počet dôchodcov — o kombinácie.",
       "dataset": "starobni_veky",
       "unit": "osôb",
       "decimals": 0,
@@ -3344,12 +3338,6 @@
           "value": "pocet",
           "agg": "sum",
           "transform": [
-            {
-              "kind": "filter",
-              "where": {
-                "rok": 2024
-              }
-            },
             {
               "kind": "expand",
               "column": "kategoria",
@@ -3402,12 +3390,6 @@
           "value": "pocet",
           "agg": "sum",
           "transform": [
-            {
-              "kind": "filter",
-              "where": {
-                "rok": 2024
-              }
-            },
             {
               "kind": "expand",
               "column": "kategoria",
@@ -3462,12 +3444,6 @@
           "agg": "sum",
           "transform": [
             {
-              "kind": "filter",
-              "where": {
-                "rok": 2024
-              }
-            },
-            {
               "kind": "expand",
               "column": "kategoria",
               "into": "znak",
@@ -3520,12 +3496,6 @@
           "value": "pocet",
           "agg": "sum",
           "transform": [
-            {
-              "kind": "filter",
-              "where": {
-                "rok": 2024
-              }
-            },
             {
               "kind": "expand",
               "column": "kategoria",

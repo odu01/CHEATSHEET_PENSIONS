@@ -71,6 +71,9 @@ a `badge` — generátor nad tým súborom stráca právo a CI prestane porovná
   Zámena zabila graf už dvakrát.
 - Dlaždica (`tiles`) berie **posledný riadok** po filtri. Keď filter nechá viac
   riadkov, treba `"agg": "sum"`, inak ukáže posledný a tvári sa normálne.
+- Karta na stránke s filtrom nesmie mať **pevný filter na ten istý stĺpec**
+  (`"rok": 2024` pod filtrom Rok): pri inom roku ostane prázdna a dlaždica so
+  `sum` ukáže nulu. Validácia to odmieta.
 - Tabuľka berie názov stĺpca z `label` pri stĺpci datasetu; `labels` vo view to
   prebíja.
 - Prúdový diagram má `minWidth` — pod ňou sa plocha posúva nabok vo vlastnom

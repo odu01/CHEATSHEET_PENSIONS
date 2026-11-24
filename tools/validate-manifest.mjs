@@ -335,6 +335,27 @@ for (const page of manifest.pages || []) {
                  `sa naň nevzťahuje`);
     }
   }
+
+  // Filter stránky a pevný filter v karte na ten istý stĺpec sa vylučujú: pri
+  // inej hodnote, než má karta natvrdo, ostane karta prázdna — a dlaždica so
+  // "agg": "sum" ukáže nulu, ktorá sa tvári ako číslo. (Tak sa to stalo na
+  // stránke „Podľa kategórie": rok 2024 v dlaždiciach, filter Rok nad nimi.)
+  const pageCols = new Set((page.filters || []).map(f => f.column).filter(Boolean));
+  for (const vid of page.views || []) {
+    const v = views[vid];
+    if (!v) continue;
+    const pipelines = [['', v.transform], ...(v.tiles || []).map(t => [` (dlaždica „${t.label}")`, t.transform])];
+    for (const [where, pipeline] of pipelines) {
+      for (const t of pipeline || []) {
+        if (t.kind !== 'filter') continue;
+        for (const c of Object.keys(t.where || {})) {
+          if (pageCols.has(c))
+            err(`page "${page.id}": view "${vid}"${where} má pevný filter na "${c}", ` +
+                `ktorý už filtruje stránka — pri inej hodnote filtra bude karta prázdna`);
+        }
+      }
+    }
+  }
 }
 for (const id of Object.keys(views)) if (!used.has(id)) warn(`view "${id}" nie je na žiadnej stránke`);
 

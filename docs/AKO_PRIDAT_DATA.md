@@ -450,6 +450,9 @@ Dve veci, na ktoré si dať pozor:
   jednu hodnotu naraz. Vzor: graf „novopriznaný vs vyplácaný" má sériu
   `kategoria` (dve hodnoty); keby v dátach zostalo päť druhov dôchodku, Plot by
   nakreslil jednu čiaru cikcakom cez všetky.
+- **Žiadny pevný filter na stĺpec, ktorý filtruje stránka.** Dlaždica s
+  `{"kind":"filter","where":{"rok":2024}}` pod filtrom Rok ukáže pri roku 2023
+  nulu — vyzerá to ako číslo, nie ako chyba. `npm run validate` to odmietne.
 - **Filter platí pre celú stránku.** Graf, ktorý má zmysel len bez filtra (napr.
   „podľa druhu" so všetkými sériami), preto nedávaj na tú istú stránku — filter ho
   zredukuje na jednu sériu. Rozdeľ stránky; presne preto sú „Priemerné dôchodky"
