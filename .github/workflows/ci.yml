@@ -43,6 +43,7 @@ jobs:
         run: |
           pip install --quiet openpyxl
           python3 tools/import_sp.py
+          python3 tools/import_rrz.py
           if ! git diff --quiet -- data/; then
             echo "::error::CSV v data/ nesúhlasia s zošitmi v data/zdroj/."
             echo "Spusti 'npm run data' a commitni výsledok. Needituj generované CSV ručne."
