@@ -17,7 +17,7 @@
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { validate, validateOrdinal } from './validate_palette.js';
+import { validate, validateOrdinal, contrast } from './validate_palette.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = readFileSync(join(ROOT, 'lib', 'theme.js'), 'utf8');
@@ -89,6 +89,22 @@ for (const mode of ['light', 'dark']) {
   }
 
   report('ordinal ramp', validateOrdinal(ordinal, { mode, surface }));
+
+  // Páry tónov pre vodopád s obdobím (t−1, t). Každý pár je malá ordinálna
+  // rampa jedného hue — skoršie a neskoršie obdobie musia byť rozlíšiteľné
+  // svetlosťou — a oba tóny sú výplň, takže platí domáce pravidlo 3:1.
+  for (const pole of ['high', 'low']) {
+    const block = src.split(`  ${mode}: {`)[1];
+    const m = block.match(new RegExp(`periodPoles:[^}]*${pole}:\\s*\\[([^\\]]+)\\]`));
+    if (!m) { console.error(`theme.js: v bloku "${mode}" chýba periodPoles.${pole}`); failed = true; continue; }
+    const pair = m[1].match(/#[0-9a-fA-F]{6}/g) || [];
+    const r = validateOrdinal(pair, { mode, surface });
+    for (const c of pair) {
+      const cr = contrast(c, surface);
+      r.report.push(['Contrast vs surface', cr >= 3, `${c} at ${cr.toFixed(2)}:1`]);
+    }
+    report(`periodPoles.${pole} (vodopád t−1 / t)`, r);
+  }
 }
 
 console.log(`\n${'='.repeat(70)}`);

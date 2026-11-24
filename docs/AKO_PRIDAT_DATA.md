@@ -164,7 +164,7 @@ A pridaj id do niektorej stránky:
 | `barrank` | poradie, ktoré sa v čase mení | `x`, `y`, `frame` |
 | `mountain` | rozdelenie ako plocha nad spojitou osou | `x`, `y` |
 | `sankey` | prechody medzi stavmi (prúdový diagram) | `source`, `target`, `value`, `layers` |
-| `waterfall` | rozklad zmeny na faktory | `x`, `y` (+ `totalFlag`) |
+| `waterfall` | rozklad zmeny na faktory | `x`, `y` (+ `totalFlag`, `period`) |
 | `surface3d` | odozva na dva parametre | `x`, `y`, `z` |
 | `scatter3d` | tri merané dimenzie | `x`, `y`, `z` |
 | `tiles` | kľúčové čísla | `tiles` |
@@ -283,6 +283,26 @@ značkou `pageFilter`.
 Rozdiel, ktorý mätie: **`labels` premenúva NÁZVY STĹPCOV** (pre tabuľku a export),
 **`rename` premenúva HODNOTY** v stĺpci (pre legendu a tooltip). Po `unpivot`
 budeš takmer vždy chcieť `rename`, inak sa v legende objaví `priemerna_mzda_eur`.
+
+### Vodopád s obdobím príspevku (t−1, t)
+
+Keď má každý faktor dva príspevky — z predošlého a z bežného roka —, vodopád ich
+nakreslí ako susednú dvojicu. Stĺpec s obdobím je `period`, `periodTicks` mapuje
+jeho hodnoty na krátky popis pod stĺpcom a poradie kľúčov určuje tón (prvé
+obdobie sýtejšie, ďalšie svetlejšie; páry `periodPoles` v `lib/theme.js` meria
+`npm run validate:palette`):
+
+```json
+"type": "waterfall", "x": "faktor", "y": "zmena_mil_eur", "totalFlag": "je_spolu",
+"period": "obdobie",
+"periodTicks": { "z predošlého roka (t−1)": "t−1", "z bežného roka (t)": "t" },
+"minWidth": 560
+```
+
+Kľúče `periodTicks` sú hodnoty tak, ako ich vidí graf — po preklade cez `codes`
+pri stĺpci datasetu. Názov faktora sa kreslí raz pod celou dvojicou a zalamuje sa
+do šírky, ktorú skupina má; poradie krokov je poradie riadkov v CSV a tabuľka pod
+grafom ho drží. Vzor: `rozklad_naklady_sd` na stránke *Výdavky*.
 
 ## 6. Prechody medzi stavmi
 

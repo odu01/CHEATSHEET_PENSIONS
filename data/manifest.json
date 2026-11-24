@@ -89,6 +89,67 @@
         }
       }
     },
+    "rozklad_naklady_sd": {
+      "file": "data/vstup/rozklad_naklady_sd.csv",
+      "label": "Rozklad zmeny nákladov na starobné dôchodky 2024 → 2025",
+      "unit": "mil. EUR",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, graf „Príspevky faktorov k medziročnej zmene nákladov na starobné dôchodky“ (hárok „statistiky“). Hodnoty prepísané z grafu, zaokrúhlené na 0,1 mil. €.",
+      "vintage": "2025 oproti 2024",
+      "note": "Každý faktor má dva príspevky: (t−1) z predošlého roka 2024 a (t) z bežného roka 2025. Zmena spolu 420,9 mil. € sa rovná rozdielu nákladov na starobné dôchodky v datasete „Náklady na dôchodky podľa druhu“ (8 837,51 − 8 416,61 mil. €). Údaje za faktory nie sú vo zverejnenom výťahu reportu — graf v reporte čerpá z hárku, ktorý sa nepublikuje —, preto sú tu ako ručný vstup.",
+      "checks": [
+        {
+          "kind": "sum",
+          "column": "zmena_mil_eur",
+          "where": {
+            "rok": 2025,
+            "je_spolu": 0
+          },
+          "equals": 420.9,
+          "tolerance": 0.002,
+          "note": "Príspevky faktorov sa musia sčítať na zmenu spolu (povolený rozdiel zo zaokrúhlenia)."
+        },
+        {
+          "kind": "sum",
+          "column": "zmena_mil_eur",
+          "where": {
+            "rok": 2025,
+            "je_spolu": 1
+          },
+          "equals": 420.9,
+          "tolerance": 0.001,
+          "note": "Zmena spolu = náklady na starobné dôchodky 2025 − 2024 v rrz_naklady_druh (8 837,51 − 8 416,61)."
+        }
+      ],
+      "columns": {
+        "rok": {
+          "type": "year",
+          "label": "Rok t (bežný rok rozkladu)"
+        },
+        "faktor": {
+          "type": "string",
+          "label": "Faktor zmeny nákladov"
+        },
+        "obdobie": {
+          "type": "string",
+          "label": "Obdobie, z ktorého príspevok pochádza",
+          "codes": {
+            "t-1": "z predošlého roka (t−1)",
+            "t": "z bežného roka (t)",
+            "spolu": "spolu"
+          }
+        },
+        "zmena_mil_eur": {
+          "type": "number",
+          "label": "Príspevok k zmene nákladov, mil. €",
+          "measure": true,
+          "decimals": 1
+        },
+        "je_spolu": {
+          "type": "bool",
+          "label": "1 = riadok so zmenou spolu"
+        }
+      }
+    },
     "vydavky_grid": {
       "file": "data/sp_vydavky_rok_mesiac.csv",
       "label": "Výdavky na dôchodky, mriežka rok × mesiac",
@@ -1333,7 +1394,7 @@
       "views": [
         "vydavky_skladba_mesacne",
         "vydavky_skladba_rocne",
-        "vydavky_zmena_wf"
+        "naklady_sd_rozklad_wf"
       ],
       "group": "Výdavky a počty"
     },
@@ -1874,36 +1935,34 @@
       },
       "span": 6
     },
-    "vydavky_zmena_wf": {
+    "naklady_sd_rozklad_wf": {
       "type": "waterfall",
-      "title": "Rozklad zmeny výdavkov 2021 → 2024",
-      "subtitle": "Rast a pokles nesú polaritu, preto divergentné póly, nie kategorické farby. Výdavky vzrástli o 4,6 mld. €, z toho 2,5 mld. € na starobných dôchodkoch.",
-      "dataset": "vydavky_zmena",
+      "title": "Rozklad zmeny nákladov na starobné dôchodky 2024 → 2025",
+      "subtitle": "Náklady vzrástli o 420,9 mil. € — 159,6 mil. € z predošlého roka (t−1) a 261,3 mil. € z bežného (t). Najviac pridali noví poberatelia (465,9 mil. € za oba roky), úmrtia ubrali 298,6 mil. €.",
+      "dataset": "rozklad_naklady_sd",
       "x": "faktor",
-      "y": "mil_eur",
-      "totalFlag": "je_uroven",
+      "y": "zmena_mil_eur",
+      "period": "obdobie",
+      "periodTicks": {
+        "z predošlého roka (t−1)": "t−1",
+        "z bežného roka (t)": "t"
+      },
+      "totalFlag": "je_spolu",
       "unit": "mil. EUR",
-      "decimals": 0,
-      "yLabel": "mil. EUR za rok",
+      "decimals": 1,
+      "yLabel": "mil. EUR",
       "size": "l",
       "span": 6,
-      "transform": [
-        {
-          "kind": "derive",
-          "into": "mil_eur",
-          "expr": "v / 1000",
-          "vars": {
-            "v": "zmena_tis_eur"
-          }
-        }
-      ],
+      "minWidth": 560,
       "tableColumns": [
         "faktor",
-        "mil_eur"
+        "obdobie",
+        "zmena_mil_eur"
       ],
       "labels": {
         "faktor": "Faktor",
-        "mil_eur": "Zmena (mil. €)"
+        "obdobie": "Príspevok",
+        "zmena_mil_eur": "Zmena (mil. €)"
       }
     },
     "pocty_druhy_trend": {

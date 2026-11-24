@@ -29,7 +29,7 @@ npm run data          # python3 tools/import_sp.py
 | `sp_priemer_novo_vs_stav.csv` | mesačný zošit | novopriznaný vs vyplácaný, obe v €/mesiac |
 | `sp_novopriznane_mesacne.csv` | mesačný zošit | novopriznané, kategória 01-09P |
 | `sp_vydavky_rocne.csv` | ročné zošity | z kumulatívneho stĺpca január–december |
-| `sp_vydavky_zmena.csv` | ročné zošity | rozklad zmeny 2021 → 2024 |
+| `sp_vydavky_zmena.csv` | ročné zošity | rozklad zmeny 2021 → 2024 (generuje sa, na stránke ho od 2026-11 nahradil rozklad RRZ 2024 → 2025) |
 | `sp_priemer_solo_mesacne.csv` | ročné zošity | priemer **len sólo** dôchodkov |
 | `sp_dochodcovia_mesacne.csv` | ročné zošity | osoby, nie dôchodky |
 | `sp_dochodky_vs_dochodcovia.csv` | ročné zošity | obe rady v jednom súbore |

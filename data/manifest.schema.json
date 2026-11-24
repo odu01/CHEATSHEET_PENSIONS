@@ -378,6 +378,15 @@
             "type": "string",
             "description": "Len waterfall: stĺpec 0/1, ktorý označuje úrovne (nie zmeny)."
           },
+          "period": {
+            "type": "string",
+            "description": "Len waterfall: stĺpec, ktorý delí faktor na susedné stĺpce podľa obdobia príspevku (napr. t−1 a t)."
+          },
+          "periodTicks": {
+            "type": "object",
+            "additionalProperties": { "type": "string" },
+            "description": "Len waterfall s 'period': hodnota obdobia → krátky popis pod stĺpcom. Poradie kľúčov určuje tón: prvé obdobie sýtejšie, ďalšie svetlejšie."
+          },
           "unit": {
             "type": "string"
           },

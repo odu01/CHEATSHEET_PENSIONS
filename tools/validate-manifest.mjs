@@ -59,7 +59,7 @@ const COLUMN_LIST_KEYS = ['layers'];
 // Keys whose value must name a real column in the view's dataset.
 // `size` is deliberately NOT here: in this manifest `size` is the card height
 // ("s"/"m"/"l"/"xl"). The bubble radius column is `radius`.
-const COLUMN_KEYS = ['x', 'y', 'z', 'value', 'series', 'label', 'totalFlag',
+const COLUMN_KEYS = ['x', 'y', 'z', 'value', 'series', 'label', 'totalFlag', 'period',
                      'radius', 'frame', 'source', 'target'];
 
 /**

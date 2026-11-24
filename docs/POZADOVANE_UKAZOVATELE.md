@@ -125,6 +125,26 @@ bez toho, aby sa čokoľvek na webe menilo.
 
 ---
 
+## Dávka 4 (zadané 2026-11, rozklad zmeny nákladov)
+
+Rozklad zmeny výdavkov 2021 → 2024 na stránke *Výdavky* nahradil rozklad zmeny
+**nákladov na starobné dôchodky 2025 oproti 2024**, kde má každý faktor dva
+príspevky: z predošlého roka (t−1) a z bežného roka (t) — tvar zadaný obrázkom
+z manažérskeho prehľadu RRZ.
+
+| Graf | Stav | Stránka | Súbor |
+|---|---|---|---|
+| Rozklad zmeny nákladov na SD 2024 → 2025, t−1 vs. t | hotové (čísla prepísané z grafu RRZ) | *Výdavky* | `data/vstup/rozklad_naklady_sd.csv` |
+
+Súčet 420,9 mil. € sedí presne na rozdiel nákladov na starobné dôchodky v
+`rrz_naklady_druh.csv` (8 837,51 − 8 416,61). Pozor na rozsah: rozklad je **len za
+starobné dôchodky** a v nákladovej metodike RRZ, kým ostatné karty na stránke
+ukazujú hotovostné výdavky SP za všetky druhy. `sp_vydavky_zmena.csv` (2021 →
+2024) sa ďalej generuje a dataset `vydavky_zmena` zostáva v manifeste, len ho
+dnes nezobrazuje žiadna stránka.
+
+---
+
 ## Čo treba dodať
 
 Súbory už existujú a majú správnu hlavičku. Doplniť = prepísať v nich hodnoty a

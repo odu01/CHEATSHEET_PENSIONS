@@ -44,6 +44,15 @@ Prázdnu hlavičku na začiatok vypíše `node tools/check-vstup.mjs --sablona <
 | `prezitie_kohort.csv` | `prezitie_kohort` | generácia × vek | Demografia |
 | `nadej_dozitia_vek.csv` | `nadej_dozitia_vek` | rok × dosiahnutý vek | Demografia |
 | `prechody_stavov.csv` | `prechody` | prúd zo stavu do stavu | Pohyb v čase |
+| `rozklad_naklady_sd.csv` | `rozklad_naklady_sd` | rok × faktor × obdobie príspevku | Výdavky |
+
+`rozklad_naklady_sd.csv` je jediný súbor tu, ktorý **už má reálne čísla**: rozklad
+zmeny nákladov na starobné dôchodky 2025 oproti 2024 z manažérskeho prehľadu RRZ.
+Vo zverejnenom výťahu reportu tie čísla nie sú (graf v reporte čerpá z hárku,
+ktorý sa nepublikuje), preto sú prepísané z grafu na 0,1 mil. €. Dve kontroly
+strážia, že príspevky sa sčítajú na 420,9 mil. € a že to je rozdiel nákladov na
+starobné dôchodky v `rrz_naklady_druh.csv`. Ďalší rok = ďalších 13 riadkov s iným
+`rok`; graf vtedy treba obmedziť filtrom na jeden rok.
 
 Presné stĺpce, typy a významy sú v manifeste (`data/manifest.json`, kľúč
 `columns`) a vypíše ich `npm run vstup`. Tu sú len tie veci, ktoré sa z hlavičky
