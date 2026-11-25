@@ -213,6 +213,13 @@ for (const [id, def] of Object.entries(manifest.datasets || {})) {
   }
 }
 
+// ── 2c. pevné farby entít: len sloty, ktoré paleta pozná ─────────────────────
+const SLOTS = ['blue', 'red', 'green', 'navy', 'gold', 'purple'];
+for (const [name, slot] of Object.entries(manifest.colors || {})) {
+  if (!SLOTS.includes(slot))
+    err(`colors: „${name}“ má slot „${slot}“, paleta pozná ${SLOTS.join(', ')}`);
+}
+
 // ── 3. views: required keys, real dataset, real columns ─────────────────────
 const views = manifest.views || {};
 for (const [id, v] of Object.entries(views)) {

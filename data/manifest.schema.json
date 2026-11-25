@@ -753,6 +753,12 @@
               "side"
             ],
             "description": "side = legenda a poznámky vpravo od grafu (karta na celú šírku s dlhým vysvetlením); pod 960 px pod grafom."
+          },
+          "barMax": {
+            "type": "number",
+            "minimum": 8,
+            "maximum": 120,
+            "description": "Hrúbka stĺpca v px (strop). Bez neho 24 px; pri dvoch-troch stĺpcoch na veľkej ploche ich treba hrubšie."
           }
         }
       }
@@ -765,6 +771,20 @@
         "additionalProperties": {
           "type": "string"
         }
+      }
+    },
+    "colors": {
+      "type": "object",
+      "description": "Pevné farby entít naprieč webom: názov série alebo kategórie → farebný slot. Starobný dôchodok a reálny dôchodok sú modré v každom grafe.",
+      "additionalProperties": {
+        "enum": [
+          "blue",
+          "red",
+          "green",
+          "navy",
+          "gold",
+          "purple"
+        ]
       }
     }
   },

@@ -37,6 +37,15 @@
       "Sólo poberatelia": "Sólo poberatelia"
     }
   },
+  "colors": {
+    "Starobný": "blue",
+    "Starobný dôchodok": "blue",
+    "Starobné": "blue",
+    "Starobné dôchodky": "blue",
+    "Reálne": "blue",
+    "Všetci poberatelia": "red",
+    "Sólo poberatelia": "green"
+  },
   "datasets": {
     "vydavky_mesacne": {
       "file": "data/sp_vydavky_mesacne.csv",
@@ -4103,7 +4112,9 @@
         "Sólo poberatelia — nekrátené starobné dôchodky poberateľov bez akéhokoľvek ďalšieho dôchodku, teda aj bez vdovského či vdoveckého. Najužšie vymedzenie: v júni 2026 zahŕňa 769 666 z 1 125 948 poberateľov a vylúčením ovdovených dôchodcov vychyľuje priemer smerom nahor.",
         "Prečo reálny dôchodok — vylučuje dve skupiny, u ktorých vyplácaný starobný dôchodok podhodnocuje skutočný dôchodkový príjem. Prvou sú poberatelia, ktorým sa starobný dôchodok pri súbehu s iným dôchodkom vypláca v polovičnej sume (§ 81 zákona č. 461/2003 Z. z.), najčastejšie staršie ženy, ktorých vdovský dôchodok prevyšuje vlastný starobný. Druhou sú poberatelia dôchodku z cudziny alebo výsluhového dôchodku, ktorých obdobie poistenia v slovenskom systéme je kratšie, keďže časť kariéry odpracovali v zahraničí alebo v ozbrojených zložkách. Zároveň zachováva 90 % poberateľov, preto ho web používa ako základný ukazovateľ priemerného starobného dôchodku.",
         "Stav v decembri 2024, decembri 2025 a júni 2026."
-      ]
+      ],
+      "series": "pohlad",
+      "barMax": 56
     },
     "rrz_sd_pohlavie_bars": {
       "type": "bar-grouped",
@@ -4155,7 +4166,9 @@
         "Starobný dôchodok; stav v decembri 2024, decembri 2025 a júni 2026. Definície sú vysvetlené pri grafe „Tri definície jedného dôchodku“."
       ],
       "frame": "rok",
-      "frameLabel": "Rok"
+      "frameLabel": "Rok",
+      "series": "pohlad",
+      "barMax": 56
     },
     "rrz_naklady_stack": {
       "type": "bar-stacked",

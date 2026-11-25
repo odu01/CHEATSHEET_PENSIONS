@@ -52,7 +52,9 @@ a `badge` — generátor nad tým súborom stráca právo a CI prestane porovná
 - **Farba drží entitu, nie poradie.** Farebné sloty sa prideľujú v pevnom
   poradí: najviac 3 pri bodových a bublinových grafoch, 6 pri susediacich
   (stohované, zoskupené). Siedma séria sa skladá do „Ostatné", nefarbí sa.
-  `npm run validate` to meria, nehádaj.
+  `npm run validate` to meria, nehádaj. Entity, ktoré musia mať rovnakú farbu
+  v každom grafe, sú v manifeste `colors` — starobný dôchodok aj „Reálne“ sú
+  modré, „Všetci poberatelia“ červení, „Sólo“ zelení.
 - **Mriežka má 12 stĺpcov** a každý riadok stránky musí dať presne 12
   (`span` pri view). Validácia to odmietne.
 - **Vodorovné stĺpce (`bar`) sú len jednosériové alebo stohované**; viac sérií

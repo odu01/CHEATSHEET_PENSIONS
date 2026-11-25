@@ -7,7 +7,7 @@
 
 import { renderView } from './lib/view.js';
 import { loadDataset, clearCache } from './lib/data.js';
-import { resetTokens, activeMode } from './lib/theme.js';
+import { resetTokens, activeMode, setEntityColors } from './lib/theme.js';
 import { applyTransforms } from './lib/transform.js';
 
 const MANIFEST_URL = 'data/manifest.json';
@@ -31,6 +31,7 @@ async function boot() {
     const resp = await fetch(MANIFEST_URL, { cache: 'no-cache' });
     if (!resp.ok) throw new Error(`${MANIFEST_URL}: HTTP ${resp.status}`);
     state.manifest = await resp.json();
+    setEntityColors(state.manifest.colors);
   } catch (err) {
     fatal(`Nepodarilo sa načítať ${MANIFEST_URL}: ${err.message}`);
     return;

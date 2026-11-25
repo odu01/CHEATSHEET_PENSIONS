@@ -333,6 +333,24 @@ pri stĺpci datasetu. Názov faktora sa kreslí raz pod celou dvojicou a zalamuj
 do šírky, ktorú skupina má; poradie krokov je poradie riadkov v CSV a tabuľka pod
 grafom ho drží. Vzor: `rozklad_naklady_sd` na stránke *Výdavky*.
 
+### Pevné farby entít a hrúbka stĺpca
+
+Farba sa prideľuje podľa poradia sérií v grafe, takže tá istá entita by v dvoch
+grafoch mohla mať inú farbu. Entity, ktoré musia byť všade rovnaké, sú v manifeste
+na najvyššej úrovni:
+
+```json
+"colors": { "Starobný dôchodok": "blue", "Reálne": "blue",
+            "Všetci poberatelia": "red", "Sólo poberatelia": "green" }
+```
+
+Hodnota je slot palety (`blue`, `red`, `green`, `navy`, `gold`, `purple`).
+Entita s pevnou farbou ho dostane v každom grafe, ostatné série berú voľné sloty
+v poradí. Dve entity s rovnakým slotom nesmú byť v jednom grafe naraz.
+
+`"barMax": 56` pri view zvýši strop hrúbky stĺpca (inak 24 px) — pre dva-tri
+stĺpce na veľkej ploche, kde by inak zostali tenké čiary.
+
 ### Legenda a poznámky vedľa grafu
 
 Karta na celú šírku s dlhým vysvetlením (napr. definície) by s textom pod grafom
