@@ -45,17 +45,22 @@ Prvý krok nie je formalita. Plný report má okolo sedemdesiat hárkov; publiku
 dva, a repozitár je zároveň zverejnený web — do `data/zdroj/` preto ide výťah
 presne z toho, čo je na stránkach.
 
-Vývoj podľa druhu dôchodku (12/2024, 12/2025, 06/2026 a mesačné počty) je v iných
-hárkoch reportu a má vlastný výťah:
+Vývoj podľa druhu dôchodku (12/2024, 12/2025, 06/2026 a mesačné počty) a rozklad
+zmeny nákladov na starobné dôchodky sú v iných hárkoch reportu a majú vlastný výťah:
 
 ```bash
 npm run data:rrz:detail -- ~/Summary_Report.xlsx    # -> data/zdroj/RRZ_detail_druhy.xlsx
-npm run data:rrz                                    # dopíše rrz_davky_druh_vyvoj.csv, rrz_davky_mesacne.csv
+npm run data:rrz                                    # dopíše rrz_davky_druh_vyvoj.csv, rrz_davky_mesacne.csv,
+                                                    #        rrz_rozklad_naklady_sd.csv
 ```
 
 Z hárku `Popisne_statistiky` ide len počet a priemer v troch definíciách (všetci,
 nekrátené bez INÝCH, sólo); medián, rozptyl, extrémy a bloky s výsluhovým či
-cudzinovým dôchodkom zostávajú v reporte.
+cudzinovým dôchodkom zostávajú v reporte. Z hárku `Rocne_naklady_podla_druhu_doch`
+ide len rozklad zmeny (rok, zmena spolu, 12 príspevkov) a z `Mesacne_naklady_podla_druhu`
+len počet mesiacov v každom roku — podľa neho import napíše k neúplnému roku rozsah
+(„2025 → 2026 (I.–VI.)“). Po novom reporte si prečítaj podnadpis vodopádu na
+stránke *Výdavky*: hovorí o prvom polroku 2026 a sám sa neprepíše.
 
 Import hľadá každú tabuľku **podľa jej nadpisu**, nie podľa čísla riadku, takže
 pridaný riadok v reporte ho nerozsype. Hneď potom overuje, že hlavička sedí; keď
@@ -217,6 +222,7 @@ strane view, takže jedno CSV môže živiť viacero grafov.
 | `expand` | jeden riadok → riadok za každú vlastnosť | `{"kind":"expand","column":"kategoria","into":"znak","map":{"SP + II. pilier + cudzina":["Sporiteľ","Cudzina"]}}` |
 | `pageFilter` | miesto, kde zaberie filter stránky | `{"kind":"pageFilter"}` |
 | `derive` | vypočíta nový stĺpec | `{"kind":"derive","into":"pomer","expr":"a / b * 100","vars":{"a":"dochodok","b":"mzda"}}` |
+| `year` | rok z mesačného dátumu; s `partial` dostane neúplný rok rozsah mesiacov („2026 (I.–IV.)“) | `{"kind":"year","from":"mesiac","into":"rok","partial":true}` |
 | `index` | prepočíta na základ = 100 | `{"kind":"index","value":"hodnota","by":["druh"],"on":"rok","at":2020}` |
 | `sort` | zoradí (`dir` môže byť pole podľa `by`) | `{"kind":"sort","by":["rok","mesiac"],"dir":["desc","asc"]}` |
 | `bin` | zoskupí čísla do pásiem | `{"kind":"bin","column":"vek","into":"vekova_skupina","width":5,"max":95,"maxLabel":"95+"}` |
@@ -333,6 +339,13 @@ pri stĺpci datasetu. Názov faktora sa kreslí raz pod celou dvojicou a zalamuj
 do šírky, ktorú skupina má; poradie krokov je poradie riadkov v CSV a tabuľka pod
 grafom ho drží. Vzor: `rozklad_naklady_sd` na stránke *Výdavky*.
 
+Viac porovnaní rokov v jednom vodopáde: riadky všetkých rokov pod sebou v jednom
+CSV a `"frame"` nad stĺpcom, ktorý porovnanie pomenúva (`"porovnanie"`: „2024 →
+2025“). Bežiaci súčet sa počíta v každej snímke zvlášť a os y je pevná pre všetky —
+polročná zmena vedľa celoročnej vyzerá menšia, lebo menšia je. Dlhý popis snímky
+by ako veľký priesvitný nápis prekryl stĺpce, preto ho `"frameMark": false` vypne;
+snímku potom hlási posuvník a tabuľka pod grafom má stĺpec s porovnaním.
+
 ### Pevné farby entít a hrúbka stĺpca
 
 Farba sa prideľuje podľa poradia sérií v grafe, takže tá istá entita by v dvoch
@@ -431,7 +444,9 @@ Tri pravidlá, ktoré to drží poctivé — a sú v kóde, nie v dobrej vôli:
   neponúkne — posuvník zostane, je to ovládanie, nie efekt. Karta bez interakcie
   ukazuje najnovšiu snímku; to je aj to, čo skončí na screenshote a v tlači.
 - **Hodnota snímky je v grafe napísaná** veľkým priesvitným písmom. Pri
-  prehrávaní je to jediné, čo hovorí, ktorý okamih je na obrazovke.
+  prehrávaní je to jediné, čo hovorí, ktorý okamih je na obrazovke. Výnimka je
+  `"frameMark": false` pri dlhých popisoch snímky (vodopád s porovnaním rokov) —
+  hodnotu vtedy hlási posuvník a `npm run shots` to berie ako zámer, nie chybu.
 
 Doplnky: `trail` (bubbles) dokreslí cestu, po ktorej sa bublina dostala tam, kde
 je; `ghost` (mountain) nechá za sebou bledé obrysy predošlých snímok, takže na

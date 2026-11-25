@@ -1,7 +1,7 @@
 # Prehľad dôchodkového systému — odovzdanie projektu
 
 Vitaj. Tento repozitár je **dátové rozhranie k slovenskému dôchodkovému (PAYGO)
-systému**: 19 stránok, 65 grafov a tabuliek, 39 datasetov. Je to statický web bez
+systému**: 18 stránok, 63 grafov a tabuliek, 41 datasetov. Je to statický web bez
 build stepu — koreň repozitára je priamo to, čo sa nasadí na GitHub Pages.
 
 Tento dokument je úvod pre človeka aj pre Clauda. Operatívne pravidlá projektu
@@ -23,7 +23,7 @@ preklep v názve stĺpca spadne pri `npm run validate`, nie až na webe.
 ```bash
 npm run serve      # http://localhost:8080
 npm run validate   # musí prejsť: manifest + vstupné súbory + paleta
-npm run shots      # vykreslí 19 stránok × 3 prostredia do screenshots/
+npm run shots      # vykreslí 18 stránok × 3 prostredia do screenshots/
 ```
 
 `npm run shots` potrebuje Playwright (`npm install`); ostatné nemá žiadne

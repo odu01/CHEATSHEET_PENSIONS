@@ -104,40 +104,20 @@
       }
     },
     "rozklad_naklady_sd": {
-      "file": "data/vstup/rozklad_naklady_sd.csv",
-      "label": "Rozklad zmeny nákladov na starobné dôchodky 2024 → 2025",
+      "file": "data/rrz_rozklad_naklady_sd.csv",
+      "label": "Rozklad medziročnej zmeny nákladov na starobné dôchodky",
       "unit": "mil. EUR",
-      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, graf „Príspevky faktorov k medziročnej zmene nákladov na starobné dôchodky“ (hárok „statistiky“). Hodnoty prepísané z grafu, zaokrúhlené na 0,1 mil. €.",
-      "vintage": "2025 oproti 2024",
-      "note": "Každý faktor má dva príspevky: (t−1) z predošlého roka 2024 a (t) z bežného roka 2025. Zmena spolu 420,9 mil. € sa rovná rozdielu nákladov na starobné dôchodky v datasete „Náklady na dôchodky podľa druhu“ (8 837,51 − 8 416,61 mil. €). Údaje za faktory nie sú vo zverejnenom výťahu reportu — graf v reporte čerpá z hárku, ktorý sa nepublikuje —, preto sú tu ako ručný vstup.",
-      "checks": [
-        {
-          "kind": "sum",
-          "column": "zmena_mil_eur",
-          "where": {
-            "rok": 2025,
-            "je_spolu": 0
-          },
-          "equals": 420.9,
-          "tolerance": 0.002,
-          "note": "Príspevky faktorov sa musia sčítať na zmenu spolu (povolený rozdiel zo zaokrúhlenia)."
-        },
-        {
-          "kind": "sum",
-          "column": "zmena_mil_eur",
-          "where": {
-            "rok": 2025,
-            "je_spolu": 1
-          },
-          "equals": 420.9,
-          "tolerance": 0.001,
-          "note": "Zmena spolu = náklady na starobné dôchodky 2025 − 2024 v rrz_naklady_druh (8 837,51 − 8 416,61)."
-        }
-      ],
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „Rocne_naklady_podla_druhu_doch“ (rozklad zmeny nákladov na starobné dôchodky), výťah data/zdroj/RRZ_detail_druhy.xlsx",
+      "vintage": "2024 → 2025 a 2025 → 2026 (január – jún)",
+      "note": "Každý faktor má dva príspevky: (t−1) z udalostí predošlého roka a (t) z udalostí bežného roka. Zmena spolu 2025 (420,89 mil. €) sa rovná rozdielu nákladov na starobné dôchodky v datasete „Náklady na dôchodky podľa druhu“ (8 837,51 − 8 416,61 mil. €). Rok 2026 má v reporte len január – jún, preto rozklad 2026 porovnáva prvý polrok 2026 s prvým polrokom 2025; stĺpec „porovnanie“ to nesie v popise a s ďalšími mesiacmi sa obnoví z reportu. Rozklad počíta report z mesačných údajov od januára 2024 — skoršie porovnanie v ňom nie je.",
       "columns": {
         "rok": {
           "type": "year",
           "label": "Rok t (bežný rok rozkladu)"
+        },
+        "porovnanie": {
+          "type": "string",
+          "label": "Porovnávané roky"
         },
         "faktor": {
           "type": "string",
@@ -156,13 +136,37 @@
           "type": "number",
           "label": "Príspevok k zmene nákladov, mil. €",
           "measure": true,
-          "decimals": 1
+          "decimals": 2
         },
         "je_spolu": {
           "type": "bool",
           "label": "1 = riadok so zmenou spolu"
         }
-      }
+      },
+      "checks": [
+        {
+          "kind": "sum",
+          "column": "zmena_mil_eur",
+          "where": {
+            "rok": 2025,
+            "je_spolu": 0
+          },
+          "equals": 420.89,
+          "tolerance": 0.001,
+          "note": "Príspevky faktorov za rok 2025 sa musia sčítať na zmenu spolu (povolený rozdiel zo zaokrúhlenia)."
+        },
+        {
+          "kind": "sum",
+          "column": "zmena_mil_eur",
+          "where": {
+            "rok": 2025,
+            "je_spolu": 1
+          },
+          "equals": 420.9,
+          "tolerance": 0.001,
+          "note": "Zmena spolu 2025 = náklady na starobné dôchodky 2025 − 2024 v rrz_naklady_druh (8 837,51 − 8 416,61)."
+        }
+      ]
     },
     "vydavky_grid": {
       "file": "data/sp_vydavky_rok_mesiac.csv",
@@ -1512,10 +1516,11 @@
     {
       "id": "vydavky",
       "label": "Výdavky",
-      "description": "Skladba výdavkov na dôchodky a rozklad ich zmeny. Pozostalostné dôchodky (vdovský, vdovecký, sirotský) sú zlúčené do jednej kategórie — je to štandardné delenie a zároveň to drží počet farieb v overenom rozsahu.",
+      "description": "Skladba výdavkov na dôchodky, podiel jednotlivých druhov na nákladoch a rozklad medziročnej zmeny nákladov na starobné dôchodky. Pozostalostné dôchodky (vdovský, vdovecký, sirotský) sú v grafoch výdavkov zlúčené do jednej kategórie — je to štandardné delenie a zároveň to drží počet farieb v overenom rozsahu.",
       "views": [
         "vydavky_skladba_mesacne",
         "vydavky_skladba_rocne",
+        "rrz_naklady_podiel",
         "naklady_sd_rozklad_wf"
       ],
       "group": "Výdavky a počty"
@@ -1584,16 +1589,6 @@
         "sezonnost_3d"
       ],
       "group": "Výdavky a počty"
-    },
-    {
-      "id": "naklady",
-      "label": "Náklady podľa druhu",
-      "group": "Výdavky a počty",
-      "description": "Koľko stojí každý druh dôchodku a ako sa to delí. Čísla sú z manažérskeho prehľadu RRZ a zahŕňajú 13. dôchodok aj štátne dávky.",
-      "views": [
-        "rrz_naklady_stack",
-        "rrz_naklady_podiel"
-      ]
     },
     {
       "id": "pohyb",
@@ -2094,8 +2089,8 @@
     "vydavky_skladba_rocne": {
       "type": "bar-stacked",
       "title": "Výdavky podľa druhu dôchodku, ročne",
-      "subtitle": "Rodičovský dôchodok pribudol v roku 2023, 13. dôchodok v roku 2024.",
-      "dataset": "vydavky_rocne",
+      "subtitle": "Starobný dôchodok tvorí 71 – 80 % výdavkov, 13. dôchodok od roku 2024 pridáva 0,8 – 0,9 mld. € ročne. Stĺpec 2026 je len január – apríl.",
+      "dataset": "vydavky_mesacne",
       "x": "rok",
       "y": "mil_eur",
       "series": "druh",
@@ -2103,7 +2098,27 @@
       "decimals": 0,
       "yLabel": "mil. EUR za rok",
       "size": "l",
+      "span": 7,
       "transform": [
+        {
+          "kind": "year",
+          "from": "mesiac",
+          "into": "rok"
+        },
+        {
+          "kind": "filter",
+          "where": {
+            "rok": {
+              "gte": 2021
+            }
+          }
+        },
+        {
+          "kind": "year",
+          "from": "mesiac",
+          "into": "rok",
+          "partial": true
+        },
         {
           "kind": "rename",
           "column": "druh",
@@ -2131,6 +2146,11 @@
           }
         }
       ],
+      "note": [
+        "Zdroj — súčet mesačných hotovostných výdavkov Sociálnej poisťovne, teda ten istý rad ako mesačný graf vyššie. Ročný zošit SP je zatiaľ len do roku 2024; za rok 2024 sa od súčtu mesiacov líši pri predčasnom dôchodku (461,3 oproti 434,4 mil. €).",
+        "Neúplný rok — posledný rok má v popise rozsah mesiacov, ktoré sú v dátach; s ďalším mesiacom sa posunie sám.",
+        "Rodičovský dôchodok — v hotovostných údajoch sa od novembra 2024 ako samostatná položka takmer nevykazuje (2025: 0,6 mil. €)."
+      ],
       "tableColumns": [
         "rok",
         "druh",
@@ -2140,13 +2160,12 @@
         "rok": "Rok",
         "druh": "Druh dôchodku",
         "mil_eur": "Výdavky (mil. €)"
-      },
-      "span": 6
+      }
     },
     "naklady_sd_rozklad_wf": {
       "type": "waterfall",
-      "title": "Rozklad zmeny nákladov na starobné dôchodky 2024 → 2025",
-      "subtitle": "Náklady vzrástli o 420,9 mil. € — 159,6 mil. € z predošlého roka (t−1) a 261,3 mil. € z bežného (t). Najviac pridali noví poberatelia (465,9 mil. € za oba roky), úmrtia ubrali 298,6 mil. €.",
+      "title": "Rozklad zmeny nákladov na starobné dôchodky",
+      "subtitle": "Rast nákladov ťahajú noví poberatelia a januárová valorizácia, úmrtia ho tlmia. Za rok 2025 náklady vzrástli o 420,9 mil. €, v prvom polroku 2026 o 238,9 mil. € oproti prvému polroku 2025.",
       "dataset": "rozklad_naklady_sd",
       "x": "faktor",
       "y": "zmena_mil_eur",
@@ -2160,19 +2179,29 @@
       "decimals": 1,
       "yLabel": "mil. EUR",
       "size": "l",
-      "span": 6,
+      "span": 12,
       "minWidth": 560,
-      "note": "Paušálna valorizácia (t−1) je nula: dôchodky sa valorizujú od 1. januára, takže valorizácia roka 2024 bola v nákladoch roka 2024 už celých 12 mesiacov a do zmeny 2025 nemá čo preniesť. Príspevok z predošlého roka majú len udalosti v priebehu roka — dôchodok priznaný v júli 2024 sa v roku 2024 vyplácal 6 mesiacov, v roku 2025 celých 12.",
+      "note": [
+        "t−1 a t — každý faktor má dva príspevky: (t−1) z udalostí predošlého roka, ktoré sa v bežnom roku prejavia celých 12 mesiacov, a (t) z udalostí bežného roka. Dôchodok priznaný v júli 2024 sa v roku 2024 vyplácal 6 mesiacov, v roku 2025 celých 12.",
+        "Paušálna valorizácia (t−1) — je nula: dôchodky sa valorizujú od 1. januára, takže valorizácia predošlého roka bola v jeho nákladoch už celých 12 mesiacov a do zmeny nemá čo preniesť.",
+        "2025 → 2026 (I.–VI.) — rok 2026 je v reporte zatiaľ len január – jún, preto sa porovnáva prvý polrok 2026 s prvým polrokom 2025 (4 638,2 oproti 4 399,4 mil. €). Os je pre obe porovnania rovnaká, takže polročná zmena vyzerá menšia, lebo menšia je. Po doplnení ďalších mesiacov do reportu sa popis aj čísla obnovia.",
+        "Skoršie roky — rozklad počíta report RRZ z mesačných údajov od januára 2024, takže prvé možné porovnanie je 2024 → 2025."
+      ],
       "tableColumns": [
+        "porovnanie",
         "faktor",
         "obdobie",
         "zmena_mil_eur"
       ],
       "labels": {
+        "porovnanie": "Porovnanie",
         "faktor": "Faktor",
         "obdobie": "Príspevok",
         "zmena_mil_eur": "Zmena (mil. €)"
-      }
+      },
+      "frame": "porovnanie",
+      "frameLabel": "Porovnávané roky",
+      "frameMark": false
     },
     "pocty_druhy_trend": {
       "type": "line",
@@ -4183,66 +4212,10 @@
       "frameLabel": "Rok",
       "barMax": 60
     },
-    "rrz_naklady_stack": {
-      "type": "bar-stacked",
-      "title": "Náklady na dôchodky podľa druhu",
-      "subtitle": "Invalidné a pozostalostné dôchodky sú zlúčené, aby počet farieb zostal v overenom rozsahu. Rok 2026 je len prvý polrok — je to napísané priamo na osi, aby sa nedal prečítať ako prepad.",
-      "dataset": "rrz_naklady_druh",
-      "x": "rok",
-      "y": "naklady_mil_eur",
-      "series": "druh",
-      "unit": "mil. EUR",
-      "decimals": 0,
-      "size": "l",
-      "span": 7,
-      "transform": [
-        {
-          "kind": "filter",
-          "where": {
-            "druh": [
-              "Starobný dôchodok",
-              "Predčasný dôchodok",
-              "Invalidný dôchodok do 70 %",
-              "Invalidný dôchodok nad 70 %",
-              "Vdovský/vdovecký dôchodok",
-              "Sirotský dôchodok",
-              "13. dôchodok"
-            ]
-          }
-        },
-        {
-          "kind": "rename",
-          "column": "druh",
-          "map": {
-            "Invalidný dôchodok do 70 %": "Invalidný dôchodok",
-            "Invalidný dôchodok nad 70 %": "Invalidný dôchodok",
-            "Vdovský/vdovecký dôchodok": "Pozostalostné",
-            "Sirotský dôchodok": "Pozostalostné"
-          }
-        },
-        {
-          "kind": "rename",
-          "column": "rok",
-          "map": {
-            "2026": "2026 (I. polrok)"
-          }
-        },
-        {
-          "kind": "aggregate",
-          "by": [
-            "rok",
-            "druh"
-          ],
-          "value": "naklady_mil_eur",
-          "as": "sum"
-        }
-      ],
-      "note": "Štátne dávky (0,03 % nákladov) sú len v tabuľke. V roku 2026 ešte nebol vyplatený 13. dôchodok, takže ani prepočet na celý rok by stĺpec neporovnal s predošlými."
-    },
     "rrz_naklady_podiel": {
       "type": "bar",
-      "title": "Z čoho sa skladá eurо na dôchodky",
-      "subtitle": "Podiel na celkových nákladoch za posledný celý rok (2025), v plnom členení reportu.",
+      "title": "Z čoho sa skladá euro na dôchodky",
+      "subtitle": "Podiel na celkových nákladoch za posledný celý rok (2025): starobný dôchodok 71,1 %, 13. dôchodok 7,2 %, štátne dávky 0,03 %.",
       "dataset": "rrz_naklady_druh",
       "x": "druh",
       "y": "podiel_pct",
@@ -4267,7 +4240,8 @@
         "druh",
         "podiel_pct",
         "naklady_mil_eur"
-      ]
+      ],
+      "note": "Náklady z manažérskeho prehľadu RRZ majú iné vymedzenie a členenie než hotovostné výdavky Sociálnej poisťovne v grafe vedľa — starobný dôchodok 2025 je tu 8 837,5 mil. €, v hotovostných údajoch 9 316,2 mil. €. Podiely preto ber zo zdroja, z ktorého sú, a sumy medzi grafmi neporovnávaj."
     },
     "rrz_decily_hranice": {
       "type": "column",

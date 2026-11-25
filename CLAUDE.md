@@ -20,7 +20,7 @@ Prečo sú dáta rozdelené tak, ako sú: **`docs/DATOVA_ARCHITEKTURA.md`**.
 npm run serve         # http://localhost:8080
 npm run validate      # manifest + vstupné súbory + paleta + odtlačky  ← pred každým commitom
 npm run stamp         # po zmene app.js, lib/*.js alebo style.css: odtlačky v index.html
-npm run shots         # vykreslí 19 stránok × 3 prostredia, hľadá chyby
+npm run shots         # vykreslí 18 stránok × 3 prostredia, hľadá chyby
 npm run shots -- --check   # to isté bez ukladania PNG (beží aj v CI)
 
 npm run data          # zošity Sociálnej poisťovne  -> data/sp_*.csv
@@ -104,7 +104,9 @@ formátujú slovensky (desatinná čiarka, medzera v tisícoch) — to robí
   a `parametre` (`npm run data:rrz:extract -- <report.xlsx>`) a vývoj podľa druhu
   dôchodku z hárkov `Popisne_statistiky` a `Poc_davok_podla_druhu_doch_mes`
   (`npm run data:rrz:detail -- <report.xlsx>`, len počet a priemer v troch
-  definíciách a šesť druhov). Zvyšné hárky sa zámerne nezverejňujú.
+  definíciách a šesť druhov) spolu s rozkladom zmeny nákladov na starobné
+  dôchodky z hárku `Rocne_naklady_podla_druhu_doch`. Zvyšné hárky sa zámerne
+  nezverejňujú.
 - Report z 11/2026 má hárky premenované na `cheatsheet-statistiky` a
   `cheatsheet-parametre` a popis „september 2026“ pri júnových číslach — hlavný
   výťah sa z neho preto zatiaľ neobnovoval.

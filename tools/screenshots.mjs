@@ -200,8 +200,10 @@ try {
           const host = card.querySelector('.viz-frame-host');
           if (!host) continue;
           const hasCtl = !!host.querySelector('.viz-frame-slider');
+          // `frameMark: false` vo view nápis vypína zámerne; snímku hlási posuvník.
+          const markOff = host.dataset.frameMark === 'off';
           const hasMark = !!card.querySelector('.viz-frame-mark');
-          if (hasCtl !== hasMark)
+          if (hasCtl ? !(hasMark || markOff) : hasMark)
             out.push((card.querySelector('.viz-card-title')?.textContent || '?') +
               ` (posuvník ${hasCtl}, nápis ${hasMark})`);
         }

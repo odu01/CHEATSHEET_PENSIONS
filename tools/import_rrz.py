@@ -53,8 +53,9 @@ except ImportError:
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "data" / "zdroj" / "RRZ_statistiky_parametre.xlsx"
-# Vývoj podľa druhu dôchodku (12/2024, 12/2025, 06/2026 a mesačne) — z iných hárkov
-# reportu, preto vlastný výťah: python3 tools/extract_rrz_detail.py <report.xlsx>
+# Vývoj podľa druhu dôchodku (12/2024, 12/2025, 06/2026 a mesačne) a rozklad zmeny
+# nákladov na starobné dôchodky — z iných hárkov reportu, preto vlastný výťah:
+# python3 tools/extract_rrz_detail.py <report.xlsx>
 SRC_DETAIL = ROOT / "data" / "zdroj" / "RRZ_detail_druhy.xlsx"
 OUT = ROOT / "data"
 
@@ -536,6 +537,45 @@ def davky_mesacne(ws) -> None:
     write_csv("rrz_davky_mesacne.csv", ["mesiac", "druh", "pocet"], out)
 
 
+# Faktory rozkladu v poradí stĺpcov hárku Rozklad_zmeny_SD; každý má dva stĺpce
+# za sebou — príspevok z predošlého roka (t−1) a z bežného roka (t).
+ROZKLAD_FAKTORY = ["Noví poberatelia", "Valorizácia nových", "Paušálna valorizácia",
+                   "Zomrelí", "Ostatné faktory", "Prerušenie poberania"]
+RIMSKE = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
+
+
+def rozklad_sd(ws) -> None:
+    """Rozklad medziročnej zmeny nákladov na starobné dôchodky → rrz_rozklad_naklady_sd.csv.
+
+    Vstup:  ws — hárok Rozklad_zmeny_SD z výťahu; hlavička + riadok za rok:
+            rok, zmena spolu (€), 12 príspevkov (6 faktorov × t−1, t) v €, počet mesiacov
+    Výstup: žiadny; CSV s riadkom rok × faktor × obdobie (13 riadkov za rok vrátane súčtu),
+            v mil. €. Stĺpec `porovnanie` je popis snímky posuvníka; pri neúplnom roku
+            nesie rozsah mesiacov, lebo report vtedy porovnáva rovnaké mesiace oboch rokov.
+    Príklad: 2026 so 6 mesiacmi → porovnanie „2025 → 2026 (I.–VI.)“, súčet 238,88 mil. €
+    """
+    rows = list(ws.iter_rows(values_only=True))
+    if clean(rows[0][0]) != "Rok" or len(rows[0]) != 15 or clean(rows[0][14]) != "Mesiacov v roku":
+        sys.exit("Rozklad_zmeny_SD: hlavička nesedí — vyrob výťah znova.")
+    out = []
+    for row in rows[1:]:
+        if not isinstance(row[0], (int, float)):
+            continue
+        rok, mesiacov = int(row[0]), int(row[14])
+        porovnanie = f"{rok - 1} → {rok}"
+        if mesiacov < 12:
+            porovnanie += f" (I.–{RIMSKE[mesiacov]}.)"
+        prispevky = [num(v) / 1e6 for v in row[2:14]]
+        if abs(sum(prispevky) - num(row[1]) / 1e6) > 1e-6:
+            sys.exit(f"Rozklad_zmeny_SD: {rok} — príspevky sa nesčítajú na zmenu spolu.")
+        for i, faktor in enumerate(ROZKLAD_FAKTORY):
+            for j, obdobie in enumerate(("t-1", "t")):
+                out.append([rok, porovnanie, faktor, obdobie, r(prispevky[2 * i + j]), 0])
+        out.append([rok, porovnanie, "Zmena spolu", "spolu", r(num(row[1]) / 1e6), 1])
+    write_csv("rrz_rozklad_naklady_sd.csv",
+              ["rok", "porovnanie", "faktor", "obdobie", "zmena_mil_eur", "je_spolu"], out)
+
+
 def main() -> None:
     if not SRC.exists():
         sys.exit(f"Chýba {SRC.relative_to(ROOT)} — vyrob ho: "
@@ -569,6 +609,7 @@ def main() -> None:
     det = openpyxl.load_workbook(SRC_DETAIL, data_only=True)
     davky_druh_vyvoj(det["Popisne_statistiky"])
     davky_mesacne(det["Poc_davok_podla_druhu_doch_mes"])
+    rozklad_sd(det["Rozklad_zmeny_SD"])
 
     print(f"Z {SRC.name} a {SRC_DETAIL.name} vzniklo {len(written)} súborov:")
     for name, n in written:
