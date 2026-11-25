@@ -793,6 +793,122 @@
         }
       }
     },
+    "rrz_davky_druh_vyvoj": {
+      "file": "data/rrz_davky_druh_vyvoj.csv",
+      "label": "Dávky podľa druhu a definície — vývoj",
+      "unit": "osôb",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „Popisne_statistiky“ (spracované dáta Sociálnej poisťovne)",
+      "vintage": "december 2024, december 2025, jún 2026",
+      "note": "Počet a priemer v troch definíciách pre šesť druhov dôchodku. „Reálne“ je v reporte „nekrátené bez INÝCH dôchodkov“. Rok 2026 je stav k júnu.",
+      "checks": [
+        {
+          "kind": "sum",
+          "column": "pocet",
+          "where": {
+            "rok": 2026,
+            "pohlad": "Všetci poberatelia"
+          },
+          "equalsDataset": {
+            "dataset": "rrz_davky_druh",
+            "column": "pocet",
+            "where": {
+              "pohlad": "Všetci poberatelia"
+            }
+          },
+          "tolerance": 0.0001,
+          "note": "Jún 2026 musí sedieť na tabuľku dávok podľa druhu z hárku „statistiky“."
+        },
+        {
+          "kind": "sum",
+          "column": "pocet",
+          "where": {
+            "rok": 2024,
+            "druh": "Starobný dôchodok",
+            "pohlad": "Nekrátené bez iného dôchodku"
+          },
+          "equalsDataset": {
+            "dataset": "rrz_sd_vyvoj",
+            "column": "pocet",
+            "where": {
+              "rok": 2024,
+              "pohlad": "Nekrátené bez iného dôchodku"
+            }
+          },
+          "tolerance": 0.0001,
+          "note": "Reálny SD 12/2024 musí sedieť na rad priemerného SD z hárku „statistiky“."
+        }
+      ],
+      "columns": {
+        "rok": {
+          "type": "year",
+          "label": "Rok"
+        },
+        "druh": {
+          "type": "string",
+          "label": "Druh dôchodku"
+        },
+        "pohlad": {
+          "type": "string",
+          "label": "Definícia",
+          "codelist": "pohlad_dochodku"
+        },
+        "pocet": {
+          "type": "int",
+          "label": "Počet poberateľov",
+          "unit": "osôb",
+          "measure": true
+        },
+        "priemer_eur": {
+          "type": "number",
+          "label": "Priemerná dávka",
+          "unit": "EUR",
+          "decimals": 2,
+          "measure": true
+        }
+      }
+    },
+    "rrz_davky_mesacne": {
+      "file": "data/rrz_davky_mesacne.csv",
+      "label": "Vyplácané dávky podľa druhu, mesačne",
+      "unit": "dôchodkov",
+      "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „Poc_davok_podla_druhu_doch_mes“ (spracované dáta Sociálnej poisťovne)",
+      "vintage": "január 2024 až jún 2026",
+      "note": "Všetci poberatelia daného druhu bez ohľadu na krátenie a súbeh. Sirotské dôchodky v lete sezónne klesajú (skončené štúdium).",
+      "checks": [
+        {
+          "kind": "sum",
+          "column": "pocet",
+          "where": {
+            "mesiac": "2026-06"
+          },
+          "equalsDataset": {
+            "dataset": "rrz_davky_druh",
+            "column": "pocet",
+            "where": {
+              "pohlad": "Všetci poberatelia"
+            }
+          },
+          "tolerance": 0.0001,
+          "note": "Jún 2026 musí dať 1 778 143 dávok ako tabuľka dávok podľa druhu."
+        }
+      ],
+      "columns": {
+        "mesiac": {
+          "type": "month",
+          "label": "Mesiac"
+        },
+        "druh": {
+          "type": "string",
+          "label": "Druh dôchodku"
+        },
+        "pocet": {
+          "type": "int",
+          "label": "Počet dávok",
+          "unit": "dôchodkov",
+          "measure": true
+        }
+      }
+    },
     "rrz_sd_vyvoj": {
       "file": "data/rrz_sd_vyvoj.csv",
       "label": "Priemerný starobný dôchodok — vývoj",
@@ -1648,16 +1764,17 @@
       "tiles": [
         {
           "label": "Starobný dôchodok",
-          "dataset": "rrz_sd_vyvoj",
+          "dataset": "rrz_davky_druh_vyvoj",
           "value": "priemer_eur",
           "unit": "EUR",
-          "note": "Reálny priemer, jún 2026; zmena od 12/2025.",
           "decimals": 2,
+          "note": "Reálny priemer, jún 2026.",
           "transform": [
             {
               "kind": "filter",
               "where": {
-                "pohlad": "Reálne"
+                "pohlad": "Reálne",
+                "druh": "Starobný dôchodok"
               }
             },
             {
@@ -1672,7 +1789,7 @@
         },
         {
           "label": "Predčasný dôchodok",
-          "dataset": "rrz_davky_druh",
+          "dataset": "rrz_davky_druh_vyvoj",
           "value": "priemer_eur",
           "unit": "EUR",
           "decimals": 2,
@@ -1684,14 +1801,20 @@
                 "pohlad": "Reálne",
                 "druh": "Predčasný dôchodok"
               }
+            },
+            {
+              "kind": "sort",
+              "by": "rok"
             }
           ],
-          "delta": false,
+          "higherIsBetter": true,
+          "deltaUnit": "€",
+          "deltaNote": "od 12/2025",
           "spark": false
         },
         {
           "label": "Invalidný dôchodok",
-          "dataset": "rrz_davky_druh",
+          "dataset": "rrz_davky_druh_vyvoj",
           "value": "priemer_eur",
           "unit": "EUR",
           "decimals": 2,
@@ -1718,7 +1841,9 @@
             },
             {
               "kind": "aggregate",
-              "by": [],
+              "by": [
+                "rok"
+              ],
               "values": {
                 "pocet": "sum",
                 "objem": "sum"
@@ -1732,14 +1857,20 @@
                 "o": "objem",
                 "n": "pocet"
               }
+            },
+            {
+              "kind": "sort",
+              "by": "rok"
             }
           ],
-          "delta": false,
+          "higherIsBetter": true,
+          "deltaUnit": "€",
+          "deltaNote": "od 12/2025",
           "spark": false
         },
         {
           "label": "Vdovský / vdovecký dôchodok",
-          "dataset": "rrz_davky_druh",
+          "dataset": "rrz_davky_druh_vyvoj",
           "value": "priemer_eur",
           "unit": "EUR",
           "decimals": 2,
@@ -1751,14 +1882,20 @@
                 "pohlad": "Reálne",
                 "druh": "Vdovský/vdovecký dôchodok"
               }
+            },
+            {
+              "kind": "sort",
+              "by": "rok"
             }
           ],
-          "delta": false,
+          "higherIsBetter": true,
+          "deltaUnit": "€",
+          "deltaNote": "od 12/2025",
           "spark": false
         },
         {
           "label": "Sirotský dôchodok",
-          "dataset": "rrz_davky_druh",
+          "dataset": "rrz_davky_druh_vyvoj",
           "value": "priemer_eur",
           "unit": "EUR",
           "decimals": 2,
@@ -1770,9 +1907,15 @@
                 "pohlad": "Reálne",
                 "druh": "Sirotský dôchodok"
               }
+            },
+            {
+              "kind": "sort",
+              "by": "rok"
             }
           ],
-          "delta": false,
+          "higherIsBetter": true,
+          "deltaUnit": "€",
+          "deltaNote": "od 12/2025",
           "spark": false
         },
         {
@@ -3900,44 +4043,43 @@
       "note": "Prechody, ktoré v diagrame nie sú, tam nie sú zámerne: zo starobného dôchodku sa nedá prejsť na invalidný (po dôchodkovom veku sa nepriznáva) ani na predčasný. Najmenší stav je proti najväčšiemu v pomere 1 : 270, takže má v diagrame minimálnu viditeľnú výšku — to je jediné miesto, kde nedrží presnú proporciu."
     },
     "rrz_davky_pocet": {
-      "type": "bar",
+      "type": "barrank",
       "title": "Koľko dôchodkov sa vypláca",
-      "subtitle": "Každý poberateľ daného druhu bez ohľadu na krátenie a súbeh s iným dôchodkom. Jeden človek môže byť v dvoch riadkoch naraz.",
-      "dataset": "rrz_davky_druh",
+      "subtitle": "Starobných dôchodkov pribudlo od januára 2024 takmer 30 tisíc. Predčasných sa po zavedení nároku po 40 rokoch poistenia zvýšilo zo 16 667 na 42 859 (marec 2025) a do júna 2026 kleslo na 26 454.",
+      "dataset": "rrz_davky_mesacne",
       "x": "druh",
       "y": "pocet",
-      "unit": "osôb",
+      "frame": "mesiac",
+      "frameLabel": "Mesiac",
+      "unit": "dôchodkov",
+      "decimals": 0,
+      "xLabel": "vyplácaných dôchodkov",
       "size": "l",
       "span": 6,
-      "transform": [
-        {
-          "kind": "filter",
-          "where": {
-            "pohlad": "Všetci poberatelia"
-          }
-        },
-        {
-          "kind": "sort",
-          "by": "pocet",
-          "dir": "desc"
-        }
-      ],
       "tableColumns": [
+        "mesiac",
         "druh",
-        "pocet",
-        "priemer_eur",
-        "podiel_pct"
-      ]
+        "pocet"
+      ],
+      "labels": {
+        "mesiac": "Mesiac",
+        "druh": "Druh dôchodku",
+        "pocet": "Počet dávok"
+      },
+      "note": "Všetci poberatelia daného druhu bez ohľadu na krátenie a súbeh — jeden človek môže byť v dvoch riadkoch naraz. Mesačne 01/2024 – 06/2026."
     },
     "rrz_davky_priemer": {
-      "type": "bar",
+      "type": "barrank",
       "title": "Priemerná dávka podľa druhu",
-      "subtitle": "Reálne dôchodky: nekrátené, bez dôchodku z cudziny a výsluhového. Týmto pohľadom report vykazuje hlavné čísla.",
-      "dataset": "rrz_davky_druh",
+      "subtitle": "Od decembra 2024 do júna 2026 vzrástol reálny starobný dôchodok o 50,13 € (7,5 %), predčasný len o 7,87 € — odstup predčasného od starobného sa zúžil zo 60,89 € na 18,63 €.",
+      "dataset": "rrz_davky_druh_vyvoj",
       "x": "druh",
       "y": "priemer_eur",
+      "frame": "rok",
+      "frameLabel": "Rok",
       "unit": "EUR",
       "decimals": 2,
+      "xLabel": "EUR mesačne",
       "size": "l",
       "span": 6,
       "transform": [
@@ -3946,21 +4088,22 @@
           "where": {
             "pohlad": "Reálne"
           }
-        },
-        {
-          "kind": "sort",
-          "by": "priemer_eur",
-          "dir": "desc"
         }
       ],
       "tableColumns": [
+        "rok",
         "druh",
         "priemer_eur",
-        "pocet",
-        "podiel_pct"
+        "pocet"
       ],
+      "labels": {
+        "rok": "Rok",
+        "druh": "Druh dôchodku",
+        "priemer_eur": "Priemerná dávka",
+        "pocet": "Počet poberateľov"
+      },
       "note": [
-        "Definícia — reálny dôchodok pri každom druhu: nekrátený, bez dôchodku z cudziny a výsluhového."
+        "Definícia — reálny dôchodok pri každom druhu: nekrátený, bez dôchodku z cudziny a výsluhového. Stav v decembri 2024, decembri 2025 a júni 2026."
       ]
     },
     "rrz_sd_vyvoj_pohlady": {

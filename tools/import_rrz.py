@@ -53,6 +53,9 @@ except ImportError:
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "data" / "zdroj" / "RRZ_statistiky_parametre.xlsx"
+# Vývoj podľa druhu dôchodku (12/2024, 12/2025, 06/2026 a mesačne) — z iných hárkov
+# reportu, preto vlastný výťah: python3 tools/extract_rrz_detail.py <report.xlsx>
+SRC_DETAIL = ROOT / "data" / "zdroj" / "RRZ_detail_druhy.xlsx"
 OUT = ROOT / "data"
 
 # Pohľady na ten istý dôchodok — poradie určuje poradie v grafe.
@@ -465,6 +468,74 @@ def kpi(ws) -> None:
     write_csv("rrz_kpi.csv", ["ukazovatel", "hodnota", "jednotka", "popis"], rows)
 
 
+# ── výťah `RRZ_detail_druhy.xlsx` ─────────────────────────────────────────────
+
+# Blok hárku Popisne_statistiky (text v zátvorke hlavičky) → definícia v CSV.
+DETAIL_POHLADY = {
+    "vsetci poberatelia": "Všetci poberatelia",
+    "poberatelia nekratenych dochodkov bez INYCH dochodkov": "Nekrátené bez iného dôchodku",
+    "solo poberatelia": "Sólo poberatelia",
+}
+# Názvy druhov v Popisne_statistiky → názvy, aké nesie rrz_davky_druh.csv.
+DETAIL_DRUHY = {
+    "Starobný dôchodok": DRUHY[0], "Predčasný dôchodok": DRUHY[1],
+    "Invalidný dôchodok do 70": DRUHY[2], "Invalidný dôchodok nad 70": DRUHY[3],
+    "Vdovský/Vdovecký dôchodok": DRUHY[4], "Sirotský dôchodok": DRUHY[5],
+}
+
+
+def davky_druh_vyvoj(ws) -> None:
+    """Počet a priemer podľa roku, druhu a definície → rrz_davky_druh_vyvoj.csv.
+
+    Vstup:  ws — hárok Popisne_statistiky z výťahu; bloky pod sebou, každý s hlavičkou
+            „Rok | Typ dochodku | Pocet (…) | Priemer davok (…)"
+    Výstup: žiadny; CSV s riadkom rok × druh × definícia (3 × 6 × 3 = 54 riadkov)
+    Príklad: (2026, Starobný dôchodok, Nekrátené bez iného dôchodku) → 1015460, 721.5
+    """
+    out = []
+    pohlad = None
+    for row in ws.iter_rows(values_only=True):
+        if row[0] == "Rok":
+            m = re.match(r"Pocet \((.+)\)$", clean(row[2]))
+            if not m or m.group(1) not in DETAIL_POHLADY:
+                sys.exit(f"Popisne_statistiky: neznámy blok „{clean(row[2])}“ — oprav DETAIL_POHLADY.")
+            pohlad = DETAIL_POHLADY[m.group(1)]
+            continue
+        if not isinstance(row[0], (int, float)):
+            continue
+        typ = clean(row[1])
+        if typ not in DETAIL_DRUHY:
+            sys.exit(f"Popisne_statistiky: neznámy druh „{typ}“ — oprav DETAIL_DRUHY.")
+        out.append([int(row[0]), DETAIL_DRUHY[typ], pohlad, int(num(row[2])), r(num(row[3]))])
+    if {x[2] for x in out} != set(DETAIL_POHLADY.values()):
+        sys.exit("Popisne_statistiky: vo výťahu nie sú všetky tri definície.")
+    order = {d: i for i, d in enumerate(DRUHY)}
+    porder = {p: i for i, p in enumerate(POHLADY)}
+    out.sort(key=lambda x: (x[0], porder[x[2]], order[x[1]]))
+    write_csv("rrz_davky_druh_vyvoj.csv", ["rok", "druh", "pohlad", "pocet", "priemer_eur"], out)
+
+
+def davky_mesacne(ws) -> None:
+    """Počet vyplácaných dávok podľa druhu po mesiacoch → rrz_davky_mesacne.csv.
+
+    Vstup:  ws — hárok Poc_davok_podla_druhu_doch_mes z výťahu; hlavička + riadok za mesiac,
+            stĺpec A dátum, ďalej šesť druhov v poradí DRUHY
+    Výstup: žiadny; CSV s riadkom mesiac × druh (30 mesiacov × 6 = 180 riadkov)
+    Príklad: (2026-06, Starobný dôchodok) → 1125948
+    """
+    rows = list(ws.iter_rows(values_only=True))
+    if clean(rows[0][0]) != "Mesiac" or len(rows[0]) < 7:
+        sys.exit("Poc_davok_podla_druhu_doch_mes: hlavička nesedí — vyrob výťah znova.")
+    out = []
+    for row in rows[1:]:
+        if row[0] is None:
+            continue
+        mesiac = row[0].strftime("%Y-%m")
+        for druh, v in zip(DRUHY, row[1:7]):
+            out.append([mesiac, druh, int(num(v))])
+    write_csv("rrz_davky_mesacne.csv", ["mesiac", "druh", "pocet"], out)
+
+
 def main() -> None:
     if not SRC.exists():
         sys.exit(f"Chýba {SRC.relative_to(ROOT)} — vyrob ho: "
@@ -492,7 +563,14 @@ def main() -> None:
     narok(par)
     psd_pravidla(par)
 
-    print(f"Z {SRC.name} vzniklo {len(written)} súborov:")
+    if not SRC_DETAIL.exists():
+        sys.exit(f"Chýba {SRC_DETAIL.relative_to(ROOT)} — vyrob ho: "
+                 f"python3 tools/extract_rrz_detail.py <report.xlsx>")
+    det = openpyxl.load_workbook(SRC_DETAIL, data_only=True)
+    davky_druh_vyvoj(det["Popisne_statistiky"])
+    davky_mesacne(det["Poc_davok_podla_druhu_doch_mes"])
+
+    print(f"Z {SRC.name} a {SRC_DETAIL.name} vzniklo {len(written)} súborov:")
     for name, n in written:
         print(f"  data/{name}  ({n} riadkov)")
 

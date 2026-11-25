@@ -163,6 +163,7 @@ nesú pôvodný názov, takže kontrolné súčty a porovnanie so zošitom plati
 | Kde | Čo sa zmenilo |
 |---|---|
 | *Prehľad* | jediná stránka sekcie — pohltila bývalú *Stav k júnu 2026*; jedna sada dlaždíc bez duplicít (priemerný SD je reálny, RRZ 06/2026); graf „Tri definície jedného dôchodku“ s vysvetlením namiesto celkových mesačných výdavkov (tie sú na stránke *Výdavky*); karta „Koľko poberateľov zachytí ktorá definícia“ |
+| *Prehľad* — dlaždice a grafy podľa druhu | horný riadok dlaždíc = reálne priemery piatich druhov so zmenou od 12/2025; „Koľko dôchodkov sa vypláca“ (mesačne 01/2024 – 06/2026), „Priemerná dávka podľa druhu“ a „Koľko poberateľov zachytí ktorá definícia“ (12/2024 → 06/2026) majú posuvník a prehrávanie; dáta z nového výťahu `RRZ_detail_druhy.xlsx` |
 | každá karta s výškou SD | riadok **Definícia** pod grafom: „reálny starobný dôchodok“, kde to platí, inak čo presne karta ukazuje (priemer SP vrátane krátených, sólo, syntetické rozdelenie, celkový dôchodkový príjem) |
 
 **Kde reálny dôchodok nie je a prečo:** mesačné rady SP (*Priemerné dôchodky*,

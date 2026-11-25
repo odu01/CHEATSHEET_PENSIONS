@@ -45,6 +45,18 @@ Prvý krok nie je formalita. Plný report má okolo sedemdesiat hárkov; publiku
 dva, a repozitár je zároveň zverejnený web — do `data/zdroj/` preto ide výťah
 presne z toho, čo je na stránkach.
 
+Vývoj podľa druhu dôchodku (12/2024, 12/2025, 06/2026 a mesačné počty) je v iných
+hárkoch reportu a má vlastný výťah:
+
+```bash
+npm run data:rrz:detail -- ~/Summary_Report.xlsx    # -> data/zdroj/RRZ_detail_druhy.xlsx
+npm run data:rrz                                    # dopíše rrz_davky_druh_vyvoj.csv, rrz_davky_mesacne.csv
+```
+
+Z hárku `Popisne_statistiky` ide len počet a priemer v troch definíciách (všetci,
+nekrátené bez INÝCH, sólo); medián, rozptyl, extrémy a bloky s výsluhovým či
+cudzinovým dôchodkom zostávajú v reporte.
+
 Import hľadá každú tabuľku **podľa jej nadpisu**, nie podľa čísla riadku, takže
 pridaný riadok v reporte ho nerozsype. Hneď potom overuje, že hlavička sedí; keď
 nie, spadne s menom tabuľky. Ticho načítané zlé stĺpce sú horšie než spadnutý

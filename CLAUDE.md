@@ -24,6 +24,7 @@ npm run shots -- --check   # to isté bez ukladania PNG (beží aj v CI)
 
 npm run data          # zošity Sociálnej poisťovne  -> data/sp_*.csv
 npm run data:rrz      # manažérsky prehľad RRZ      -> data/rrz_*.csv, par_*.csv
+npm run data:rrz:detail -- <report.xlsx>   # vývoj podľa druhu -> data/zdroj/RRZ_detail_druhy.xlsx
 npm run vstup         # čo je v data/vstup/ a či to sedí na kontrakt
 npm run vstup:gen     # pregeneruje syntetické vstupné dáta z modelu
 ```
@@ -93,6 +94,11 @@ formátujú slovensky (desatinná čiarka, medzera v tisícoch) — to robí
 - `node_modules/` (Playwright je len pre `npm run shots`, inštaluje sa podľa
   potreby; v CI aj v sandboxe môže byť predinštalovaný globálne)
 - `screenshots/` — generovaný artefakt
-- plný manažérsky report RRZ. V `data/zdroj/` je 18 KB výťah z dvoch hárkov,
-  ktoré sa publikujú; zvyšných ~68 hárkov sa zámerne nezverejňuje.
-  Nový report sa spracuje cez `npm run data:rrz:extract -- <report.xlsx>`.
+- plný manažérsky report RRZ. V `data/zdroj/` sú dva výťahy: hárky `statistiky`
+  a `parametre` (`npm run data:rrz:extract -- <report.xlsx>`) a vývoj podľa druhu
+  dôchodku z hárkov `Popisne_statistiky` a `Poc_davok_podla_druhu_doch_mes`
+  (`npm run data:rrz:detail -- <report.xlsx>`, len počet a priemer v troch
+  definíciách a šesť druhov). Zvyšné hárky sa zámerne nezverejňujú.
+- Report z 11/2026 má hárky premenované na `cheatsheet-statistiky` a
+  `cheatsheet-parametre` a popis „september 2026“ pri júnových číslach — hlavný
+  výťah sa z neho preto zatiaľ neobnovoval.
