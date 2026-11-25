@@ -152,6 +152,30 @@ zmeny manifestu.
 
 ---
 
+## Dávka 5 (zadané 2026-11, reálny starobný dôchodok)
+
+Na webe sa za priemerný starobný dôchodok berie **reálny** dôchodok — v reporte
+RRZ „nekrátené bez iného dôchodku“: nekrátený pre súbeh a bez dôchodku z cudziny
+a výsluhového. Je to najmenej skreslený obraz životnej úrovne dôchodcov.
+Premenovanie robí kódovník `pohlad_dochodku` v manifeste; CSV z importu RRZ
+nesú pôvodný názov, takže kontrolné súčty a porovnanie so zošitom platia ďalej.
+
+| Kde | Čo sa zmenilo |
+|---|---|
+| *Prehľad* | graf „Tri definície jedného dôchodku“ s vysvetlením všetkých troch namiesto celkových mesačných výdavkov (tie sú na stránke *Výdavky*); dlaždica priemerného SD je reálna (RRZ, 06/2026) |
+| *Stav k júnu 2026* | dlaždica, priemer podľa druhu a muži vs. ženy sú reálne (boli aj predtým, teraz to hovoria); nová karta „Koľko poberateľov zachytí ktorá definícia“ |
+
+**Kde reálny dôchodok nie je a prečo:** mesačné rady SP (*Priemerné dôchodky*,
+*Novopriznané*, bublinový graf na *Pohyb v čase*) majú len priemer sólo a
+kráteného dôchodku; syntetické rozdelenie na *Rozdelenie dôchodkov* je
+kalibrované na čísla SP; decily RRZ sú o celkovom dôchodkovom príjme. Reálny
+dôchodok sa tam dá dať, až keď príde rad v tejto definícii.
+
+Počty poberateľov zostávajú za všetkých poberateľov — reálna definícia je
+o výške dôchodku, nie o veľkosti systému.
+
+---
+
 ## Čo treba dodať
 
 Súbory už existujú a majú správnu hlavičku. Doplniť = prepísať v nich hodnoty a

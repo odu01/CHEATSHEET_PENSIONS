@@ -30,6 +30,11 @@
       "Invalidný + vdovský": "Invalidný + vdovský",
       "Vdovský sólo": "Vdovský sólo",
       "Zomretí": "Zomretí"
+    },
+    "pohlad_dochodku": {
+      "Všetci poberatelia": "Všetci poberatelia",
+      "Nekrátené bez iného dôchodku": "Reálne",
+      "Sólo poberatelia": "Sólo poberatelia"
     }
   },
   "datasets": {
@@ -743,7 +748,7 @@
       "unit": "osôb",
       "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „statistiky“ (spracované dáta Sociálnej poisťovne)",
       "vintage": "jún 2026",
-      "note": "Tri pohľady na ten istý dôchodok: „všetci poberatelia“, „nekrátené bez iného dôchodku“ (bez dôchodku z cudziny a výsluhového) a „sólo“ (bez súbehu s iným druhom). Líšia sa o desiatky eur, takže sa nesmú miešať do jedného radu. Podiel je dopočítaný v rámci pohľadu.",
+      "note": "Tri definície toho istého dôchodku: „všetci poberatelia“, „reálne“ (v reporte RRZ „nekrátené bez iného dôchodku“: nekrátené pre súbeh a bez dôchodku z cudziny a výsluhového) a „sólo“ (bez súbehu s akýmkoľvek iným dôchodkom). Líšia sa o desiatky eur, takže sa nesmú miešať do jedného radu. Podiel je dopočítaný v rámci definície.",
       "checks": [
         {
           "kind": "sum",
@@ -763,7 +768,8 @@
         },
         "pohlad": {
           "type": "string",
-          "label": "Pohľad"
+          "label": "Definícia",
+          "codelist": "pohlad_dochodku"
         },
         "pocet": {
           "type": "int",
@@ -793,7 +799,7 @@
       "unit": "EUR",
       "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „statistiky“ (spracované dáta Sociálnej poisťovne)",
       "vintage": "december 2024, december 2025, jún 2026",
-      "note": "Posledný dostupný mesiac roka: december 2024, december 2025 a jún 2026.",
+      "note": "Posledný dostupný mesiac roka: december 2024, december 2025 a jún 2026. „Reálne“ je v reporte RRZ „nekrátené bez iného dôchodku“.",
       "columns": {
         "rok": {
           "type": "year",
@@ -801,7 +807,8 @@
         },
         "pohlad": {
           "type": "string",
-          "label": "Pohľad"
+          "label": "Definícia",
+          "codelist": "pohlad_dochodku"
         },
         "pocet": {
           "type": "int",
@@ -824,7 +831,7 @@
       "unit": "EUR",
       "source": "Kancelária Rady pre rozpočtovú zodpovednosť — Manažérsky prehľad dôchodkového systému SR, hárok „statistiky“ (spracované dáta Sociálnej poisťovne)",
       "vintage": "december 2024, december 2025, jún 2026",
-      "note": "Nekrátené starobné dôchodky bez iného dôchodku.",
+      "note": "Reálne starobné dôchodky (v reporte RRZ „nekrátené bez iného dôchodku“).",
       "checks": [
         {
           "kind": "sum",
@@ -1366,10 +1373,10 @@
     {
       "id": "prehlad",
       "label": "Prehľad",
-      "description": "Základné čísla systému a dva hlavné trendy. Pod každým grafom je tabuľka s presnými hodnotami a export do CSV.",
+      "description": "Základné čísla systému, tri definície priemerného starobného dôchodku a vývoj počtu dôchodkov. Pod každým grafom je tabuľka s presnými hodnotami a export do CSV.",
       "views": [
         "kpi_prehlad",
-        "vydavky_celkom_trend",
+        "rrz_sd_vyvoj_pohlady",
         "pocty_celkom_trend"
       ],
       "group": "Prehľad"
@@ -1378,13 +1385,13 @@
       "id": "stav2026",
       "label": "Stav k júnu 2026",
       "group": "Prehľad",
-      "description": "Manažérsky prehľad Kancelárie RRZ: kde dôchodkový systém stojí k poslednému spracovanému mesiacu. Pozor na to, ktorá definícia priemerného dôchodku sa práve ukazuje — líšia sa o desiatky eur.",
+      "description": "Manažérsky prehľad Kancelárie RRZ: kde dôchodkový systém stojí k poslednému spracovanému mesiacu. Priemerný starobný dôchodok je tu všade reálny — nekrátený, bez dôchodku z cudziny a výsluhového; tri definície vedľa seba sú na stránke Prehľad.",
       "views": [
         "rrz_kpi_row",
         "rrz_davky_pocet",
         "rrz_davky_priemer",
-        "rrz_sd_vyvoj_pohlady",
-        "rrz_sd_pohlavie_bars"
+        "rrz_sd_pohlavie_bars",
+        "rrz_sd_definicie_pocet"
       ]
     },
     {
@@ -1411,7 +1418,7 @@
     {
       "id": "priemerne",
       "label": "Priemerné dôchodky",
-      "description": "Priemerný dôchodok podľa druhu a dve rôzne definície priemeru. Sólo priemer zahŕňa len samostatne vyplácané dôchodky, mesačná rada aj krátené — čísla z týchto dvoch zdrojov sa nedajú miešať.",
+      "description": "Priemerný dôchodok podľa druhu a dve rôzne definície priemeru. Sólo priemer zahŕňa len samostatne vyplácané dôchodky, mesačná rada aj krátené — čísla z týchto dvoch zdrojov sa nedajú miešať. Reálny starobný dôchodok (nekrátený, bez iného dôchodku) z mesačnej rady SP spočítať nejde; je len v dátach RRZ na stránkach Prehľad a Stav k júnu 2026.",
       "views": [
         "priemer_druhy_trend",
         "priemer_definicie_tab"
@@ -1643,7 +1650,7 @@
     "kpi_prehlad": {
       "type": "tiles",
       "title": "Systém v číslach",
-      "subtitle": "Posledné dostupné hodnoty. Zmena je proti predchádzajúcemu mesiacu, u ročných hodnôt proti predchádzajúcemu roku.",
+      "subtitle": "Posledné dostupné hodnoty; pri každej dlaždici je uvedené, k čomu sa vzťahuje zmena.",
       "dataset": "vydavky_rocne",
       "span": 12,
       "tiles": [
@@ -1703,26 +1710,27 @@
           "note": "Stav 4/2026."
         },
         {
-          "label": "Priemerný starobný dôchodok",
-          "dataset": "priemer_mesacne",
+          "label": "Priemerný starobný dôchodok (reálny)",
+          "dataset": "rrz_sd_vyvoj",
           "value": "priemer_eur",
           "unit": "EUR",
           "decimals": 2,
-          "note": "Aritm. priemer sólo a kráteného dôchodku, 4/2026.",
+          "note": "Nekrátený, bez dôchodku z cudziny a výsluhového. Jún 2026, RRZ.",
           "transform": [
             {
               "kind": "filter",
               "where": {
-                "druh": "Starobný"
+                "pohlad": "Reálne"
               }
             },
             {
               "kind": "sort",
-              "by": "mesiac"
+              "by": "rok"
             }
           ],
+          "higherIsBetter": true,
           "deltaUnit": "€",
-          "deltaNote": "m/m"
+          "deltaNote": "od 12/2025"
         },
         {
           "label": "Počet dôchodcov",
@@ -1747,50 +1755,6 @@
         }
       ]
     },
-    "vydavky_celkom_trend": {
-      "type": "line",
-      "title": "Celkové mesačné výdavky na dôchodky",
-      "subtitle": "Súčet všetkých druhov dôchodku vrátane 13. dôchodku.",
-      "dataset": "vydavky_mesacne",
-      "x": "mesiac",
-      "y": "mil_eur",
-      "unit": "mil. EUR",
-      "decimals": 0,
-      "xTickFormat": "month",
-      "yLabel": "mil. EUR za mesiac",
-      "size": "m",
-      "transform": [
-        {
-          "kind": "aggregate",
-          "by": [
-            "mesiac"
-          ],
-          "value": "vydavky_tis_eur",
-          "as": "sum"
-        },
-        {
-          "kind": "derive",
-          "into": "mil_eur",
-          "expr": "v / 1000",
-          "vars": {
-            "v": "vydavky_tis_eur"
-          }
-        },
-        {
-          "kind": "sort",
-          "by": "mesiac"
-        }
-      ],
-      "tableColumns": [
-        "mesiac",
-        "mil_eur"
-      ],
-      "labels": {
-        "mesiac": "Mesiac",
-        "mil_eur": "Výdavky (mil. €)"
-      },
-      "span": 6
-    },
     "pocty_celkom_trend": {
       "type": "line",
       "title": "Počet vyplácaných dôchodkov",
@@ -1801,7 +1765,7 @@
       "unit": "dôchodkov",
       "xTickFormat": "month",
       "yLabel": "počet dôchodkov",
-      "size": "m",
+      "size": "l",
       "transform": [
         {
           "kind": "aggregate",
@@ -3780,12 +3744,12 @@
     "rrz_kpi_row": {
       "type": "tiles",
       "title": "Dôchodkový systém v ôsmich číslach",
-      "subtitle": "Hlavička manažérskeho prehľadu RRZ k júnu 2026. Kde existuje rad za viac rokov, dlaždica ukazuje aj medziročnú zmenu.",
+      "subtitle": "Hlavička manažérskeho prehľadu RRZ k júnu 2026. Kde existuje rad za viac období, dlaždica ukazuje aj zmenu — pri každej je uvedené, oproti čomu.",
       "dataset": "rrz_kpi",
       "span": 12,
       "tiles": [
         {
-          "label": "Priemerný starobný dôchodok",
+          "label": "Priemerný starobný dôchodok (reálny)",
           "dataset": "rrz_sd_vyvoj",
           "value": "priemer_eur",
           "unit": "EUR",
@@ -3795,7 +3759,7 @@
             {
               "kind": "filter",
               "where": {
-                "pohlad": "Nekrátené bez iného dôchodku"
+                "pohlad": "Reálne"
               }
             },
             {
@@ -3806,7 +3770,7 @@
           "hero": true,
           "higherIsBetter": true,
           "deltaUnit": "€",
-          "deltaNote": "r/r"
+          "deltaNote": "od 12/2025"
         },
         {
           "label": "Vyplácané dávky",
@@ -3909,14 +3873,14 @@
           ],
           "higherIsBetter": true,
           "deltaUnit": "€",
-          "deltaNote": "r/r"
+          "deltaNote": "oproti 2025"
         },
         {
           "label": "Muži vs. ženy",
           "dataset": "rrz_kpi",
           "value": "hodnota",
           "unit": "%",
-          "note": "O koľko je priemerný nekrátený SD mužov vyšší než u žien.",
+          "note": "O koľko je priemerný reálny SD mužov vyšší než u žien.",
           "decimals": 2,
           "transform": [
             {
@@ -3967,7 +3931,7 @@
             }
           ],
           "deltaUnit": "p. b.",
-          "deltaNote": "r/r"
+          "deltaNote": "oproti 2025"
         }
       ]
     },
@@ -4004,7 +3968,7 @@
     "rrz_davky_priemer": {
       "type": "bar",
       "title": "Priemerná dávka podľa druhu",
-      "subtitle": "Nekrátené dôchodky bez dôchodku z cudziny a výsluhového — pohľad, ktorým report vykazuje hlavné čísla.",
+      "subtitle": "Reálne dôchodky: nekrátené, bez dôchodku z cudziny a výsluhového. Týmto pohľadom report vykazuje hlavné čísla.",
       "dataset": "rrz_davky_druh",
       "x": "druh",
       "y": "priemer_eur",
@@ -4016,7 +3980,7 @@
         {
           "kind": "filter",
           "where": {
-            "pohlad": "Nekrátené bez iného dôchodku"
+            "pohlad": "Reálne"
           }
         },
         {
@@ -4035,7 +3999,7 @@
     "rrz_sd_vyvoj_pohlady": {
       "type": "bar-grouped",
       "title": "Tri definície jedného dôchodku",
-      "subtitle": "Ten istý starobný dôchodok vyjde o desiatky eur inak podľa toho, koho do priemeru pustíme. Rozdiel medzi krajnými pohľadmi je takmer 60 €.",
+      "subtitle": "Reálny starobný dôchodok mal v júni 2026 721,50 € — o 32,62 € viac než priemer všetkých poberateľov a o 26,91 € menej než sólo.",
       "dataset": "rrz_sd_vyvoj",
       "x": "rok",
       "y": "priemer_eur",
@@ -4045,12 +4009,23 @@
       "size": "m",
       "span": 6,
       "xTickFormat": "year",
-      "note": "December 2024, december 2025, jún 2026."
+      "note": [
+        "Všetci poberatelia — najširší okruh: každý, kto poberá starobný dôchodok, bez ohľadu na krátenie a súbeh. S týmto vymedzením pracuje Sociálna poisťovňa.",
+        "Reálne (v reporte RRZ „nekrátené bez iného dôchodku“) — starobné dôchodky, ktoré nie sú krátené, a ich poberatelia nemajú dôchodok z cudziny ani výsluhový. Pri súbehu dvoch dôchodkov sa nižší vypláca v polovičnej sume; najčastejšie to postihuje staršie ženy, ktorým je vdovský dôchodok po manželovi vyšší než vlastný starobný, a tak sa im kráti starobný. Kto má dôchodok z cudziny alebo výsluhový, má slovenský starobný prirodzene nižší, lebo tu pracoval kratšie. Reálny dôchodok preto dáva najmenej skreslený obraz o životnej úrovni dôchodcov a web ho používa všade, kde to dáta dovoľujú.",
+        "Sólo poberatelia — nekrátené starobné dôchodky ľudí bez akéhokoľvek ďalšieho dôchodku, teda aj bez vdovského. Z pozorovaní tak vypadne veľká časť dôchodcov: v júni 2026 zostáva 769 666 z 1 125 948.",
+        "Stav k decembru 2024, decembru 2025 a júnu 2026."
+      ],
+      "tableColumns": [
+        "rok",
+        "pohlad",
+        "pocet",
+        "priemer_eur"
+      ]
     },
     "rrz_sd_pohlavie_bars": {
       "type": "bar-grouped",
       "title": "Muži a ženy",
-      "subtitle": "Priemerný nekrátený starobný dôchodok. Rozdiel rastie v eurách (176 → 187 €), v pomere sa drží na 1,29.",
+      "subtitle": "Priemerný reálny starobný dôchodok. Rozdiel rastie v eurách (176 → 187 €), v pomere sa drží na 1,29.",
       "dataset": "rrz_sd_pohlavie",
       "x": "rok",
       "y": "priemer_eur",
@@ -4066,6 +4041,37 @@
         "priemer_eur",
         "pocet"
       ]
+    },
+    "rrz_sd_definicie_pocet": {
+      "type": "bar",
+      "title": "Koľko poberateľov zachytí ktorá definícia",
+      "subtitle": "Reálny dôchodok vynechá 110 488 poberateľov s kráteným alebo ďalším dôchodkom (10 %), sólo definícia 356 282 — takmer tretinu.",
+      "dataset": "rrz_davky_druh",
+      "x": "pohlad",
+      "y": "pocet",
+      "unit": "osôb",
+      "decimals": 0,
+      "size": "m",
+      "span": 6,
+      "transform": [
+        {
+          "kind": "filter",
+          "where": {
+            "druh": "Starobný dôchodok"
+          }
+        }
+      ],
+      "tableColumns": [
+        "pohlad",
+        "pocet",
+        "priemer_eur"
+      ],
+      "labels": {
+        "pohlad": "Definícia",
+        "pocet": "Počet poberateľov",
+        "priemer_eur": "Priemerný dôchodok"
+      },
+      "note": "Starobný dôchodok, jún 2026. Definície sú vysvetlené pri grafe „Tri definície jedného dôchodku“ na stránke Prehľad."
     },
     "rrz_naklady_stack": {
       "type": "bar-stacked",

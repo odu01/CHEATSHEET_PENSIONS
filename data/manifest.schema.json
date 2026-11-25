@@ -331,7 +331,11 @@
             "type": "string"
           },
           "note": {
-            "type": "string"
+            "description": "Poznámka pod kartou; pole = viac odsekov.",
+            "oneOf": [
+              { "type": "string" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
           },
           "dataset": {
             "type": "string"
