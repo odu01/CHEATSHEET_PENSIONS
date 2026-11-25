@@ -481,7 +481,10 @@ body {
 
 .viz-tiles {
   display: grid; gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  /* --tile-cols (z manifestu, `tileColumns`) je strop počtu stĺpcov; bez neho
+     je strop vysoký a rozhoduje len minimálna šírka 150 px. */
+  grid-template-columns: repeat(auto-fit,
+    minmax(max(150px, calc((100% - (var(--tile-cols, 12) - 1) * 12px) / var(--tile-cols, 12))), 1fr));
 }
 .viz-tile {
   padding: 12px 14px;

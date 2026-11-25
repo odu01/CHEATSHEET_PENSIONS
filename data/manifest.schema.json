@@ -333,8 +333,15 @@
           "note": {
             "description": "Poznámka pod kartou; pole = viac odsekov.",
             "oneOf": [
-              { "type": "string" },
-              { "type": "array", "items": { "type": "string" } }
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
             ]
           },
           "dataset": {
@@ -734,6 +741,12 @@
             "type": "number",
             "default": 0.42,
             "description": "sankey: krytie stužky."
+          },
+          "tileColumns": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12,
+            "description": "Len tiles: najviac toľko dlaždíc v riadku (široká dlaždica zaberá dve miesta). Bez neho rozhoduje len minimálna šírka 150 px."
           }
         }
       }

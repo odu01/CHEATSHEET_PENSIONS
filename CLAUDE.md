@@ -19,7 +19,7 @@ Prečo sú dáta rozdelené tak, ako sú: **`docs/DATOVA_ARCHITEKTURA.md`**.
 ```bash
 npm run serve         # http://localhost:8080
 npm run validate      # manifest + vstupné súbory + paleta  ← pred každým commitom
-npm run shots         # vykreslí 20 stránok × 3 prostredia, hľadá chyby
+npm run shots         # vykreslí 19 stránok × 3 prostredia, hľadá chyby
 npm run shots -- --check   # to isté bez ukladania PNG (beží aj v CI)
 
 npm run data          # zošity Sociálnej poisťovne  -> data/sp_*.csv

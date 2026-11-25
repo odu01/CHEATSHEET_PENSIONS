@@ -175,7 +175,7 @@ závislosť a tree-shaking by potreboval build step). Rozbor v
 - CSV v `data/` sa zhodujú so zošitmi v `data/zdroj/` (pregenerovaním importu) a
   syntetické súbory v `data/vstup/` so svojím generátorom (kým sú syntetické)
 
-Navyše `tools/screenshots.mjs --check` vykreslí všetkých 14 stránok v svetlom aj
+Navyše `tools/screenshots.mjs --check` vykreslí všetkých 19 stránok v svetlom aj
 tmavom režime a spadne na chybe v konzole, na neúspešnej požiadavke, na prázdnej
 ploche grafu, na pretekajúcej karte — a na varovaní Observable Plot. To posledné
 nie je prepis: Plot kreslí pri varovaní ⚠ priamo do grafu a jeho varovanie

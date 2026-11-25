@@ -162,8 +162,8 @@ nesú pôvodný názov, takže kontrolné súčty a porovnanie so zošitom plati
 
 | Kde | Čo sa zmenilo |
 |---|---|
-| *Prehľad* | graf „Tri definície jedného dôchodku“ s vysvetlením všetkých troch namiesto celkových mesačných výdavkov (tie sú na stránke *Výdavky*); dlaždica priemerného SD je reálna (RRZ, 06/2026) |
-| *Stav k júnu 2026* | dlaždica, priemer podľa druhu a muži vs. ženy sú reálne (boli aj predtým, teraz to hovoria); nová karta „Koľko poberateľov zachytí ktorá definícia“ |
+| *Prehľad* | jediná stránka sekcie — pohltila bývalú *Stav k júnu 2026*; jedna sada dlaždíc bez duplicít (priemerný SD je reálny, RRZ 06/2026); graf „Tri definície jedného dôchodku“ s vysvetlením namiesto celkových mesačných výdavkov (tie sú na stránke *Výdavky*); karta „Koľko poberateľov zachytí ktorá definícia“ |
+| každá karta s výškou SD | riadok **Definícia** pod grafom: „reálny starobný dôchodok“, kde to platí, inak čo presne karta ukazuje (priemer SP vrátane krátených, sólo, syntetické rozdelenie, celkový dôchodkový príjem) |
 
 **Kde reálny dôchodok nie je a prečo:** mesačné rady SP (*Priemerné dôchodky*,
 *Novopriznané*, bublinový graf na *Pohyb v čase*) majú len priemer sólo a
