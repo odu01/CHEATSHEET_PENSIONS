@@ -44,10 +44,14 @@ Prázdnu hlavičku na začiatok vypíše `node tools/check-vstup.mjs --sablona <
 | `prezitie_kohort.csv` | `prezitie_kohort` | generácia × vek | Demografia |
 | `nadej_dozitia_vek.csv` | `nadej_dozitia_vek` | rok × dosiahnutý vek | Demografia |
 | `prechody_stavov.csv` | `prechody` | prúd zo stavu do stavu | Pohyb v čase |
+| `rozklad_naklady_sd_odhad.csv` | `rozklad_naklady_sd_odhad` | rok × faktor × obdobie príspevku | Výdavky (porovnania 2021 → 2022 až 2023 → 2024) |
 
-Rozklad zmeny nákladov na starobné dôchodky tu bol do 2026-11 ako ručný vstup
-prepísaný z grafu. Dnes sa importuje z reportu RRZ (`data/rrz_rozklad_naklady_sd.csv`,
-výťah `npm run data:rrz:detail`), presne a za všetky roky, ktoré report počíta.
+Rozklad zmeny nákladov na starobné dôchodky sa importuje z reportu RRZ
+(`data/rrz_rozklad_naklady_sd.csv`, výťah `npm run data:rrz:detail`) za roky, ktoré
+report počíta — od 2024 → 2025. Skoršie porovnania sú v `rozklad_naklady_sd_odhad.csv`
+z modelu (`gen_rozklad_naklady_sd_odhad` v `tools/gen_vstup.py`) a vodopád ich k
+reálnym pridáva cez `append`. Keď RRZ dodá skoršie roky, patria do reportu a
+importu, nie sem: tento súbor sa potom zmaže spolu s jeho datasetom a `append`.
 
 Presné stĺpce, typy a významy sú v manifeste (`data/manifest.json`, kľúč
 `columns`) a vypíše ich `npm run vstup`. Tu sú len tie veci, ktoré sa z hlavičky

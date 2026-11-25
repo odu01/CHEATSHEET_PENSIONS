@@ -1,7 +1,7 @@
 # Prehľad dôchodkového systému — odovzdanie projektu
 
 Vitaj. Tento repozitár je **dátové rozhranie k slovenskému dôchodkovému (PAYGO)
-systému**: 18 stránok, 63 grafov a tabuliek, 41 datasetov. Je to statický web bez
+systému**: 18 stránok, 63 grafov a tabuliek, 42 datasetov. Je to statický web bez
 build stepu — koreň repozitára je priamo to, čo sa nasadí na GitHub Pages.
 
 Tento dokument je úvod pre človeka aj pre Clauda. Operatívne pravidlá projektu
@@ -54,7 +54,8 @@ stavmi, animácia časom, mobilná navigácia, tmavý režim, validácie a CI.
 
 Otvorené / na pokračovanie:
 - **Päť stránok beží na syntetických dátach** (rozdelenie dôchodkov, podľa veku a
-  pohlavia, podľa kategórie, doba poberania, II. pilier). Evidencia zadaných
+  pohlavia, podľa kategórie, doba poberania, II. pilier); na stránke Výdavky sú
+  syntetické porovnania rozkladu nákladov pred rokom 2025. Evidencia zadaných
   ukazovateľov a čo k nim treba: `docs/POZADOVANE_UKAZOVATELE.md`.
 - Podrobné hárky manažérskeho reportu RRZ (pracujúci dôchodcovia po deciloch,
   boxploty, kumulatívne distribúcie) zatiaľ zapracované nie sú — do projektu išli

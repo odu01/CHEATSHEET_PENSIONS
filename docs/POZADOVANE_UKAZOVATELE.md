@@ -135,7 +135,7 @@ z manažérskeho prehľadu RRZ.
 | Graf | Stav | Stránka | Súbor |
 |---|---|---|---|
 | Rozklad zmeny nákladov na SD, t−1 vs. t, posuvník 2024 → 2025 a 2025 → 2026 (I.–VI.) | hotové, import z hárku `Rocne_naklady_podla_druhu_doch` | *Výdavky* | `data/rrz_rozklad_naklady_sd.csv` |
-| Rozklad za skoršie roky (2023 → 2024 a staršie) | **nedá sa** — report počíta rozklad z mesačných údajov od 01/2024 | — | — |
+| Rozklad za skoršie roky (2021 → 2022 až 2023 → 2024) | syntetické — report počíta rozklad z mesačných údajov od 01/2024; model z mesačných údajov SP kalibrovaný na 2024 → 2025 | *Výdavky* | `data/vstup/rozklad_naklady_sd_odhad.csv` |
 | Výdavky podľa druhu ročne 2021 – 2026 | hotové, súčet mesačných hotovostných výdavkov SP (2026 = január – apríl) | *Výdavky* | `data/sp_vydavky_mesacne.csv` |
 
 Súčet 420,9 mil. € sedí presne na rozdiel nákladov na starobné dôchodky v

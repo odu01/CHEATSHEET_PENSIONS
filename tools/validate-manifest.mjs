@@ -216,6 +216,7 @@ for (const [id, def] of Object.entries(manifest.datasets || {})) {
 // ── 2c. pevné farby entít: len sloty, ktoré paleta pozná ─────────────────────
 const SLOTS = ['blue', 'red', 'green', 'navy', 'gold', 'purple'];
 for (const [name, slot] of Object.entries(manifest.colors || {})) {
+  if (slot === 'other') continue;   // recesívna sivá mimo palety
   if (!SLOTS.includes(slot))
     err(`colors: „${name}“ má slot „${slot}“, paleta pozná ${SLOTS.join(', ')}`);
 }
@@ -237,6 +238,16 @@ for (const [id, v] of Object.entries(views)) {
   if (!manifest.datasets?.[v.dataset]) { err(`view "${id}": dataset "${v.dataset}" nie je v manifeste`); continue; }
   const cols = headers[v.dataset];
   if (!cols) continue;
+  // `append` zlepí riadky ďalších datasetov pod hlavný — musia mať tie isté stĺpce,
+  // inak by v ich riadkoch chýbali hodnoty a graf by ich ticho vynechal.
+  for (const extra of v.append || []) {
+    if (!manifest.datasets?.[extra]) { err(`view "${id}": append "${extra}" nie je v manifeste`); continue; }
+    const ec = headers[extra];
+    if (!ec) continue;
+    const diff = [...new Set([...cols].filter(c => !ec.has(c)).concat([...ec].filter(c => !cols.has(c))))];
+    if (diff.length)
+      err(`view "${id}": append "${extra}" má iné stĺpce než "${v.dataset}" (rozdiel: ${diff.join(', ')})`);
+  }
 
   const produced = producedBy(v.transform);
   const known = c => cols.has(c) || produced.has(c) || produced.has('*');

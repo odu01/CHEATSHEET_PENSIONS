@@ -684,6 +684,14 @@ body {
 }
 .viz-frame-mark-right { right: 18px; }
 .viz-frame-mark-left  { left: 62px; }
+/* Snímka z modelu: menší nápis hore vľavo, kde začína graf od nuly a je voľno. */
+.viz-frame-mark-synt {
+  top: 30px; bottom: auto; left: 72px;
+  font-size: clamp(1.3rem, 3.2vw, 2.1rem);
+  color: color-mix(in oklab, var(--status-warning) 60%, var(--ink-primary));
+  opacity: 0.5;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
 
 /* Zdôraznenie série z legendy: podržanie alebo fokus vytiahne jednu sériu
    dopredu a ostatné potlačí. Nič sa neskrýva — len sa ustúpi. */

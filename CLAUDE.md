@@ -55,7 +55,9 @@ a `badge` — generátor nad tým súborom stráca právo a CI prestane porovná
   (stohované, zoskupené). Siedma séria sa skladá do „Ostatné", nefarbí sa.
   `npm run validate` to meria, nehádaj. Entity, ktoré musia mať rovnakú farbu
   v každom grafe, sú v manifeste `colors` — starobný dôchodok (vo všetkých
-  definíciách) je modrý, muži tmavomodrí, ženy červené.
+  definíciách) je modrý, muži tmavomodrí, ženy červené. Druhy dôchodku majú farbu
+  rodiny: predčasný červený, invalidné zelené, pozostalostné tmavomodré,
+  rodičovský zlatý, 13. dôchodok fialový, štátne dávky sivé (`other`).
 - **Mriežka má 12 stĺpcov** a každý riadok stránky musí dať presne 12
   (`span` pri view). Validácia to odmietne.
 - **Vodorovné stĺpce (`bar`) sú len jednosériové alebo stohované**; viac sérií

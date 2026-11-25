@@ -44,7 +44,17 @@
     "Starobné dôchodky": "blue",
     "Reálne": "blue",
     "Muži": "navy",
-    "Ženy": "red"
+    "Ženy": "red",
+    "Predčasný starobný": "red",
+    "Predčasný dôchodok": "red",
+    "Invalidný": "green",
+    "Invalidný dôchodok do 70 %": "green",
+    "Invalidný dôchodok nad 70 %": "green",
+    "Vdovský/vdovecký dôchodok": "navy",
+    "Sirotský dôchodok": "navy",
+    "Rodičovský": "gold",
+    "13. dôchodok": "purple",
+    "Štátne dávky": "other"
   },
   "datasets": {
     "vydavky_mesacne": {
@@ -165,6 +175,106 @@
           "equals": 420.9,
           "tolerance": 0.001,
           "note": "Zmena spolu 2025 = náklady na starobné dôchodky 2025 − 2024 v rrz_naklady_druh (8 837,51 − 8 416,61)."
+        }
+      ]
+    },
+    "rozklad_naklady_sd_odhad": {
+      "file": "data/vstup/rozklad_naklady_sd_odhad.csv",
+      "label": "Rozklad zmeny nákladov na starobné dôchodky — syntetické roky",
+      "unit": "mil. EUR",
+      "source": "Syntetické dáta (tools/gen_vstup.py) — model z mesačných údajov Sociálnej poisťovne o starobných dôchodkoch (počty, priemery, novopriznané) kalibrovaný na reálny rozklad RRZ 2024 → 2025 a I. polroka 2026",
+      "vintage": "2021 → 2022 až 2023 → 2024 (modelované)",
+      "illustrative": true,
+      "badge": "Syntetické dáta: porovnania do 2023 → 2024",
+      "badgeNote": "Rozklad pred rokom 2025 v reporte RRZ nie je — jeho mesačné údaje začínajú v januári 2024. Tieto hodnoty sú z modelu, nie zo štatistiky. Porovnania 2024 → 2025 a 2025 → 2026 sú reálne.",
+      "note": "Náklady roka sú počet × priemer starobných dôchodkov zo SP prepočítané na úroveň nákladov RRZ (rok 2024 je reálne číslo RRZ). Paušálna valorizácia = januárový skok priemerného dôchodku SP × náklady predošlého roka; v roku 2023 k nej pribudlo mimoriadne zvýšenie od augusta (+10,7 % priemeru SP) a jeho dobeh je v roku 2024 príspevkom t−1. Noví poberatelia sú z novopriznaných dôchodkov SP bez prechodov z predčasného dôchodku. Úmrtia a prerušenia sa menia len s objemom nákladov — nadúmrtnosť rokov 2021 a 2022 v modeli nie je. Ostatné faktory sú zvyšok do zmeny spolu.",
+      "columns": {
+        "rok": {
+          "type": "year",
+          "label": "Rok t (bežný rok rozkladu)"
+        },
+        "porovnanie": {
+          "type": "string",
+          "label": "Porovnávané roky (s označením syntetické)"
+        },
+        "faktor": {
+          "type": "string",
+          "label": "Faktor zmeny nákladov"
+        },
+        "obdobie": {
+          "type": "string",
+          "label": "Obdobie, z ktorého príspevok pochádza",
+          "codes": {
+            "t-1": "z predošlého roka (t−1)",
+            "t": "z bežného roka (t)",
+            "spolu": "spolu"
+          }
+        },
+        "zmena_mil_eur": {
+          "type": "number",
+          "label": "Príspevok k zmene nákladov, mil. €",
+          "measure": true,
+          "decimals": 2
+        },
+        "je_spolu": {
+          "type": "bool",
+          "label": "1 = riadok so zmenou spolu"
+        }
+      },
+      "checks": [
+        {
+          "kind": "sum",
+          "column": "zmena_mil_eur",
+          "where": {
+            "rok": 2022,
+            "je_spolu": 0
+          },
+          "equalsDataset": {
+            "dataset": "rozklad_naklady_sd_odhad",
+            "column": "zmena_mil_eur",
+            "where": {
+              "rok": 2022,
+              "je_spolu": 1
+            }
+          },
+          "tolerance": 0.001,
+          "note": "Príspevky faktorov za rok 2022 sa musia sčítať na zmenu spolu."
+        },
+        {
+          "kind": "sum",
+          "column": "zmena_mil_eur",
+          "where": {
+            "rok": 2023,
+            "je_spolu": 0
+          },
+          "equalsDataset": {
+            "dataset": "rozklad_naklady_sd_odhad",
+            "column": "zmena_mil_eur",
+            "where": {
+              "rok": 2023,
+              "je_spolu": 1
+            }
+          },
+          "tolerance": 0.001,
+          "note": "Príspevky faktorov za rok 2023 sa musia sčítať na zmenu spolu."
+        },
+        {
+          "kind": "sum",
+          "column": "zmena_mil_eur",
+          "where": {
+            "rok": 2024,
+            "je_spolu": 0
+          },
+          "equalsDataset": {
+            "dataset": "rozklad_naklady_sd_odhad",
+            "column": "zmena_mil_eur",
+            "where": {
+              "rok": 2024,
+              "je_spolu": 1
+            }
+          },
+          "tolerance": 0.001,
+          "note": "Príspevky faktorov za rok 2024 sa musia sčítať na zmenu spolu."
         }
       ]
     },
@@ -2165,8 +2275,11 @@
     "naklady_sd_rozklad_wf": {
       "type": "waterfall",
       "title": "Rozklad zmeny nákladov na starobné dôchodky",
-      "subtitle": "Rast nákladov ťahajú noví poberatelia a januárová valorizácia, úmrtia ho tlmia. Za rok 2025 náklady vzrástli o 420,9 mil. €, v prvom polroku 2026 o 238,9 mil. € oproti prvému polroku 2025.",
+      "subtitle": "Rast nákladov ťahajú noví poberatelia a januárová valorizácia, úmrtia ho tlmia. Za rok 2025 náklady vzrástli o 420,9 mil. €, v prvom polroku 2026 o 238,9 mil. € oproti prvému polroku 2025. Porovnania pred rokom 2025 sú syntetické.",
       "dataset": "rozklad_naklady_sd",
+      "append": [
+        "rozklad_naklady_sd_odhad"
+      ],
       "x": "faktor",
       "y": "zmena_mil_eur",
       "period": "obdobie",
@@ -2183,9 +2296,10 @@
       "minWidth": 560,
       "note": [
         "t−1 a t — každý faktor má dva príspevky: (t−1) z udalostí predošlého roka, ktoré sa v bežnom roku prejavia celých 12 mesiacov, a (t) z udalostí bežného roka. Dôchodok priznaný v júli 2024 sa v roku 2024 vyplácal 6 mesiacov, v roku 2025 celých 12.",
-        "Paušálna valorizácia (t−1) — je nula: dôchodky sa valorizujú od 1. januára, takže valorizácia predošlého roka bola v jeho nákladoch už celých 12 mesiacov a do zmeny nemá čo preniesť.",
-        "2025 → 2026 (I.–VI.) — rok 2026 je v reporte zatiaľ len január – jún, preto sa porovnáva prvý polrok 2026 s prvým polrokom 2025 (4 638,2 oproti 4 399,4 mil. €). Os je pre obe porovnania rovnaká, takže polročná zmena vyzerá menšia, lebo menšia je. Po doplnení ďalších mesiacov do reportu sa popis aj čísla obnovia.",
-        "Skoršie roky — rozklad počíta report RRZ z mesačných údajov od januára 2024, takže prvé možné porovnanie je 2024 → 2025."
+        "Paušálna valorizácia (t−1) — pri januárovej valorizácii je nula: valorizácia predošlého roka bola v jeho nákladoch už celých 12 mesiacov. Nenulová je len po zvýšení v priebehu roka — v syntetickom porovnaní 2023 → 2024 je to dobeh mimoriadneho zvýšenia od augusta 2023.",
+        "2025 → 2026 (I.–VI.) — rok 2026 je v reporte zatiaľ len január – jún, preto sa porovnáva prvý polrok 2026 s prvým polrokom 2025 (4 638,2 oproti 4 399,4 mil. €). Po doplnení ďalších mesiacov do reportu sa popis aj čísla obnovia.",
+        "Syntetické roky — 2021 → 2022 až 2023 → 2024 report RRZ nepočíta (jeho mesačné údaje začínajú v januári 2024). Sú dopočítané modelom z mesačných údajov SP, kalibrovaným na reálny rozklad 2024 → 2025; čo model nevysvetlí, je v ostatných faktoroch.",
+        "Os — je pre všetky porovnania rovnaká, takže polročná zmena vyzerá menšia, lebo menšia je."
       ],
       "tableColumns": [
         "porovnanie",
@@ -2201,7 +2315,8 @@
       },
       "frame": "porovnanie",
       "frameLabel": "Porovnávané roky",
-      "frameMark": false
+      "frameMark": false,
+      "layout": "side"
     },
     "pocty_druhy_trend": {
       "type": "line",
@@ -4219,6 +4334,8 @@
       "dataset": "rrz_naklady_druh",
       "x": "druh",
       "y": "podiel_pct",
+      "series": "druh",
+      "legend": false,
       "unit": "%",
       "decimals": 2,
       "size": "l",

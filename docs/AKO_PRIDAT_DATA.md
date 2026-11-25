@@ -346,6 +346,15 @@ polročná zmena vedľa celoročnej vyzerá menšia, lebo menšia je. Dlhý popi
 by ako veľký priesvitný nápis prekryl stĺpce, preto ho `"frameMark": false` vypne;
 snímku potom hlási posuvník a tabuľka pod grafom má stĺpec s porovnaním.
 
+Roky, ktoré zdroj nepočíta, môžu prísť zo syntetického vstupu: `"append":
+["rozklad_naklady_sd_odhad"]` pridá riadky ďalšieho datasetu s **rovnakými
+stĺpcami** k hlavnému ešte pred transformáciami (validácia rozdiel v stĺpcoch
+odmietne). Každý dataset si nesie vlastný zdroj; syntetický pridá pod kartu
+odznak a pri snímke, ktorá je celá z neho, napíše graf do plochy „Syntetické
+dáta". Popis snímky to má mať aj v dátach („2022 → 2023 (syntetické)“), aby to
+nieslo aj tabuľku a CSV export. Rozloženie `"layout": "side"` dá legendu a
+poznámky vpravo od grafu.
+
 ### Pevné farby entít a hrúbka stĺpca
 
 Farba sa prideľuje podľa poradia sérií v grafe, takže tá istá entita by v dvoch
@@ -353,12 +362,31 @@ grafoch mohla mať inú farbu. Entity, ktoré musia byť všade rovnaké, sú v 
 na najvyššej úrovni:
 
 ```json
-"colors": { "Starobný dôchodok": "blue", "Reálne": "blue", "Muži": "navy", "Ženy": "red" }
+"colors": { "Starobný dôchodok": "blue", "Reálne": "blue", "Muži": "navy", "Ženy": "red",
+            "Predčasný dôchodok": "red", "Invalidný dôchodok do 70 %": "green",
+            "Vdovský/vdovecký dôchodok": "navy", "13. dôchodok": "purple",
+            "Štátne dávky": "other" }
 ```
 
-Hodnota je slot palety (`blue`, `red`, `green`, `navy`, `gold`, `purple`).
+Hodnota je slot palety (`blue`, `red`, `green`, `navy`, `gold`, `purple`) alebo
+`other` — recesívna sivá mimo palety pre položku, ktorá nie je druhom dôchodku.
 Entita s pevnou farbou ho dostane v každom grafe, ostatné série berú voľné sloty
-v poradí. Dve entity s rovnakým slotom nesmú byť v jednom grafe naraz.
+v poradí.
+
+Druhy dôchodku majú farbu **rodiny**, nie jednotlivého druhu: starobný modrý,
+predčasný červený, invalidný (do aj nad 70 %) zelený, pozostalostné (vdovský/
+vdovecký, sirotský) tmavomodré, rodičovský zlatý, 13. dôchodok fialový. Druhov je
+v reporte RRZ osem a slotov šesť, takže inak to nejde — a rodina čítaná farbou je
+aj to, čo grafy výdavkov SP zlučujú. Dve entity s rovnakým slotom v jednom grafe
+sú prípustné len takto, v rodine, a len tam, kde názov stojí pri stĺpci (`bar`,
+`barrank`); v čiarovom grafe s legendou nie. Preto SP názvy „Vdovský" a „Vdovecký"
+v registri nie sú — v mesačných čiarových grafoch sú dve rôzne čiary.
+
+Muži/ženy a druhy dôchodku zdieľajú červenú a tmavomodrú. V jednom grafe sa
+nestretnú; pri šiestich slotoch sa tomu vyhnúť nedá.
+
+`"series"` rovné `x` pri `bar` zafarbí každý stĺpec podľa jeho entity;
+`"legend": false` potom vypne legendu, ktorá by len zopakovala popisy na osi.
 
 `"barMax": 56` pri view zvýši strop hrúbky stĺpca (inak 24 px) — pre dva-tri
 stĺpce na veľkej ploche, kde by inak zostali tenké čiary.

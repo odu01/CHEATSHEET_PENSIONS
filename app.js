@@ -336,7 +336,7 @@ async function openPage(pageId, resetFilters = true) {
   // Load every dataset this page needs, once, in parallel. Tiles may name their
   // own dataset, so a KPI row can pull from several files — those count too.
   const needed = [...new Set(specs.flatMap(s =>
-    [s.dataset, ...(s.tiles || []).map(t => t.dataset)]).filter(Boolean))];
+    [s.dataset, ...(s.append || []), ...(s.tiles || []).map(t => t.dataset)]).filter(Boolean))];
   const bundles = {};
   await Promise.all(needed.map(async ds => {
     const def = state.manifest.datasets?.[ds];
@@ -371,7 +371,22 @@ async function drawViews(grid, specs, bundles) {
       cards.push(card);
       continue;
     }
-    const bundle = bundles[spec.dataset];
+    // `append`: riadky ďalších datasetov s rovnakými stĺpcami idú k hlavnému ešte
+    // pred filtrom a transformáciami — napr. syntetické roky pred reálnymi. Každý
+    // dataset si nesie vlastný zdroj a odznak, takže karta ukáže oba.
+    let bundle = bundles[spec.dataset];
+    let extraMetas = [];
+    const extras = (spec.append || []).map(id => [id, bundles[id]]);
+    const broken = extras.find(([, b]) => !b || b.error);
+    if (bundle && !bundle.error && broken) {
+      bundle = { error: broken[1]?.error || `Dataset "${broken[0]}" chýba.` };
+    } else if (bundle && !bundle.error && extras.length) {
+      // Riadky zo syntetického datasetu nesú značku, aby graf vedel povedať, kedy
+      // ukazuje model — odznak pod kartou to hovorí o celej karte, nie o snímke.
+      const tag = b => (b.meta?.illustrative ? b.rows.map(r => ({ ...r, __synthetic: true })) : b.rows);
+      bundle = { ...bundle, rows: [...extras.flatMap(([, b]) => tag(b)), ...bundle.rows] };
+      extraMetas = extras.map(([, b]) => b.meta);
+    }
     if (!bundle || bundle.error) {
       const card = document.createElement('section');
       card.className = 'viz-card';
@@ -389,7 +404,8 @@ async function drawViews(grid, specs, bundles) {
     // except for a filter over a column that a transform produces, which lands
     // at the view's own `pageFilter` marker instead.
     const scoped = scopeRows(bundle, spec);
-    const card = await renderView(withPageFilter(spec, bundle), scoped, { bundles, shownNotes });
+    const card = await renderView(withPageFilter(spec, bundle), scoped,
+      { bundles, shownNotes, extraMetas });
     cards.push(card);
   }
   grid.replaceChildren(...cards);

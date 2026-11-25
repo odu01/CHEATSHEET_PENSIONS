@@ -999,6 +999,181 @@ def gen_pilier2() -> None:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Rozklad zmeny nákladov na starobné dôchodky pred rokom 2025
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Roky t, za ktoré sa rozklad t−1 → t dopočítava modelom. Report RRZ počíta
+# rozklad z mesačných údajov od 01/2024, takže prvý reálny rok je 2025.
+ROZKLAD_ROKY = [2022, 2023, 2024]
+ROZKLAD_FAKTORY = ["Noví poberatelia", "Valorizácia nových", "Paušálna valorizácia",
+                   "Zomrelí", "Ostatné faktory", "Prerušenie poberania"]
+# Mimoriadne zvýšenie dôchodkov v priebehu roka: {rok: mesiac, od ktorého je vyšší
+# priemer}. Priemerný starobný dôchodok SP skočil v auguste 2023 o 10,7 %. Mesiac sa
+# berie z priemeru, nie z nároku, aby sedel s kotvou nákladov (Σ počet × priemer).
+MIMORIADNE = {2023: 8}
+
+
+def _sp_mesacne(name: str, column: str, druh: str = "Starobný",
+                kategoria: str | None = None) -> dict:
+    """Mesačná rada starobného dôchodku z reálneho CSV v data/.
+
+    Vstup:  name (str) — súbor v data/, column (str) — stĺpec s hodnotou,
+            druh (str), kategoria (str | None) — filter pri sp_priemer_novo_vs_stav
+    Výstup: dict {"RRRR-MM": float}
+    Príklad: _sp_mesacne("sp_pocty_mesacne.csv", "pocet")["2024-12"] → 1134690.0
+    """
+    out = {}
+    with (ROOT / "data" / name).open(encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            if row["druh"] != druh or row.get(column) in (None, ""):
+                continue
+            if kategoria and row.get("kategoria") != kategoria:
+                continue
+            out[row["mesiac"]] = float(row[column])
+    return out
+
+
+def gen_rozklad_naklady_sd_odhad() -> None:
+    """Syntetický rozklad medziročnej zmeny nákladov na SD za 2021 → 2022 až 2023 → 2024.
+
+    Tvar je ten istý ako reálny rozklad RRZ (6 faktorov × príspevok t−1 a t + súčet),
+    aby posuvník prešiel z modelu na reálne roky bez zmeny grafu. Model stojí na
+    reálnych mesačných údajoch SP a je kalibrovaný na reálny rozklad 2024 → 2025:
+
+      náklady C_t       = κ · Σ_m N_m · A_m  (počet × priemer SP), κ = pomer nákladov RRZ
+                          k tomuto súčtu v rokoch 2024 a 2025; C_2024 je reálne číslo RRZ
+      zmena spolu       = C_t − C_(t−1)
+      paušálna (t)      = k · v_t · C_(t−1), v_t = januárový skok priemeru SP, k z rokov
+                          2025 a 2026; mimoriadne zvýšenie v priebehu roka sa pripočíta
+                          za mesiace nároku v roku t a zvyšok roka ide do (t−1) roka t+1
+      noví (t)          = Σ_m n_m · a_m · (13 − m)        mesiace výplaty v roku t
+      noví (t−1)        = Σ_m n_m · a_m · (m − 1) · (1 + v_t)   doplatok do 12 mesiacov
+      valorizácia nových = r · v_t · ročný objem kohorty t−1, r = priemer rokov 2025 a 2026;
+                          príspevok (t) v pomere k (t−1) ako v roku 2025
+      zomrelí, prerušenie = podiel na C_(t−1) z roku 2025
+      ostatné faktory   = zvyšok do zmeny spolu, delený na t−1 a t ako v roku 2025
+
+    Vstup:  data/sp_pocty_mesacne.csv, sp_priemer_mesacne.csv, sp_novopriznane_mesacne.csv,
+            sp_priemer_novo_vs_stav.csv, rrz_naklady_druh.csv, rrz_rozklad_naklady_sd.csv
+    Výstup: data/vstup/rozklad_naklady_sd_odhad.csv — rok × faktor × obdobie (13 riadkov
+            za rok), stĺpce ako data/rrz_rozklad_naklady_sd.csv
+    Príklad: rok 2023 → porovnanie „2022 → 2023 (syntetické)“, 12 príspevkov a súčet
+
+    Obmedzenia: úmrtia a prerušenia sa hýbu len s objemom nákladov (nadúmrtnosť 2021
+    nie je v modeli); januárový skok priemeru zahŕňa okrem valorizácie aj zmenu
+    zloženia poberateľov; hotovostné doplatky (napr. august 2023) sa nerozkladajú.
+    """
+    N = _sp_mesacne("sp_pocty_mesacne.csv", "pocet")
+    A = _sp_mesacne("sp_priemer_mesacne.csv", "priemer_eur")
+    n = _sp_mesacne("sp_novopriznane_mesacne.csv", "pocet")
+    a = _sp_mesacne("sp_priemer_novo_vs_stav.csv", "priemer_eur", kategoria="Novopriznané")
+
+    def mes(y: int, m: int) -> str:
+        return f"{y}-{m:02d}"
+
+    def stock(y: int) -> float:
+        return sum(N[mes(y, m)] * A[mes(y, m)] for m in range(1, 13)) / 1e6
+
+    def jump(y: int) -> float:
+        return A[mes(y, 1)] / A[mes(y - 1, 12)] - 1
+
+    def mid_jump(y: int) -> float:
+        m = MIMORIADNE[y]
+        return A[mes(y, m)] / A[mes(y, m - 1)] - 1
+
+    def new_paid(y: int, weight) -> float:
+        return sum(n.get(mes(y, m), 0) * a.get(mes(y, m), 0) * weight(m)
+                   for m in range(1, 13)) / 1e6
+
+    def cohort(y: int) -> float:
+        return new_paid(y, lambda m: 12)
+
+    # Reálne kotvy RRZ
+    naklady = {}
+    with (ROOT / "data" / "rrz_naklady_druh.csv").open(encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            if row["druh"] == "Starobný dôchodok":
+                naklady[int(row["rok"])] = float(row["naklady_mil_eur"])
+    real = {}
+    with (ROOT / "data" / "rrz_rozklad_naklady_sd.csv").open(encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            real[(int(row["rok"]), row["faktor"], row["obdobie"])] = float(row["zmena_mil_eur"])
+
+    kappa = (naklady[2024] / stock(2024) + naklady[2025] / stock(2025)) / 2
+    C = {y: kappa * stock(y) for y in range(2021, 2024)}
+    C[2024] = naklady[2024]
+
+    # k: paušálna valorizácia RRZ / (januárový skok × náklady predošlého obdobia)
+    k25 = real[(2025, "Paušálna valorizácia", "t")] / (jump(2025) * naklady[2024])
+    k26 = real[(2026, "Paušálna valorizácia", "t")] / (jump(2026) * real_h1_2025(naklady, real))
+    k = (k25 + k26) / 2
+    # Noví poberatelia: v rokoch 2025 a 2026 sú príspevky RRZ o 17 – 55 % vyššie, než
+    # dá výpočet z novopriznaných dôchodkov SP — RRZ medzi nových starobných ráta aj
+    # prechody z predčasného dôchodku, ktorých po náraste predčasných v roku 2024
+    # pribudlo. Pred rokom 2024 bolo predčasných málo, preto model berie dôchodky
+    # novopriznané podľa SP bez prirážky (s = 1). Je to predpoklad, nie kalibrácia.
+    s_t = s_t1 = 1.0
+    # Valorizácia nových: pomer k (valorizácia × ročný objem kohorty) je v roku 2025
+    # 3,7 a v I. polroku 2026 (po prepočte na rok) 0,6 — model berie ich priemer.
+    r25 = real[(2025, "Valorizácia nových", "t-1")] / (jump(2025) * cohort(2024))
+    r26 = 2 * real[(2026, "Valorizácia nových", "t-1")] / (jump(2026) * cohort(2025))
+    r_val = (r25 + r26) / 2
+    val_t_ratio = real[(2025, "Valorizácia nových", "t")] / real[(2025, "Valorizácia nových", "t-1")]
+
+    def share25(faktor: str, obdobie: str) -> float:
+        return real[(2025, faktor, obdobie)] / naklady[2024]
+
+    ost = (real[(2025, "Ostatné faktory", "t-1")], real[(2025, "Ostatné faktory", "t")])
+    ost_t1 = ost[0] / (ost[0] + ost[1])
+
+    rows = []
+    for t in ROZKLAD_ROKY:
+        base = C[t - 1]
+        v = jump(t)
+        prisp = {}
+        prisp[("Paušálna valorizácia", "t")] = k * v * base
+        prisp[("Paušálna valorizácia", "t-1")] = 0.0
+        if t in MIMORIADNE:
+            mj, m0 = mid_jump(t), MIMORIADNE[t]
+            prisp[("Paušálna valorizácia", "t")] += mj * (1 + v) * base * (13 - m0) / 12
+        if t - 1 in MIMORIADNE:
+            mj, m0 = mid_jump(t - 1), MIMORIADNE[t - 1]
+            prisp[("Paušálna valorizácia", "t-1")] = (
+                mj * (1 + jump(t - 1)) * C[t - 2] * (m0 - 1) / 12)
+        prisp[("Noví poberatelia", "t")] = s_t * new_paid(t, lambda m: 13 - m)
+        prisp[("Noví poberatelia", "t-1")] = s_t1 * new_paid(t - 1, lambda m: m - 1) * (1 + v)
+        prisp[("Valorizácia nových", "t-1")] = r_val * v * cohort(t - 1)
+        prisp[("Valorizácia nových", "t")] = r_val * v * cohort(t - 1) * val_t_ratio
+        for ob in ("t-1", "t"):
+            prisp[("Zomrelí", ob)] = share25("Zomrelí", ob) * base
+            prisp[("Prerušenie poberania", ob)] = share25("Prerušenie poberania", ob) * base
+        spolu = C[t] - C[t - 1]
+        zvysok = spolu - sum(prisp.values())
+        prisp[("Ostatné faktory", "t-1")] = zvysok * ost_t1
+        prisp[("Ostatné faktory", "t")] = zvysok * (1 - ost_t1)
+
+        porovnanie = f"{t - 1} → {t} (syntetické)"
+        for f in ROZKLAD_FAKTORY:
+            for ob in ("t-1", "t"):
+                rows.append([t, porovnanie, f, ob, r2(prisp[(f, ob)]), 0])
+        rows.append([t, porovnanie, "Zmena spolu", "spolu", r2(spolu), 1])
+        print(f"  rozklad {t - 1} → {t}: spolu {spolu:8.1f}  v = {v * 100:5.2f} %  "
+              f"ostatné {zvysok:7.1f} mil. €")
+    write_csv("rozklad_naklady_sd_odhad.csv",
+              ["rok", "porovnanie", "faktor", "obdobie", "zmena_mil_eur", "je_spolu"], rows)
+
+
+def real_h1_2025(naklady: dict, real: dict) -> float:
+    """Náklady na SD za január – jún 2025 = náklady I. polroka 2026 − zmena spolu 2026.
+
+    Vstup:  naklady (dict {rok: mil. €}) z rrz_naklady_druh, real (dict) z rozkladu RRZ
+    Výstup: float — mil. €
+    Príklad: 4 638,23 − 238,88 → 4 399,35
+    """
+    return naklady[2026] - real[(2026, "Zmena spolu", "spolu")]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 
 def main() -> int:
     print(f"model úmrtnosti: b3 = {B3:.5f}  (kotva e65 2023 = {E65_2023} r.)")
@@ -1014,6 +1189,7 @@ def main() -> int:
     gen_doba_poberania()
     gen_pilier2()
     gen_prechody()
+    gen_rozklad_naklady_sd_odhad()
 
     print("\nvstupné súbory:")
     for name, n in WRITTEN:
