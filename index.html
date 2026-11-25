@@ -6,7 +6,7 @@
   <title>Prehľad dôchodkového systému</title>
   <meta name="description" content="Dynamické grafy a tabuľky k dôchodkovému (PAYGO) systému — dátovo riadený prehľad.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=4688cd4ceb">
 
   <!-- Libraries are vendored at pinned versions rather than pulled from a CDN
        range: a floating "@0.6" would let an upstream release silently change the
@@ -70,6 +70,28 @@
   </p>
 </footer>
 
-<script type="module" src="app.js"></script>
+<!-- Import mapu a ?v= nižšie zapisuje `npm run stamp` (odtlačok obsahu súboru).
+     Bez nich by prehliadač po nasadení 10 minút kreslil nový manifest starým kódom. -->
+<!-- importmap:start -->
+<script type="importmap">
+{
+  "imports": {
+    "./app.js": "./app.js?v=fba7dc888a",
+    "./lib/charts2d.js": "./lib/charts2d.js?v=5cf4a5019b",
+    "./lib/charts3d.js": "./lib/charts3d.js?v=9b5b38b2b2",
+    "./lib/data.js": "./lib/data.js?v=7ff29613a0",
+    "./lib/format.js": "./lib/format.js?v=bb8638316c",
+    "./lib/frame.js": "./lib/frame.js?v=44d2627a49",
+    "./lib/hover.js": "./lib/hover.js?v=f99ae2778e",
+    "./lib/sankey.js": "./lib/sankey.js?v=35a1ef3d29",
+    "./lib/table.js": "./lib/table.js?v=df5bc0e421",
+    "./lib/theme.js": "./lib/theme.js?v=48bc52ce05",
+    "./lib/transform.js": "./lib/transform.js?v=e6603f1607",
+    "./lib/view.js": "./lib/view.js?v=4bf6a9cb4d"
+  }
+}
+</script>
+<!-- importmap:end -->
+<script type="module" src="app.js?v=fba7dc888a"></script>
 </body>
 </html>

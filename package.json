@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "serve": "node tools/serve.mjs",
-    "validate": "node tools/validate-manifest.mjs && node tools/check-vstup.mjs && node tools/check-palette.mjs",
+    "validate": "node tools/validate-manifest.mjs && node tools/check-vstup.mjs && node tools/check-palette.mjs && node tools/stamp.mjs --check",
+    "stamp": "node tools/stamp.mjs",
     "validate:manifest": "node tools/validate-manifest.mjs",
     "validate:palette": "node tools/check-palette.mjs",
     "vstup": "node tools/check-vstup.mjs",

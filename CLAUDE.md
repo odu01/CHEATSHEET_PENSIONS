@@ -18,7 +18,8 @@ Prečo sú dáta rozdelené tak, ako sú: **`docs/DATOVA_ARCHITEKTURA.md`**.
 
 ```bash
 npm run serve         # http://localhost:8080
-npm run validate      # manifest + vstupné súbory + paleta  ← pred každým commitom
+npm run validate      # manifest + vstupné súbory + paleta + odtlačky  ← pred každým commitom
+npm run stamp         # po zmene app.js, lib/*.js alebo style.css: odtlačky v index.html
 npm run shots         # vykreslí 19 stránok × 3 prostredia, hľadá chyby
 npm run shots -- --check   # to isté bez ukladania PNG (beží aj v CI)
 
@@ -53,8 +54,8 @@ a `badge` — generátor nad tým súborom stráca právo a CI prestane porovná
   poradí: najviac 3 pri bodových a bublinových grafoch, 6 pri susediacich
   (stohované, zoskupené). Siedma séria sa skladá do „Ostatné", nefarbí sa.
   `npm run validate` to meria, nehádaj. Entity, ktoré musia mať rovnakú farbu
-  v každom grafe, sú v manifeste `colors` — starobný dôchodok aj „Reálne“ sú
-  modré, „Všetci poberatelia“ červení, „Sólo“ zelení.
+  v každom grafe, sú v manifeste `colors` — starobný dôchodok (vo všetkých
+  definíciách) je modrý, muži tmavomodrí, ženy červené.
 - **Mriežka má 12 stĺpcov** a každý riadok stránky musí dať presne 12
   (`span` pri view). Validácia to odmietne.
 - **Vodorovné stĺpce (`bar`) sú len jednosériové alebo stohované**; viac sérií
@@ -81,6 +82,9 @@ a `badge` — generátor nad tým súborom stráca právo a CI prestane porovná
   prebíja.
 - Prúdový diagram má `minWidth` — pod ňou sa plocha posúva nabok vo vlastnom
   ráme, stránka sa neposúva.
+- Po zmene kódu (`app.js`, `lib/*.js`, `style.css`) treba `npm run stamp`, inak
+  `validate` neprejde. Bez odtlačkov v index.html prehliadač po nasadení až
+  10 minút kreslil nový manifest starým kódom — nové voľby ticho ignoroval.
 - Pri písaní podnadpisu grafu si **pozri vykreslený graf**. Dve tvrdenia už
   opisovali opak toho, čo krivka robí.
 

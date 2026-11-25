@@ -36,6 +36,11 @@ jobs:
       - name: Validate palette accessibility gates
         run: node tools/check-palette.mjs
 
+      # index.html nesie odtlačky obsahu skriptov a štýlu (npm run stamp). Keď
+      # nesedia, prehliadač by po nasadení mohol kresliť nový manifest starým kódom.
+      - name: Check asset stamps in index.html
+        run: node tools/stamp.mjs --check
+
       # The CSVs in data/ are derived from the workbooks in data/zdroj/. Re-running
       # the import must reproduce them byte for byte; a diff means someone edited
       # a generated file by hand and the next import would silently overwrite it.

@@ -340,8 +340,7 @@ grafoch mohla mať inú farbu. Entity, ktoré musia byť všade rovnaké, sú v 
 na najvyššej úrovni:
 
 ```json
-"colors": { "Starobný dôchodok": "blue", "Reálne": "blue",
-            "Všetci poberatelia": "red", "Sólo poberatelia": "green" }
+"colors": { "Starobný dôchodok": "blue", "Reálne": "blue", "Muži": "navy", "Ženy": "red" }
 ```
 
 Hodnota je slot palety (`blue`, `red`, `green`, `navy`, `gold`, `purple`).

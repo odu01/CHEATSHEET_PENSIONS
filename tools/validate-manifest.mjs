@@ -377,7 +377,7 @@ function checkAssetRefs(file, patterns) {
   const text = readFileSync(join(ROOT, file), 'utf8');
   for (const re of patterns) {
     for (const m of text.matchAll(re)) {
-      const ref = m[1];
+      const ref = m[1].split('?')[0];     // „style.css?v=…" → style.css
       if (/^(https?:)?\/\//.test(ref) || ref.startsWith('data:') || ref.startsWith('#')) continue;
       const target = ref.startsWith('.')
         ? resolvePath(join(ROOT, dirname(file)), ref)
