@@ -1498,7 +1498,7 @@
     {
       "id": "prehlad",
       "label": "Prehľad",
-      "description": "Kde dôchodkový systém stojí k júnu 2026 podľa manažérskeho prehľadu Kancelárie RRZ. Priemerný starobný dôchodok je tu reálny — nekrátený, bez dôchodku z cudziny a výsluhového; porovnanie troch definícií s posuvníkom rokov je hneď pod dlaždicami.",
+      "description": "Základné ukazovatele dôchodkového systému SR k júnu 2026: výška, počet a štruktúra vyplácaných dôchodkov a ich vývoj od roku 2024. Priemerný starobný dôchodok sa uvádza v reálnom vymedzení, ktoré dáva najmenej skreslený obraz o výške dôchodkov.",
       "views": [
         "kpi_prehlad",
         "rrz_sd_vyvoj_pohlady",
