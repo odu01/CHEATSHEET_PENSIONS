@@ -1793,7 +1793,8 @@
           "higherIsBetter": true,
           "deltaUnit": "€",
           "deltaNote": "od 12/2025",
-          "spark": false
+          "spark": false,
+          "tier": "primary"
         },
         {
           "label": "Predčasný dôchodok",
@@ -1818,7 +1819,8 @@
           "higherIsBetter": true,
           "deltaUnit": "€",
           "deltaNote": "od 12/2025",
-          "spark": false
+          "spark": false,
+          "tier": "primary"
         },
         {
           "label": "Invalidný dôchodok",
@@ -1874,7 +1876,8 @@
           "higherIsBetter": true,
           "deltaUnit": "€",
           "deltaNote": "od 12/2025",
-          "spark": false
+          "spark": false,
+          "tier": "primary"
         },
         {
           "label": "Vdovský / vdovecký dôchodok",
@@ -1899,7 +1902,8 @@
           "higherIsBetter": true,
           "deltaUnit": "€",
           "deltaNote": "od 12/2025",
-          "spark": false
+          "spark": false,
+          "tier": "primary"
         },
         {
           "label": "Sirotský dôchodok",
@@ -1924,7 +1928,8 @@
           "higherIsBetter": true,
           "deltaUnit": "€",
           "deltaNote": "od 12/2025",
-          "spark": false
+          "spark": false,
+          "tier": "primary"
         },
         {
           "label": "Muži vs. ženy",
@@ -2026,7 +2031,8 @@
           "delta": false,
           "spark": false
         }
-      ]
+      ],
+      "emphasis": "lead"
     },
     "vydavky_skladba_mesacne": {
       "type": "area-stacked",
@@ -4116,26 +4122,35 @@
       "barMax": 60
     },
     "rrz_sd_pohlavie_bars": {
-      "type": "bar-grouped",
+      "type": "bar",
       "title": "Muži a ženy",
       "subtitle": "Priemerný reálny starobný dôchodok. Rozdiel rastie v eurách (176 → 187 €), v pomere sa drží na 1,29.",
       "dataset": "rrz_sd_pohlavie",
-      "x": "rok",
+      "x": "pohlavie",
       "y": "priemer_eur",
       "series": "pohlavie",
+      "frame": "rok",
+      "frameLabel": "Rok",
       "unit": "EUR",
       "decimals": 2,
+      "yLabel": "EUR mesačne",
       "size": "l",
       "span": 6,
-      "xTickFormat": "year",
+      "barMax": 60,
       "tableColumns": [
         "rok",
         "pohlavie",
-        "priemer_eur",
-        "pocet"
+        "pocet",
+        "priemer_eur"
       ],
+      "labels": {
+        "rok": "Rok",
+        "pohlavie": "Pohlavie",
+        "pocet": "Počet poberateľov",
+        "priemer_eur": "Priemerný dôchodok"
+      },
       "note": [
-        "Definícia — reálny starobný dôchodok: nekrátený, bez dôchodku z cudziny a výsluhového."
+        "Definícia — reálny starobný dôchodok: nekrátený, bez dôchodku z cudziny a výsluhového. Stav v decembri 2024, decembri 2025 a júni 2026."
       ]
     },
     "rrz_sd_definicie_pocet": {

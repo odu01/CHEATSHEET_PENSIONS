@@ -517,6 +517,28 @@ body {
 .viz-tile-hero .viz-tile-value { font-size: 3rem; letter-spacing: -0.03em; }
 @media (max-width: 560px) { .viz-tile-hero { grid-column: 1 / -1; } }
 
+/* Hlavná karta stránky (`emphasis: "lead"`): odlíšený podklad a pruh v akcentovej
+   farbe, väčší nadpis; dlaždice na nej ležia na čistom povrchu, aby vystúpili. */
+.viz-card-lead {
+  background: color-mix(in oklab, var(--accent) 6%, var(--surface));
+  border-color: color-mix(in oklab, var(--accent) 22%, var(--border));
+  border-top: 3px solid var(--accent);
+  padding: 20px 20px 14px;
+}
+.viz-card-lead .viz-card-title { font-size: 1.3rem; letter-spacing: -0.015em; }
+.viz-card-lead .viz-card-sub { font-size: 0.84rem; color: var(--ink-secondary); }
+.viz-card-lead .viz-tile { background: var(--surface); }
+/* Dlaždica prvej úrovne (`tier: "primary"`): číslo, ktoré má stránka povedať ako prvé. */
+.viz-tile-primary { padding: 16px 18px 14px; }
+.viz-tile-primary .viz-tile-label { font-size: 0.86rem; color: var(--ink-secondary); }
+.viz-tile-primary .viz-tile-value { font-size: 2.35rem; letter-spacing: -0.03em; line-height: 1.1; }
+.viz-source-lead .viz-source-more-sum { font-size: inherit; }
+@media (max-width: 560px) {
+  .viz-card-lead { padding: 16px 14px 12px; }
+  .viz-tile-primary { padding: 12px 12px 10px; }
+  .viz-tile-primary .viz-tile-value { font-size: 1.7rem; }
+}
+
 .viz-tile-delta { font-size: 0.78rem; font-weight: 600; margin-top: 3px; color: var(--ink-muted); }
 .viz-tile-delta.up-good { color: var(--delta-good); }
 .viz-tile-delta.up-bad  { color: var(--delta-bad); }

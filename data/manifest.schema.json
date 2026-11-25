@@ -615,6 +615,12 @@
                 "dataset": {
                   "type": "string",
                   "description": "Tile môže mať vlastný dataset, aby KPI riadok čerpal z viacerých súborov."
+                },
+                "tier": {
+                  "enum": [
+                    "primary"
+                  ],
+                  "description": "primary = dlaždica prvej úrovne s väčším číslom."
                 }
               }
             }
@@ -759,6 +765,12 @@
             "minimum": 8,
             "maximum": 120,
             "description": "Hrúbka stĺpca v px (strop). Bez neho 24 px; pri dvoch-troch stĺpcoch na veľkej ploche ich treba hrubšie."
+          },
+          "emphasis": {
+            "enum": [
+              "lead"
+            ],
+            "description": "lead = hlavná karta stránky: odlíšený podklad, väčší nadpis, zdroje zbalené do jedného riadku s inštitúciami."
           }
         }
       }

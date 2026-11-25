@@ -350,6 +350,14 @@ v poradí. Dve entity s rovnakým slotom nesmú byť v jednom grafe naraz.
 `"barMax": 56` pri view zvýši strop hrúbky stĺpca (inak 24 px) — pre dva-tri
 stĺpce na veľkej ploche, kde by inak zostali tenké čiary.
 
+### Hlavná karta stránky
+
+`"emphasis": "lead"` pri view z karty urobí dominantný prvok stránky: odlíšený
+podklad, pruh v akcentovej farbe, väčší nadpis a zdroje zbalené do jedného riadku
+s menami inštitúcií (plný zoznam po rozbalení). Dlaždica s `"tier": "primary"` má
+výrazne väčšie číslo — pre horný riadok kľúčových ukazovateľov. Vzor: „Systém
+v číslach“ na stránke *Prehľad*.
+
 ### Legenda a poznámky vedľa grafu
 
 Karta na celú šírku s dlhým vysvetlením (napr. definície) by s textom pod grafom
