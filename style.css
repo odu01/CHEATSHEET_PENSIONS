@@ -449,6 +449,18 @@ body {
 /* ── legend ──────────────────────────────────────────────────────────────── */
 
 .viz-legend-host { margin-top: 10px; }
+
+/* Karta s legendou a poznámkami vpravo od grafu (`layout: "side"` v manifeste).
+   Graf dostane tri pätiny šírky, vysvetlenie dve; pod 960 px idú pod seba. */
+.viz-side {
+  display: grid; gap: 8px 32px; align-items: start;
+  grid-template-columns: minmax(0, 3fr) minmax(280px, 2fr);
+}
+.viz-side-aside { margin-top: 4px; }
+.viz-side-aside .viz-legend { margin-bottom: 6px; }
+@media (max-width: 960px) {
+  .viz-side { grid-template-columns: minmax(0, 1fr); }
+}
 .viz-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; }
 .viz-legend-item {
   display: inline-flex; align-items: center; gap: 6px;

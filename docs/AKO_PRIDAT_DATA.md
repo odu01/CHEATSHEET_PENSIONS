@@ -333,6 +333,13 @@ pri stĺpci datasetu. Názov faktora sa kreslí raz pod celou dvojicou a zalamuj
 do šírky, ktorú skupina má; poradie krokov je poradie riadkov v CSV a tabuľka pod
 grafom ho drží. Vzor: `rozklad_naklady_sd` na stránke *Výdavky*.
 
+### Legenda a poznámky vedľa grafu
+
+Karta na celú šírku s dlhým vysvetlením (napr. definície) by s textom pod grafom
+bola vysoký stĺpec. `"layout": "side"` dá legendu a poznámky vpravo od grafu
+(graf tri pätiny šírky, text dve); pod 960 px sa zložia pod graf. Vzor:
+„Tri definície jedného dôchodku“ na stránke *Prehľad*.
+
 ## 6. Prechody medzi stavmi
 
 Prúdový (alluviálny) diagram odpovedá na to, na čo stav neodpovie: nie koľko ich

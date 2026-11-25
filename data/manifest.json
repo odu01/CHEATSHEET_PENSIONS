@@ -1489,11 +1489,12 @@
     {
       "id": "prehlad",
       "label": "Prehľad",
-      "description": "Kde dôchodkový systém stojí k júnu 2026 podľa manažérskeho prehľadu Kancelárie RRZ, doplnené o dlhé rady Sociálnej poisťovne. Priemerný starobný dôchodok je tu reálny — nekrátený, bez dôchodku z cudziny a výsluhového; tri definície vedľa seba sú v druhom riadku.",
+      "description": "Kde dôchodkový systém stojí k júnu 2026 podľa manažérskeho prehľadu Kancelárie RRZ, doplnené o dlhé rady Sociálnej poisťovne. Priemerný starobný dôchodok je tu reálny — nekrátený, bez dôchodku z cudziny a výsluhového; tri definície vedľa seba sú hneď pod dlaždicami.",
       "views": [
         "kpi_prehlad",
         "rrz_sd_vyvoj_pohlady",
         "rrz_sd_definicie_pocet",
+        "rrz_realne_podiel",
         "rrz_davky_pocet",
         "rrz_davky_priemer",
         "rrz_sd_pohlavie_bars",
@@ -4116,8 +4117,8 @@
       "series": "pohlad",
       "unit": "EUR",
       "decimals": 2,
-      "size": "m",
-      "span": 6,
+      "size": "l",
+      "span": 12,
       "xTickFormat": "year",
       "note": [
         "Všetci poberatelia — všetky vyplácané starobné dôchodky bez ohľadu na to, či sú krátené alebo vyplácané v súbehu s iným dôchodkom. Najširšie vymedzenie, v ktorom údaje štandardne vykazuje Sociálna poisťovňa.",
@@ -4131,7 +4132,8 @@
         "pohlad",
         "pocet",
         "priemer_eur"
-      ]
+      ],
+      "layout": "side"
     },
     "rrz_sd_pohlavie_bars": {
       "type": "bar-grouped",
@@ -4184,6 +4186,86 @@
       ],
       "frame": "rok",
       "frameLabel": "Rok"
+    },
+    "rrz_realne_podiel": {
+      "type": "bar",
+      "title": "Koho zachytí reálne vymedzenie",
+      "subtitle": "Reálne vymedzenie zachytí 90 % starobných dôchodcov a 94 – 99 % pri ostatných druhoch, no len 21 % pri vdovskom — väčšine vdov sa vdovský dôchodok pri súbehu kráti.",
+      "dataset": "rrz_davky_druh_vyvoj",
+      "x": "druh",
+      "y": "podiel_pct",
+      "frame": "rok",
+      "frameLabel": "Rok",
+      "unit": "%",
+      "decimals": 1,
+      "yLabel": "% poberateľov daného druhu",
+      "size": "l",
+      "span": 6,
+      "transform": [
+        {
+          "kind": "filter",
+          "where": {
+            "pohlad": [
+              "Všetci poberatelia",
+              "Reálne"
+            ]
+          }
+        },
+        {
+          "kind": "pivot",
+          "key": "pohlad",
+          "value": "pocet",
+          "by": [
+            "rok",
+            "druh"
+          ]
+        },
+        {
+          "kind": "derive",
+          "into": "podiel_pct",
+          "expr": "a / b * 100",
+          "vars": {
+            "a": "Reálne",
+            "b": "Všetci poberatelia"
+          }
+        },
+        {
+          "kind": "sort",
+          "by": "podiel_pct",
+          "dir": "desc"
+        }
+      ],
+      "tableColumns": [
+        "rok",
+        "druh",
+        "Reálne",
+        "Všetci poberatelia",
+        "podiel_pct"
+      ],
+      "labels": {
+        "rok": "Rok",
+        "druh": "Druh dôchodku",
+        "Reálne": "Reálne (počet)",
+        "Všetci poberatelia": "Všetci poberatelia (počet)",
+        "podiel_pct": "Podiel reálnych"
+      },
+      "columnFormats": {
+        "podiel_pct": {
+          "unit": "%",
+          "decimals": 1
+        },
+        "Reálne": {
+          "unit": "osôb",
+          "decimals": 0
+        },
+        "Všetci poberatelia": {
+          "unit": "osôb",
+          "decimals": 0
+        }
+      },
+      "note": [
+        "Definícia — podiel poberateľov daného druhu, ktorých dôchodok je reálny: nekrátený, bez dôchodku z cudziny a výsluhového. Stav v decembri 2024, decembri 2025 a júni 2026."
+      ]
     },
     "rrz_naklady_stack": {
       "type": "bar-stacked",

@@ -747,6 +747,12 @@
             "minimum": 1,
             "maximum": 12,
             "description": "Len tiles: najviac toľko dlaždíc v riadku (široká dlaždica zaberá dve miesta). Bez neho rozhoduje len minimálna šírka 150 px."
+          },
+          "layout": {
+            "enum": [
+              "side"
+            ],
+            "description": "side = legenda a poznámky vpravo od grafu (karta na celú šírku s dlhým vysvetlením); pod 960 px pod grafom."
           }
         }
       }
