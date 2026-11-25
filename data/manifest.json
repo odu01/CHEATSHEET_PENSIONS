@@ -1377,11 +1377,11 @@
       "views": [
         "kpi_prehlad",
         "rrz_sd_vyvoj_pohlady",
-        "pocty_celkom_trend",
         "rrz_sd_definicie_pocet",
         "rrz_davky_pocet",
         "rrz_davky_priemer",
-        "rrz_sd_pohlavie_bars"
+        "rrz_sd_pohlavie_bars",
+        "pocty_celkom_trend"
       ],
       "group": "Prehľad"
     },
@@ -1641,17 +1641,17 @@
     "kpi_prehlad": {
       "type": "tiles",
       "title": "Systém v číslach",
-      "subtitle": "Stav k júnu 2026 podľa manažérskeho prehľadu RRZ; počet dôchodcov je z ročnej štatistiky SP. Pri každej dlaždici je uvedené, oproti čomu je zmena.",
+      "subtitle": "Horný riadok: priemerný reálny dôchodok podľa druhu — nekrátený, bez dôchodku z cudziny a výsluhového (jún 2026). Dolný riadok: ďalšie ukazovatele RRZ k júnu 2026 a počet dôchodcov zo SP.",
       "dataset": "rrz_kpi",
       "span": 12,
       "tileColumns": 5,
       "tiles": [
         {
-          "label": "Priemerný starobný dôchodok (reálny)",
+          "label": "Starobný dôchodok",
           "dataset": "rrz_sd_vyvoj",
           "value": "priemer_eur",
           "unit": "EUR",
-          "note": "Nekrátený, bez dôchodku z cudziny a výsluhového. Jún 2026.",
+          "note": "Reálny priemer, jún 2026; zmena od 12/2025.",
           "decimals": 2,
           "transform": [
             {
@@ -1665,24 +1665,24 @@
               "by": "rok"
             }
           ],
-          "hero": true,
           "higherIsBetter": true,
           "deltaUnit": "€",
-          "deltaNote": "od 12/2025"
+          "deltaNote": "od 12/2025",
+          "spark": false
         },
         {
-          "label": "Poberatelia starobného dôchodku",
+          "label": "Predčasný dôchodok",
           "dataset": "rrz_davky_druh",
-          "value": "pocet",
-          "unit": "osôb",
-          "note": "De jure starobní dôchodcovia, jún 2026.",
-          "decimals": 0,
+          "value": "priemer_eur",
+          "unit": "EUR",
+          "decimals": 2,
+          "note": "Reálny priemer, jún 2026.",
           "transform": [
             {
               "kind": "filter",
               "where": {
-                "pohlad": "Všetci poberatelia",
-                "druh": "Starobný dôchodok"
+                "pohlad": "Reálne",
+                "druh": "Predčasný dôchodok"
               }
             }
           ],
@@ -1690,109 +1690,90 @@
           "spark": false
         },
         {
-          "label": "Počet dôchodcov",
-          "dataset": "dochodcovia",
-          "value": "pocet",
-          "unit": "osôb",
-          "note": "Osoby, nie dôchodky. Ročná štatistika SP, 12/2024.",
-          "transform": [
-            {
-              "kind": "filter",
-              "where": {
-                "kategoria": "Spolu"
-              }
-            },
-            {
-              "kind": "sort",
-              "by": "mesiac"
-            }
-          ],
-          "decimals": 0,
-          "delta": false
-        },
-        {
-          "label": "Vyplácané dávky",
+          "label": "Invalidný dôchodok",
           "dataset": "rrz_davky_druh",
-          "value": "pocet",
-          "unit": "dôchodkov",
-          "note": "Šesť druhov dôchodku spolu, jún 2026.",
-          "decimals": 0,
-          "transform": [
-            {
-              "kind": "filter",
-              "where": {
-                "pohlad": "Všetci poberatelia"
-              }
-            }
-          ],
-          "delta": false,
-          "spark": false,
-          "agg": "sum"
-        },
-        {
-          "label": "Náklady na dôchodky",
-          "dataset": "rrz_naklady_druh",
-          "value": "mld_eur",
-          "unit": "mld. EUR",
-          "note": "Všetky druhy dávok vrátane 13. dôchodku, celý rok 2025.",
+          "value": "priemer_eur",
+          "unit": "EUR",
           "decimals": 2,
-          "higherIsBetter": false,
-          "deltaUnit": "mld. €",
-          "deltaNote": "r/r",
+          "note": "Reálny priemer, do 70 % aj nad 70 % spolu (vážený počtom), jún 2026.",
           "transform": [
             {
               "kind": "filter",
               "where": {
-                "rok": [
-                  2024,
-                  2025
+                "pohlad": "Reálne",
+                "druh": [
+                  "Invalidný dôchodok do 70 %",
+                  "Invalidný dôchodok nad 70 %"
                 ]
               }
             },
             {
-              "kind": "aggregate",
-              "by": [
-                "rok"
-              ],
-              "value": "naklady_mil_eur",
-              "as": "sum"
-            },
-            {
               "kind": "derive",
-              "into": "mld_eur",
-              "expr": "v / 1000",
+              "into": "objem",
+              "expr": "n * p",
               "vars": {
-                "v": "naklady_mil_eur"
+                "n": "pocet",
+                "p": "priemer_eur"
               }
             },
             {
-              "kind": "sort",
-              "by": "rok"
+              "kind": "aggregate",
+              "by": [],
+              "values": {
+                "pocet": "sum",
+                "objem": "sum"
+              }
+            },
+            {
+              "kind": "derive",
+              "into": "priemer_eur",
+              "expr": "o / n",
+              "vars": {
+                "o": "objem",
+                "n": "pocet"
+              }
             }
-          ]
+          ],
+          "delta": false,
+          "spark": false
         },
         {
-          "label": "Novopriznaný starobný dôchodok",
-          "dataset": "rrz_vstup_vystup",
+          "label": "Vdovský / vdovecký dôchodok",
+          "dataset": "rrz_davky_druh",
           "value": "priemer_eur",
           "unit": "EUR",
-          "note": "Všetci novopriznaní, priemer január – jún 2026.",
           "decimals": 2,
+          "note": "Reálny priemer, jún 2026. Zahŕňa len 72 051 z 342 009 poberateľov — väčšine sa vdovský dôchodok pri súbehu kráti.",
           "transform": [
             {
               "kind": "filter",
               "where": {
-                "smer": "Novopriznaní"
+                "pohlad": "Reálne",
+                "druh": "Vdovský/vdovecký dôchodok"
               }
-            },
-            {
-              "kind": "sort",
-              "by": "rok"
             }
           ],
-          "higherIsBetter": true,
-          "deltaUnit": "€",
-          "deltaNote": "oproti 2025"
+          "delta": false,
+          "spark": false
+        },
+        {
+          "label": "Sirotský dôchodok",
+          "dataset": "rrz_davky_druh",
+          "value": "priemer_eur",
+          "unit": "EUR",
+          "decimals": 2,
+          "note": "Reálny priemer, jún 2026.",
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "pohlad": "Reálne",
+                "druh": "Sirotský dôchodok"
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false
         },
         {
           "label": "Muži vs. ženy",
@@ -1850,7 +1831,49 @@
             }
           ],
           "deltaUnit": "p. b.",
-          "deltaNote": "oproti 2025"
+          "deltaNote": "oproti 2025",
+          "spark": false
+        },
+        {
+          "label": "Vyplácané dávky spolu",
+          "dataset": "rrz_davky_druh",
+          "value": "pocet",
+          "unit": "dôchodkov",
+          "note": "Šesť druhov dôchodku spolu, jún 2026.",
+          "decimals": 0,
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "pohlad": "Všetci poberatelia"
+              }
+            }
+          ],
+          "delta": false,
+          "spark": false,
+          "agg": "sum"
+        },
+        {
+          "label": "Počet dôchodcov spolu",
+          "dataset": "dochodcovia",
+          "value": "pocet",
+          "unit": "osôb",
+          "note": "Osoby, nie dôchodky. Ročná štatistika SP, 12/2024.",
+          "transform": [
+            {
+              "kind": "filter",
+              "where": {
+                "kategoria": "Spolu"
+              }
+            },
+            {
+              "kind": "sort",
+              "by": "mesiac"
+            }
+          ],
+          "decimals": 0,
+          "delta": false,
+          "spark": false
         }
       ]
     },
@@ -1864,7 +1887,7 @@
       "unit": "dôchodkov",
       "xTickFormat": "month",
       "yLabel": "počet dôchodkov",
-      "size": "l",
+      "size": "m",
       "transform": [
         {
           "kind": "aggregate",
@@ -3993,35 +4016,31 @@
     "rrz_sd_definicie_pocet": {
       "type": "bar",
       "title": "Koľko poberateľov zachytí ktorá definícia",
-      "subtitle": "Reálne vymedzenie nezahŕňa 110 488 poberateľov (10 %) s kráteným starobným dôchodkom alebo s dôchodkom z cudziny či výsluhovým; sólo vymedzenie 356 282 (32 %).",
-      "dataset": "rrz_davky_druh",
+      "subtitle": "V júni 2026 reálne vymedzenie nezahŕňa 110 488 poberateľov (10 %), sólo vymedzenie 356 282 (32 %); podiely sa od decembra 2024 takmer nemenia.",
+      "dataset": "rrz_sd_vyvoj",
       "x": "pohlad",
       "y": "pocet",
       "unit": "osôb",
       "decimals": 0,
-      "size": "m",
+      "size": "l",
       "span": 6,
-      "transform": [
-        {
-          "kind": "filter",
-          "where": {
-            "druh": "Starobný dôchodok"
-          }
-        }
-      ],
       "tableColumns": [
+        "rok",
         "pohlad",
         "pocet",
         "priemer_eur"
       ],
       "labels": {
+        "rok": "Rok",
         "pohlad": "Definícia",
         "pocet": "Počet poberateľov",
         "priemer_eur": "Priemerný dôchodok"
       },
       "note": [
-        "Starobný dôchodok, jún 2026. Definície sú vysvetlené pri grafe „Tri definície jedného dôchodku“."
-      ]
+        "Starobný dôchodok; stav v decembri 2024, decembri 2025 a júni 2026. Definície sú vysvetlené pri grafe „Tri definície jedného dôchodku“."
+      ],
+      "frame": "rok",
+      "frameLabel": "Rok"
     },
     "rrz_naklady_stack": {
       "type": "bar-stacked",
