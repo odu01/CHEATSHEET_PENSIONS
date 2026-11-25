@@ -4122,7 +4122,7 @@
       "barMax": 60
     },
     "rrz_sd_pohlavie_bars": {
-      "type": "bar",
+      "type": "column",
       "title": "Muži a ženy",
       "subtitle": "Priemerný reálny starobný dôchodok. Rozdiel rastie v eurách (176 → 187 €), v pomere sa drží na 1,29.",
       "dataset": "rrz_sd_pohlavie",
@@ -4136,7 +4136,7 @@
       "yLabel": "EUR mesačne",
       "size": "l",
       "span": 6,
-      "barMax": 60,
+      "barMax": 88,
       "tableColumns": [
         "rok",
         "pohlavie",
