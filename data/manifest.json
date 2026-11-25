@@ -3999,7 +3999,7 @@
     "rrz_sd_vyvoj_pohlady": {
       "type": "bar-grouped",
       "title": "Tri definície jedného dôchodku",
-      "subtitle": "Reálny starobný dôchodok mal v júni 2026 721,50 € — o 32,62 € viac než priemer všetkých poberateľov a o 26,91 € menej než sólo.",
+      "subtitle": "Reálny starobný dôchodok dosiahol v júni 2026 721,50 €, o 32,62 € viac ako priemer všetkých poberateľov a o 26,91 € menej ako priemer sólo poberateľov.",
       "dataset": "rrz_sd_vyvoj",
       "x": "rok",
       "y": "priemer_eur",
@@ -4010,10 +4010,11 @@
       "span": 6,
       "xTickFormat": "year",
       "note": [
-        "Všetci poberatelia — najširší okruh: každý, kto poberá starobný dôchodok, bez ohľadu na krátenie a súbeh. S týmto vymedzením pracuje Sociálna poisťovňa.",
-        "Reálne (v reporte RRZ „nekrátené bez iného dôchodku“) — starobné dôchodky, ktoré nie sú krátené, a ich poberatelia nemajú dôchodok z cudziny ani výsluhový. Pri súbehu dvoch dôchodkov sa nižší vypláca v polovičnej sume; najčastejšie to postihuje staršie ženy, ktorým je vdovský dôchodok po manželovi vyšší než vlastný starobný, a tak sa im kráti starobný. Kto má dôchodok z cudziny alebo výsluhový, má slovenský starobný prirodzene nižší, lebo tu pracoval kratšie. Reálny dôchodok preto dáva najmenej skreslený obraz o životnej úrovni dôchodcov a web ho používa všade, kde to dáta dovoľujú.",
-        "Sólo poberatelia — nekrátené starobné dôchodky ľudí bez akéhokoľvek ďalšieho dôchodku, teda aj bez vdovského. Z pozorovaní tak vypadne veľká časť dôchodcov: v júni 2026 zostáva 769 666 z 1 125 948.",
-        "Stav k decembru 2024, decembru 2025 a júnu 2026."
+        "Všetci poberatelia — všetky vyplácané starobné dôchodky bez ohľadu na to, či sú krátené alebo vyplácané v súbehu s iným dôchodkom. Najširšie vymedzenie, v ktorom údaje štandardne vykazuje Sociálna poisťovňa.",
+        "Reálne (v reporte RRZ „nekrátené bez iného dôchodku“) — starobné dôchodky vyplácané v plnej sume poberateľom, ktorí nepoberajú dôchodok z cudziny ani výsluhový dôchodok.",
+        "Sólo poberatelia — nekrátené starobné dôchodky poberateľov bez akéhokoľvek ďalšieho dôchodku, teda aj bez vdovského či vdoveckého. Najužšie vymedzenie: v júni 2026 zahŕňa 769 666 z 1 125 948 poberateľov a vylúčením ovdovených dôchodcov vychyľuje priemer smerom nahor.",
+        "Prečo reálny dôchodok — vylučuje dve skupiny, u ktorých vyplácaný starobný dôchodok podhodnocuje skutočný dôchodkový príjem. Prvou sú poberatelia, ktorým sa starobný dôchodok pri súbehu s iným dôchodkom vypláca v polovičnej sume (§ 81 zákona č. 461/2003 Z. z.), najčastejšie staršie ženy, ktorých vdovský dôchodok prevyšuje vlastný starobný. Druhou sú poberatelia dôchodku z cudziny alebo výsluhového dôchodku, ktorých obdobie poistenia v slovenskom systéme je kratšie, keďže časť kariéry odpracovali v zahraničí alebo v ozbrojených zložkách. Zároveň zachováva 90 % poberateľov, preto ho web používa ako základný ukazovateľ priemerného starobného dôchodku.",
+        "Stav v decembri 2024, decembri 2025 a júni 2026."
       ],
       "tableColumns": [
         "rok",
@@ -4045,7 +4046,7 @@
     "rrz_sd_definicie_pocet": {
       "type": "bar",
       "title": "Koľko poberateľov zachytí ktorá definícia",
-      "subtitle": "Reálny dôchodok vynechá 110 488 poberateľov s kráteným alebo ďalším dôchodkom (10 %), sólo definícia 356 282 — takmer tretinu.",
+      "subtitle": "Reálne vymedzenie nezahŕňa 110 488 poberateľov (10 %) s kráteným starobným dôchodkom alebo s dôchodkom z cudziny či výsluhovým; sólo vymedzenie 356 282 (32 %).",
       "dataset": "rrz_davky_druh",
       "x": "pohlad",
       "y": "pocet",
